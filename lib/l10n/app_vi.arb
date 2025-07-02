@@ -1,0 +1,149 @@
+{
+    "@@locale": "vi",
+    "appName": "Ứng Dụng Di Động",
+    "@appName": {
+        "description": "Tên của ứng dụng"
+    },
+    "hello": "Xin chào",
+    "@hello": {
+        "description": "Lời chào"
+    },
+    "welcome": "Chào mừng",
+    "@welcome": {
+        "description": "Lời chào mừng"
+    },
+    "error": "Lỗi",
+    "@error": {
+        "description": "Thông báo lỗi chung"
+    },
+    "networkError": "Đã xảy ra lỗi mạng",
+    "@networkError": {
+        "description": "Thông báo lỗi mạng"
+    },
+    "unknownError": "Đã xảy ra lỗi không xác định",
+    "@unknownError": {
+        "description": "Thông báo lỗi không xác định"
+    },
+    "retry": "Thử lại",
+    "@retry": {
+        "description": "Văn bản nút thử lại"
+    },
+    "cancel": "Hủy",
+    "@cancel": {
+        "description": "Văn bản nút hủy"
+    },
+    "confirm": "Xác nhận",
+    "@confirm": {
+        "description": "Văn bản nút xác nhận"
+    },
+    "loading": "Đang tải...",
+    "@loading": {
+        "description": "Văn bản chỉ báo tải"
+    },
+    "login": "Đăng nhập",
+    "@login": {
+        "description": "Văn bản đăng nhập"
+    },
+    "logout": "Đăng xuất",
+    "@logout": {
+        "description": "Văn bản đăng xuất"
+    },
+    "username": "Tên đăng nhập",
+    "@username": {
+        "description": "Nhãn tên đăng nhập"
+    },
+    "password": "Mật khẩu",
+    "@password": {
+        "description": "Nhãn mật khẩu"
+    },
+    "usernameHint": "Nhập tên đăng nhập",
+    "@usernameHint": {
+        "description": "Gợi ý cho trường tên đăng nhập"
+    },
+    "passwordHint": "Nhập mật khẩu",
+    "@passwordHint": {
+        "description": "Gợi ý cho trường mật khẩu"
+    },
+    "rememberMe": "Ghi nhớ",
+    "@rememberMe": {
+        "description": "Văn bản ghi nhớ đăng nhập"
+    },
+    "welcomeBack": "Chào mừng trở lại!",
+    "@welcomeBack": {
+        "description": "Lời chào mừng trở lại"
+    },
+    "signInToContinue": "Đăng nhập để tiếp tục.",
+    "@signInToContinue": {
+        "description": "Hướng dẫn đăng nhập"
+    },
+    "usernameRequired": "Tên đăng nhập là bắt buộc",
+    "@usernameRequired": {
+        "description": "Thông báo lỗi tên đăng nhập bắt buộc"
+    },
+    "passwordRequired": "Mật khẩu là bắt buộc",
+    "@passwordRequired": {
+        "description": "Thông báo lỗi mật khẩu bắt buộc"
+    },
+    "passwordTooShort": "Mật khẩu phải có ít nhất {minLength} ký tự",
+    "@passwordTooShort": {
+        "description": "Thông báo lỗi mật khẩu quá ngắn",
+        "placeholders": {
+            "minLength": {
+                "type": "int",
+                "example": "8"
+            }
+        }
+    },
+    "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng",
+    "@invalidCredentials": {
+        "description": "Thông báo lỗi thông tin đăng nhập không đúng"
+    },
+    "loginFailed": "Đăng nhập thất bại. Vui lòng thử lại.",
+    "@loginFailed": {
+        "description": "Thông báo lỗi đăng nhập thất bại"
+    },
+    "home": "Trang chủ",
+    "@home": {
+        "description": "Nhãn trang chủ"
+    },
+    "logoutConfirmTitle": "Đăng xuất",
+    "@logoutConfirmTitle": {
+        "description": "Tiêu đề xác nhận đăng xuất"
+    },
+    "logoutConfirmMessage": "Bạn có chắc chắn muốn đăng xuất?",
+    "@logoutConfirmMessage": {
+        "description": "Thông báo xác nhận đăng xuất"
+    },
+    "loginSuccessful": "Bạn đã đăng nhập thành công vào tài khoản của mình.",
+    "@loginSuccessful": {
+        "description": "Thông báo đăng nhập thành công"
+    },
+    "dashboard": "Bảng điều khiển",
+    "@dashboard": {
+        "description": "Nhãn bảng điều khiển"
+    },
+    "profile": "Hồ sơ",
+    "@profile": {
+        "description": "Nhãn hồ sơ"
+    },
+    "settings": "Cài đặt",
+    "@settings": {
+        "description": "Nhãn cài đặt"
+    },
+    "dashboardDescription": "Xem bảng điều khiển cá nhân của bạn",
+    "@dashboardDescription": {
+        "description": "Mô tả bảng điều khiển"
+    },
+    "profileDescription": "Quản lý thông tin hồ sơ của bạn",
+    "@profileDescription": {
+        "description": "Mô tả hồ sơ"
+    },
+    "settingsDescription": "Cấu hình tùy chọn ứng dụng của bạn",
+    "@settingsDescription": {
+        "description": "Mô tả cài đặt"
+    },
+    "featureComingSoon": "Tính năng sắp ra mắt!",
+    "@featureComingSoon": {
+        "description": "Thông báo tính năng sắp ra mắt"
+    }
+}

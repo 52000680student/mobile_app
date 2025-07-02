@@ -1,0 +1,108 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/di/injection_container.dart';
+import 'core/env/env_config.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+import 'core/utils/app_logger.dart';
+import 'l10n/generated/app_localizations.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize environment (change this for different builds)
+  await EnvConfig.initialize(env: Environment.dev);
+
+  // Initialize logging
+  AppLogger.initialize();
+
+  // Configure dependencies
+  await configureDependencies();
+
+  AppLogger.info('App started successfully');
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Mobile App',
+      debugShowCheckedModeBanner: false,
+
+      // Routing
+      routerConfig: AppRouter.router,
+
+      // Theming
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+
+      // Localization
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('vi'), // Vietnamese (default)
+        Locale('en'), // English
+      ],
+      locale: const Locale('vi'), // Set Vietnamese as default
+
+      // Error handling
+      builder: (context, child) {
+        // Global error handling for UI errors
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          AppLogger.error('UI Error', details.exception, details.stack);
+          return _buildErrorWidget(context, details);
+        };
+
+        return child ?? const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildErrorWidget(BuildContext context, FlutterErrorDetails details) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.error,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.onError,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Something went wrong',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onError,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              if (EnvConfig.debugMode) ...[
+                const SizedBox(height: 16),
+                Text(
+                  details.toString(),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onError,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

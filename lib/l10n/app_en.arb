@@ -1,0 +1,149 @@
+{
+  "@@locale": "en",
+  "appName": "Mobile App",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "hello": "Hello",
+  "@hello": {
+    "description": "A greeting message"
+  },
+  "welcome": "Welcome",
+  "@welcome": {
+    "description": "A welcome message"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Generic error message"
+  },
+  "networkError": "Network error occurred",
+  "@networkError": {
+    "description": "Error message for network issues"
+  },
+  "unknownError": "An unknown error occurred",
+  "@unknownError": {
+    "description": "Error message for unknown errors"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button text"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading indicator text"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login text"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout text"
+  },
+  "username": "Username",
+  "@username": {
+    "description": "Username label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password label"
+  },
+  "usernameHint": "Enter username",
+  "@usernameHint": {
+    "description": "Username field hint"
+  },
+  "passwordHint": "Enter password",
+  "@passwordHint": {
+    "description": "Password field hint"
+  },
+  "rememberMe": "Remember me",
+  "@rememberMe": {
+    "description": "Remember login text"
+  },
+  "welcomeBack": "Welcome Back!",
+  "@welcomeBack": {
+    "description": "Welcome back message"
+  },
+  "signInToContinue": "Sign in to continue.",
+  "@signInToContinue": {
+    "description": "Sign in instruction"
+  },
+  "usernameRequired": "Username is required",
+  "@usernameRequired": {
+    "description": "Username required error message"
+  },
+  "passwordRequired": "Password is required",
+  "@passwordRequired": {
+    "description": "Password required error message"
+  },
+  "passwordTooShort": "Password must be at least {minLength} characters",
+  "@passwordTooShort": {
+    "description": "Password too short error message",
+    "placeholders": {
+      "minLength": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  },
+  "invalidCredentials": "Invalid username or password",
+  "@invalidCredentials": {
+    "description": "Invalid credentials error message"
+  },
+  "loginFailed": "Login failed. Please try again.",
+  "@loginFailed": {
+    "description": "Login failed error message"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home label"
+  },
+  "logoutConfirmTitle": "Logout",
+  "@logoutConfirmTitle": {
+    "description": "Logout confirmation title"
+  },
+  "logoutConfirmMessage": "Are you sure you want to logout?",
+  "@logoutConfirmMessage": {
+    "description": "Logout confirmation message"
+  },
+  "loginSuccessful": "You have successfully logged in to your account.",
+  "@loginSuccessful": {
+    "description": "Login successful message"
+  },
+  "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Dashboard label"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings label"
+  },
+  "dashboardDescription": "View your personalized dashboard",
+  "@dashboardDescription": {
+    "description": "Dashboard description"
+  },
+  "profileDescription": "Manage your profile information",
+  "@profileDescription": {
+    "description": "Profile description"
+  },
+  "settingsDescription": "Configure your app preferences",
+  "@settingsDescription": {
+    "description": "Settings description"
+  },
+  "featureComingSoon": "Feature coming soon!",
+  "@featureComingSoon": {
+    "description": "Feature coming soon message"
+  }
+}
