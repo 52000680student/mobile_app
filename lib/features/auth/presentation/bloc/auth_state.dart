@@ -13,6 +13,8 @@ class AuthLoading extends AuthState {}
 
 class AuthSuccess extends AuthState {}
 
+class AuthAlreadyAuthenticated extends AuthState {}
+
 class AuthFailure extends AuthState {
   final String message;
 

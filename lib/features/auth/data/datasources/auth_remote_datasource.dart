@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mobile_app/core/env/env_config.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -24,7 +25,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       AppLogger.info('🔑 Grant Type: ${loginRequest.grantType}');
 
       // Use the specific login endpoint
-      const loginUrl = 'https://dev.iolis.solutions/connect/token';
+      final loginUrl = '${EnvConfig.apiBaseUrl}/connect/token';
       AppLogger.info('🌐 Login URL: $loginUrl');
 
       // Create form data as Map<String, dynamic> for proper form encoding
@@ -32,6 +33,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'username': loginRequest.username,
         'password': loginRequest.password,
         'grant_type': loginRequest.grantType,
+        'scope': '',
       };
 
       AppLogger.info(
@@ -45,6 +47,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ${EnvConfig.keyLogin}',
           },
           followRedirects: false,
           validateStatus: (status) {
@@ -56,15 +59,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ),
       );
 
-      AppLogger.info('✅ Response Status Code: ${response.statusCode}');
-      AppLogger.info('📄 Response Headers: ${response.headers.map}');
-      AppLogger.info('📋 Response Data: ${response.data}');
-
       if (response.statusCode == 200 && response.data != null) {
         AppLogger.info('🎉 Login successful!');
         return AuthResponseModel.fromJson(response.data!);
       } else if (response.statusCode == 400) {
         final errorData = response.data;
+        AppLogger.info('🔍 Error Data: $errorData');
         String errorMessage = 'Invalid credentials';
 
         if (errorData is Map<String, dynamic>) {

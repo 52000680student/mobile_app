@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appName": "Mobile App",
+  "appName": "Sample collection at home",
   "@appName": {
     "description": "The name of the application"
   },
@@ -128,7 +128,7 @@
   },
   "settings": "Settings",
   "@settings": {
-    "description": "Settings label"
+    "description": "Settings tab label"
   },
   "dashboardDescription": "View your personalized dashboard",
   "@dashboardDescription": {
@@ -145,5 +145,155 @@
   "featureComingSoon": "Feature coming soon!",
   "@featureComingSoon": {
     "description": "Feature coming soon message"
+  },
+  "patientAdmissions": "Patient Admissions",
+  "@patientAdmissions": {
+    "description": "Patient Admissions tab label"
+  },
+  "manualServices": "Manual Services",
+  "@manualServices": {
+    "description": "Manual Services tab label"
+  },
+  "waitingForAdmission": "Waiting for admission",
+  "@waitingForAdmission": {
+    "description": "Waiting for admission tab label"
+  },
+  "sampleTaken": "Sample taken",
+  "@sampleTaken": {
+    "description": "Sample taken tab label"
+  },
+  "allDepartments": "All departments",
+  "@allDepartments": {
+    "description": "All departments dropdown option"
+  },
+  "internalMedicine": "Internal Medicine",
+  "@internalMedicine": {
+    "description": "Internal Medicine department"
+  },
+  "surgery": "Surgery",
+  "@surgery": {
+    "description": "Surgery department"
+  },
+  "obstetrics": "Obstetrics",
+  "@obstetrics": {
+    "description": "Obstetrics department"
+  },
+  "pediatrics": "Pediatrics",
+  "@pediatrics": {
+    "description": "Pediatrics department"
+  },
+  "enterPatientId": "Enter patient ID",
+  "@enterPatientId": {
+    "description": "Patient ID search field hint"
+  },
+  "patientCount": "{count} patients",
+  "@patientCount": {
+    "description": "Patient count display",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "lastUpdated": "• Last updated 16:22",
+  "@lastUpdated": {
+    "description": "Last updated timestamp"
+  },
+  "birthDate": "Birth date",
+  "@birthDate": {
+    "description": "Birth date label"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender label"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Age label"
+  },
+  "patientType": "Patient type",
+  "@patientType": {
+    "description": "Patient type label"
+  },
+  "viewSample": "View sample",
+  "@viewSample": {
+    "description": "View sample button text"
+  },
+  "takeSample": "Take sample",
+  "@takeSample": {
+    "description": "Take sample button text"
+  },
+  "viewDetails": "View details",
+  "@viewDetails": {
+    "description": "View details button text"
+  },
+  "waitingForSample": "Waiting for sample",
+  "@waitingForSample": {
+    "description": "Waiting for sample status"
+  },
+  "sampleCollected": "Sample collected",
+  "@sampleCollected": {
+    "description": "Sample collected status"
+  },
+  "sampleDetails": "Sample Details",
+  "@sampleDetails": {
+    "description": "Sample details modal title"
+  },
+  "sampleList": "Sample list ({count} samples)",
+  "@sampleList": {
+    "description": "Sample list header with count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "sample": "Sample {number}",
+  "@sample": {
+    "description": "Sample number label",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "venousBlood": "Venous blood",
+  "@venousBlood": {
+    "description": "Venous blood sample type"
+  },
+  "urine": "Urine",
+  "@urine": {
+    "description": "Urine sample type"
+  },
+  "timeCollected": "Time collected:",
+  "@timeCollected": {
+    "description": "Time collected label"
+  },
+  "collectedBy": "Collected by:",
+  "@collectedBy": {
+    "description": "Collected by label"
+  },
+  "quality": "Quality:",
+  "@quality": {
+    "description": "Sample quality label"
+  },
+  "service": "Service:",
+  "@service": {
+    "description": "Service label"
+  },
+  "good": "Good",
+  "@good": {
+    "description": "Good quality status"
+  },
+  "comprehensiveBloodTest": "Comprehensive blood test",
+  "@comprehensiveBloodTest": {
+    "description": "Comprehensive blood test service"
+  },
+  "generalUrineAnalysis": "General urine analysis",
+  "@generalUrineAnalysis": {
+    "description": "General urine analysis service"
   }
 }

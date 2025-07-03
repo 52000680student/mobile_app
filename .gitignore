@@ -174,3 +174,7 @@ node_modules/
 
 # Generated files
 *.generated.dart
+
+
+#Ignore cursor AI rules
+.cursor\rules\codacy.mdc

@@ -40,6 +40,9 @@ class AppConstants {
   static const String settingsKey = 'app_settings';
   static const String languageKey = 'selected_language';
   static const String themeKey = 'selected_theme';
+  static const String rememberMeKey = 'remember_me';
+  static const String savedUsernameKey = 'saved_username';
+  static const String savedPasswordKey = 'saved_password';
 
   // Environment Keys
   static const String environmentKey = 'ENVIRONMENT';
@@ -71,6 +74,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
+  static const String mainNavigation = '/main';
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String about = '/about';

@@ -2,13 +2,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../auth/data/datasources/auth_local_datasource.dart';
 
 part 'splash_event.dart';
 part 'splash_state.dart';
 
 @injectable
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
-  SplashBloc() : super(SplashInitial()) {
+  final AuthLocalDataSource _authLocalDataSource;
+
+  SplashBloc(this._authLocalDataSource) : super(SplashInitial()) {
     on<SplashStarted>(_onSplashStarted);
   }
 
@@ -22,14 +25,16 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       // Simulate app initialization (e.g., loading user data, checking auth)
       await Future.delayed(const Duration(seconds: 2));
 
-      // Add your initialization logic here:
-      // - Check authentication status
-      // - Load user preferences
-      // - Initialize services
-      // - Check app version
+      // Check authentication status
+      final isLoggedIn = await _authLocalDataSource.isLoggedIn();
 
-      AppLogger.info('App initialization completed');
-      emit(SplashCompleted());
+      if (isLoggedIn) {
+        AppLogger.info('User is already authenticated, redirecting to home');
+        emit(SplashAuthenticated());
+      } else {
+        AppLogger.info('User is not authenticated, redirecting to login');
+        emit(SplashCompleted());
+      }
     } catch (e, stackTrace) {
       AppLogger.error('Error during app initialization', e, stackTrace);
       emit(SplashError(message: 'Failed to initialize app'));

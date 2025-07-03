@@ -5,16 +5,19 @@ A Flutter application built with clean architecture, featuring localization, env
 ## Features
 
 ### 🌐 **Multi-Language Support**
+
 - Built-in internationalization (i18n)
 - Support for English and Spanish (easily extendable)
 - Dynamic language switching
 
 ### 🔧 **Environment Management**
+
 - Development, Staging, and Production configurations
 - Environment-specific API URLs and settings
 - Secure configuration management
 
 ### 🌐 **API Integration**
+
 - Complete HTTP client using Dio
 - Request/response interceptors
 - Authentication handling with token refresh
@@ -22,18 +25,21 @@ A Flutter application built with clean architecture, featuring localization, env
 - Network connectivity monitoring
 
 ### 🏗️ **Clean Architecture**
+
 - BLoC pattern for state management
 - Dependency injection using GetIt
 - Separation of concerns (Data, Domain, Presentation)
 - Either pattern for error handling
 
 ### 🎨 **Modern UI/UX**
+
 - Material 3 design system
 - Light and dark theme support
 - Responsive design
 - Custom widgets and components
 
 ### 🧪 **Testing Ready**
+
 - Unit testing setup
 - Widget testing configuration
 - BLoC testing with mocktail
@@ -76,17 +82,20 @@ lib/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd mobile_app
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
 
 3. **Generate code** (for dependency injection and serialization)
+
    ```bash
    flutter packages pub run build_runner build
    ```
@@ -99,11 +108,13 @@ lib/
 ### Running the App
 
 #### Development Environment
+
 ```bash
 flutter run
 ```
 
 #### Different Environments
+
 To run with specific environments, modify the `main.dart` file:
 
 ```dart
@@ -124,16 +135,19 @@ await EnvConfig.initialize(env: Environment.prod);
 The app supports three environments with different configurations:
 
 #### Development (.env.dev)
+
 - API URL: `https://api-dev.yourapp.com`
 - Logging: Enabled
 - Debug Mode: Enabled
 
 #### Staging (.env.sta)
+
 - API URL: `https://api-staging.yourapp.com`
 - Logging: Enabled
 - Debug Mode: Disabled
 
 #### Production (.env.prod)
+
 - API URL: `https://api.yourapp.com`
 - Logging: Disabled
 - Debug Mode: Disabled
@@ -141,6 +155,7 @@ The app supports three environments with different configurations:
 ### Adding New Languages
 
 1. Add new `.arb` file in `lib/l10n/`:
+
    ```bash
    lib/l10n/app_fr.arb  # For French
    ```
@@ -148,6 +163,7 @@ The app supports three environments with different configurations:
 2. Update `l10n.yaml` if needed
 
 3. Add locale to `main.dart`:
+
    ```dart
    supportedLocales: const [
      Locale('en'),
@@ -168,13 +184,14 @@ The app supports three environments with different configurations:
 The app includes a complete API client setup. To make API calls:
 
 1. **Create a data source** in the appropriate feature:
+
    ```dart
    @injectable
    class UserRemoteDataSource {
      final ApiClient _apiClient;
-     
+
      UserRemoteDataSource(this._apiClient);
-     
+
      Future<UserModel> getUser(String id) async {
        final response = await _apiClient.get('/users/$id');
        return UserModel.fromJson(response.data);
@@ -187,9 +204,9 @@ The app includes a complete API client setup. To make API calls:
    @injectable
    class UserRepository {
      final UserRemoteDataSource _remoteDataSource;
-     
+
      UserRepository(this._remoteDataSource);
-     
+
      Future<Either<Failure, User>> getUser(String id) async {
        try {
          final user = await _remoteDataSource.getUser(id);
@@ -204,6 +221,7 @@ The app includes a complete API client setup. To make API calls:
 ### Authentication
 
 The app includes automatic token management:
+
 - Tokens are automatically added to requests
 - Automatic token refresh on 401 responses
 - Secure token storage
@@ -226,6 +244,7 @@ flutter test test/features/auth/auth_bloc_test.dart
 ### Writing Tests
 
 Example BLoC test:
+
 ```dart
 blocTest<AuthBloc, AuthState>(
   'emits [AuthLoading, AuthSuccess] when login is successful',
@@ -241,12 +260,14 @@ blocTest<AuthBloc, AuthState>(
 ## Building for Production
 
 ### Android
+
 ```bash
 flutter build apk --release
 flutter build appbundle --release
 ```
 
 ### iOS
+
 ```bash
 flutter build ios --release
 ```
@@ -254,11 +275,13 @@ flutter build ios --release
 ## Code Generation
 
 The project uses code generation for:
+
 - Dependency injection (`injectable_generator`)
 - JSON serialization (`json_serializable`)
 - Localizations (`flutter gen-l10n`)
 
 Run code generation:
+
 ```bash
 flutter packages pub run build_runner build --delete-conflicting-outputs
 ```
@@ -274,6 +297,7 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 ## Dependencies
 
 ### Main Dependencies
+
 - `flutter_bloc` - State management
 - `get_it` & `injectable` - Dependency injection
 - `go_router` - Navigation
@@ -282,6 +306,7 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 - `flutter_dotenv` - Environment variables
 
 ### Development Dependencies
+
 - `build_runner` - Code generation
 - `injectable_generator` - DI code generation
 - `json_serializable` - JSON serialization
@@ -289,10 +314,9 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 - `mocktail` - Mocking for tests
 
 ### Run
+
 - 'flutter run --dart-define=ENV=dev' - Run with environment
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-

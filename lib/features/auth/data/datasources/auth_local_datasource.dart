@@ -11,6 +11,13 @@ abstract class AuthLocalDataSource {
   Future<void> clearAuthData();
   Future<bool> isLoggedIn();
   Future<String?> getAccessToken();
+
+  // Remember Me functionality
+  Future<void> saveLoginCredentials(String username, String password);
+  Future<Map<String, String?>> getLoginCredentials();
+  Future<void> clearLoginCredentials();
+  Future<void> setRememberMe(bool remember);
+  Future<bool> getRememberMe();
 }
 
 @Injectable(as: AuthLocalDataSource)
@@ -64,9 +71,18 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         _prefs.remove(AppConstants.refreshTokenKey),
         _prefs.remove('auth_response'),
         _prefs.remove('login_timestamp'),
+        // Also clear login credentials if remember me is not enabled
+        _clearLoginCredentialsIfNeeded(),
       ]);
     } catch (e) {
       throw CacheException(message: 'Failed to clear auth data');
+    }
+  }
+
+  Future<void> _clearLoginCredentialsIfNeeded() async {
+    final rememberMe = await getRememberMe();
+    if (!rememberMe) {
+      await clearLoginCredentials();
     }
   }
 
@@ -100,6 +116,63 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       return _prefs.getString(AppConstants.tokenKey);
     } catch (e) {
       return null;
+    }
+  }
+
+  @override
+  Future<void> saveLoginCredentials(String username, String password) async {
+    try {
+      await Future.wait([
+        _prefs.setString(AppConstants.savedUsernameKey, username),
+        _prefs.setString(AppConstants.savedPasswordKey, password),
+      ]);
+    } catch (e) {
+      throw CacheException(message: 'Failed to save login credentials');
+    }
+  }
+
+  @override
+  Future<Map<String, String?>> getLoginCredentials() async {
+    try {
+      final username = _prefs.getString(AppConstants.savedUsernameKey);
+      final password = _prefs.getString(AppConstants.savedPasswordKey);
+      return {
+        'username': username,
+        'password': password,
+      };
+    } catch (e) {
+      throw CacheException(message: 'Failed to retrieve login credentials');
+    }
+  }
+
+  @override
+  Future<void> clearLoginCredentials() async {
+    try {
+      await Future.wait([
+        _prefs.remove(AppConstants.savedUsernameKey),
+        _prefs.remove(AppConstants.savedPasswordKey),
+        _prefs.remove(AppConstants.rememberMeKey),
+      ]);
+    } catch (e) {
+      throw CacheException(message: 'Failed to clear login credentials');
+    }
+  }
+
+  @override
+  Future<void> setRememberMe(bool remember) async {
+    try {
+      await _prefs.setBool(AppConstants.rememberMeKey, remember);
+    } catch (e) {
+      throw CacheException(message: 'Failed to save remember me preference');
+    }
+  }
+
+  @override
+  Future<bool> getRememberMe() async {
+    try {
+      return _prefs.getBool(AppConstants.rememberMeKey) ?? false;
+    } catch (e) {
+      return false;
     }
   }
 }

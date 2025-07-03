@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../bloc/splash_bloc.dart';
 
@@ -11,11 +12,13 @@ class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SplashBloc()..add(SplashStarted()),
+      create: (context) => getIt<SplashBloc>()..add(SplashStarted()),
       child: BlocListener<SplashBloc, SplashState>(
         listener: (context, state) {
           if (state is SplashCompleted) {
             context.go(AppRoutes.login);
+          } else if (state is SplashAuthenticated) {
+            context.go(AppRoutes.mainNavigation);
           }
         },
         child: Scaffold(
@@ -39,17 +42,18 @@ class SplashPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.flutter_dash,
-                    size: 64,
-                    color: Color(0xFF6750A4),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 const SizedBox(height: 32),
 
                 // App Name
                 Text(
-                  AppLocalizations.of(context).appName,
+                  AppLocalizations.of(context)!.appName,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

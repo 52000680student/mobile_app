@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../constants/app_constants.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/main_navigation/presentation/pages/main_navigation_page.dart';
 
 class AppRouter {
   static final GoRouter _router = GoRouter(
@@ -23,7 +23,12 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.home,
         name: 'home',
-        builder: (context, state) => const HomePage(),
+        redirect: (context, state) => AppRoutes.mainNavigation,
+      ),
+      GoRoute(
+        path: AppRoutes.mainNavigation,
+        name: 'mainNavigation',
+        builder: (context, state) => const MainNavigationPage(),
       ),
       // Add more routes as needed
     ],
@@ -41,7 +46,7 @@ class AppRouter {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => context.go(AppRoutes.home),
+              onPressed: () => context.go(AppRoutes.mainNavigation),
               child: const Text('Go Home'),
             ),
           ],

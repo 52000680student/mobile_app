@@ -1,6 +1,6 @@
 {
     "@@locale": "vi",
-    "appName": "Ứng Dụng Di Động",
+    "appName": "Thu thập mẫu tại nhà",
     "@appName": {
         "description": "Tên của ứng dụng"
     },
@@ -64,7 +64,7 @@
     "@passwordHint": {
         "description": "Gợi ý cho trường mật khẩu"
     },
-    "rememberMe": "Ghi nhớ",
+    "rememberMe": "Ghi nhớ đăng nhập",
     "@rememberMe": {
         "description": "Văn bản ghi nhớ đăng nhập"
     },
@@ -94,7 +94,7 @@
             }
         }
     },
-    "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng",
+    "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không hợp lệ",
     "@invalidCredentials": {
         "description": "Thông báo lỗi thông tin đăng nhập không đúng"
     },
@@ -145,5 +145,45 @@
     "featureComingSoon": "Tính năng sắp ra mắt!",
     "@featureComingSoon": {
         "description": "Thông báo tính năng sắp ra mắt"
-    }
+    },
+
+    "patientAdmissions": "Tiếp nhận bệnh nhân",
+    "@patientAdmissions": {
+        "description": "Nhãn tab tiếp nhận bệnh nhân"
+    },
+    "manualServices": "Dịch vụ thủ công",
+    "@manualServices": {
+        "description": "Nhãn tab dịch vụ thủ công"
+    },
+    "waitingForAdmission": "Chờ tiếp nhận",
+    "sampleTaken": "Đã lấy mẫu",
+    "allDepartments": "Tất cả khoa",
+    "internalMedicine": "Khoa Nội",
+    "surgery": "Khoa Ngoại",
+    "obstetrics": "Khoa Sản",
+    "pediatrics": "Khoa Nhi",
+    "enterPatientId": "Nhập mã bệnh nhân",
+    "patientCount": "{count} bệnh nhân",
+    "lastUpdated": "• Cập nhật mới nhất 16:22",
+    "birthDate": "Ngày sinh",
+    "gender": "Giới tính",
+    "age": "Tuổi",
+    "patientType": "Đối tượng",
+    "viewSample": "Xem mẫu",
+    "takeSample": "Lấy mẫu",
+    "viewDetails": "Xem chi tiết",
+    "waitingForSample": "Chờ lấy mẫu",
+    "sampleCollected": "Đã lấy mẫu",
+    "sampleDetails": "Chi tiết mẫu",
+    "sampleList": "Danh sách mẫu ({count} mẫu)",
+    "sample": "Mẫu {number}",
+    "venousBlood": "Máu tĩnh mạch",
+    "urine": "Nước tiểu",
+    "timeCollected": "Thời gian lấy:",
+    "collectedBy": "Người lấy:",
+    "quality": "Chất lượng:",
+    "service": "Dịch vụ:",
+    "good": "Tốt",
+    "comprehensiveBloodTest": "Xét nghiệm máu tổng quát",
+    "generalUrineAnalysis": "Tổng phân tích nước tiểu"
 }

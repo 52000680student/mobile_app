@@ -22,6 +22,9 @@ class AppLogger {
     );
 
     _isInitialized = true;
+
+    // Test log to verify logger is working
+    _logger.i('🚀 AppLogger initialized successfully');
   }
 
   static void debug(String message, [dynamic error, StackTrace? stackTrace]) {
@@ -53,8 +56,19 @@ class AppLogger {
 class _LogFilter extends LogFilter {
   @override
   bool shouldLog(LogEvent event) {
-    // Only log if logging is enabled in the environment
-    return EnvConfig.enableLogging;
+    // Always log in debug mode (when assertions are enabled)
+    bool isDebugMode = false;
+    assert(() {
+      isDebugMode = true;
+      return true;
+    }());
+
+    if (isDebugMode) {
+      return true; // Always log in debug builds
+    }
+
+    // In release mode, only log if logging is enabled in the environment
+    return EnvConfig.isInitialized ? EnvConfig.enableLogging : false;
   }
 }
 

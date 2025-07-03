@@ -13,6 +13,8 @@ class SplashLoading extends SplashState {}
 
 class SplashCompleted extends SplashState {}
 
+class SplashAuthenticated extends SplashState {}
+
 class SplashError extends SplashState {
   final String message;
 
