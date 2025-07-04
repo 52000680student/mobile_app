@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/parameter_constants.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../models/patient_models.dart';
 
 abstract class PatientAdmissionsRemoteDataSource {
@@ -8,6 +9,11 @@ abstract class PatientAdmissionsRemoteDataSource {
   Future<PatientVisitResponse> getWaitingForAdmission(
       PatientVisitQueryParams params);
   Future<PatientVisitResponse> getSampleTaken(PatientVisitQueryParams params);
+
+  // New methods for sample and test operations
+  Future<SampleResponse> getRequestSamples(int requestId);
+  Future<List<Test>> getRequestTests(int requestId);
+  Future<TestDetails> getTestByCode(String testCode, String effectiveTime);
 }
 
 @LazySingleton(as: PatientAdmissionsRemoteDataSource)
@@ -91,6 +97,71 @@ class PatientAdmissionsRemoteDataSourceImpl
       );
     } catch (e) {
       throw Exception('Failed to fetch sample taken patients: $e');
+    }
+  }
+
+  @override
+  Future<SampleResponse> getRequestSamples(int requestId) async {
+    try {
+      AppLogger.debug(
+          'Making API call to: ${ApiParameters.getRequestSamplesUrl(requestId)}');
+
+      final response = await _apiClient.get<Map<String, dynamic>>(
+        ApiParameters.getRequestSamplesUrl(requestId),
+      );
+
+      AppLogger.debug('API Response status: ${response.statusCode}');
+      AppLogger.debug('API Response data: ${response.data}');
+
+      if (response.data != null) {
+        AppLogger.debug('Parsing SampleResponse from JSON...');
+        final sampleResponse = SampleResponse.fromJson(response.data!);
+        AppLogger.debug(
+            'Successfully parsed ${sampleResponse.samples.length} samples');
+        return sampleResponse;
+      }
+
+      throw Exception('No sample data received');
+    } catch (e) {
+      AppLogger.error('Error in getRequestSamples: $e');
+      throw Exception('Failed to fetch request samples: $e');
+    }
+  }
+
+  @override
+  Future<List<Test>> getRequestTests(int requestId) async {
+    try {
+      final response = await _apiClient.get<List<dynamic>>(
+        ApiParameters.getRequestTestsUrl(requestId),
+      );
+
+      if (response.data != null) {
+        return (response.data as List)
+            .map((json) => Test.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+
+      return [];
+    } catch (e) {
+      throw Exception('Failed to fetch request tests: $e');
+    }
+  }
+
+  @override
+  Future<TestDetails> getTestByCode(
+      String testCode, String effectiveTime) async {
+    try {
+      final response = await _apiClient.get<Map<String, dynamic>>(
+        ApiParameters.getTestByCodeUrl(testCode, effectiveTime),
+      );
+
+      if (response.data != null) {
+        return TestDetails.fromJson(response.data!);
+      }
+
+      throw Exception('No test details received');
+    } catch (e) {
+      throw Exception('Failed to fetch test details: $e');
     }
   }
 }

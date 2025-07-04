@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/constants/patient_states.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/patient_admissions_repository.dart';
 import '../datasources/patient_admissions_remote_datasource.dart';
 import '../models/patient_models.dart';
@@ -49,6 +50,62 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
       PatientVisitQueryParams params) async {
     try {
       final result = await _remoteDataSource.getSampleTaken(params);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(
+          message: ErrorMessages.fetchPatientsError, code: e.statusCode));
+    } on NetworkException {
+      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+    } catch (e) {
+      return const Left(UnknownFailure(message: ErrorMessages.unknownError));
+    }
+  }
+
+  @override
+  Future<Either<Failure, SampleResponse>> getRequestSamples(
+      int requestId) async {
+    try {
+      AppLogger.debug('Fetching samples for request ID: $requestId');
+      final result = await _remoteDataSource.getRequestSamples(requestId);
+      AppLogger.debug(
+          'Successfully fetched samples: ${result.samples.length} samples');
+      return Right(result);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error fetching samples: ${e.message}');
+      return Left(ServerFailure(
+          message: ErrorMessages.fetchPatientsError, code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error fetching samples: ${e.message}');
+      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+    } catch (e, stackTrace) {
+      AppLogger.error('Unknown error fetching samples: $e');
+      AppLogger.error('Stack trace: $stackTrace');
+      return Left(UnknownFailure(
+          message: 'Failed to parse sample data: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Test>>> getRequestTests(int requestId) async {
+    try {
+      final result = await _remoteDataSource.getRequestTests(requestId);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(
+          message: ErrorMessages.fetchPatientsError, code: e.statusCode));
+    } on NetworkException {
+      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+    } catch (e) {
+      return const Left(UnknownFailure(message: ErrorMessages.unknownError));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TestDetails>> getTestByCode(
+      String testCode, String effectiveTime) async {
+    try {
+      final result =
+          await _remoteDataSource.getTestByCode(testCode, effectiveTime);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(

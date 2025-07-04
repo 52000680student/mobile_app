@@ -213,6 +213,7 @@ class PatientVisit {
       status: stateKey, // Use localization key instead of raw state
       statusColor: statusColor,
       rawState: stateName, // Keep original state for reference
+      requestId: requestId,
     );
   }
 
@@ -267,6 +268,7 @@ class PatientInfo {
   final Color statusColor;
   final List<SampleInfo> samples;
   final String? rawState; // Original state from API
+  final int requestId;
 
   PatientInfo({
     required this.id,
@@ -281,6 +283,7 @@ class PatientInfo {
     required this.statusColor,
     this.samples = const [],
     this.rawState,
+    required this.requestId,
   });
 }
 
@@ -318,6 +321,423 @@ class SampleService {
     required this.subCode,
     required this.description,
   });
+}
+
+/// Model for Sample API response
+class SampleResponse {
+  final int id;
+  final List<Sample> samples;
+
+  SampleResponse({
+    required this.id,
+    required this.samples,
+  });
+
+  factory SampleResponse.fromJson(Map<String, dynamic> json) {
+    try {
+      return SampleResponse(
+        id: json['id'] as int,
+        samples: (json['samples'] as List?)
+                ?.map((item) => Sample.fromJson(item as Map<String, dynamic>))
+                .toList() ??
+            [],
+      );
+    } catch (e) {
+      throw FormatException('Failed to parse SampleResponse: $e. JSON: $json');
+    }
+  }
+}
+
+/// Model for individual sample from API
+class Sample {
+  final int sampleId;
+  final int sid;
+  final int? subSID;
+  final int requestId;
+  final String sampleType;
+  final String sampleTypeName;
+  final String sampleColor;
+  final int numberOfLabels;
+  final int? collectorUserId;
+  final String? collectionTime;
+  final int? receiverUserId;
+  final String? receivedTime;
+  final String? quality;
+  final String? qualityName;
+  final String? collectorName;
+  final String? receiverName;
+  final int state;
+  final String requestDate;
+
+  Sample({
+    required this.sampleId,
+    required this.sid,
+    this.subSID,
+    required this.requestId,
+    required this.sampleType,
+    required this.sampleTypeName,
+    required this.sampleColor,
+    required this.numberOfLabels,
+    this.collectorUserId,
+    this.collectionTime,
+    this.receiverUserId,
+    this.receivedTime,
+    this.quality,
+    this.qualityName,
+    this.collectorName,
+    this.receiverName,
+    required this.state,
+    required this.requestDate,
+  });
+
+  factory Sample.fromJson(Map<String, dynamic> json) {
+    return Sample(
+      sampleId: json['sampleId'] as int,
+      sid: json['sid'] as int,
+      subSID: json['subSID'] as int?,
+      requestId: json['requestId'] as int,
+      sampleType: json['sampleType'] as String? ?? '',
+      sampleTypeName: json['sampleTypeName'] as String? ?? '',
+      sampleColor: json['sampleColor'] as String? ?? '',
+      numberOfLabels: json['numberOfLabels'] as int? ?? 0,
+      collectorUserId: json['collectorUserId'] as int?,
+      collectionTime: json['collectionTime'] as String?,
+      receiverUserId: json['receiverUserId'] as int?,
+      receivedTime: json['receivedTime'] as String?,
+      quality: json['quality'] as String?,
+      qualityName: json['qualityName'] as String?,
+      collectorName: json['collectorName'] as String?,
+      receiverName: json['receiverName'] as String?,
+      state: json['state'] as int? ?? 0,
+      requestDate: json['requestDate'] as String? ?? '',
+    );
+  }
+
+  /// Get status name based on state value
+  String getStateName() {
+    switch (state) {
+      case 0:
+        return 'Draft';
+      case 1:
+        return 'Submitted';
+      case 2:
+        return 'Canceled';
+      case 3:
+        return 'Collected';
+      case 4:
+        return 'Delivered';
+      case 5:
+        return 'Received';
+      case 6:
+        return 'OnHold';
+      case 61:
+        return 'RDS';
+      case 7:
+        return 'InProcess';
+      case 8:
+        return 'Completed';
+      case 9:
+        return 'Confirmed';
+      case 90:
+        return 'Validated';
+      case 99:
+        return 'Released';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  /// Get localized status key based on state value
+  String getStateKey() {
+    switch (state) {
+      case 0:
+        return 'patientStateDraft';
+      case 1:
+        return 'patientStateSubmitted';
+      case 2:
+        return 'patientStateCanceled';
+      case 3:
+        return 'patientStateCollected';
+      case 4:
+        return 'patientStateDelivered';
+      case 5:
+        return 'patientStateReceived';
+      case 6:
+        return 'patientStateOnHold';
+      case 61:
+        return 'patientStateSubmitted'; // RDS maps to submitted
+      case 7:
+        return 'patientStateInProcess';
+      case 8:
+        return 'patientStateCompleted';
+      case 9:
+        return 'patientStateConfirmed';
+      case 90:
+        return 'patientStateValidated';
+      case 99:
+        return 'patientStateReleased';
+      default:
+        return 'patientStateDraft';
+    }
+  }
+
+  /// Get status color based on state
+  Color getStatusColor() {
+    switch (state) {
+      case 0:
+        return const Color(0xFF9E9E9E); // Gray for draft
+      case 1:
+      case 61:
+        return const Color(0xFF2196F3); // Blue for submitted/RDS
+      case 2:
+        return const Color(0xFFF44336); // Red for canceled
+      case 3:
+        return const Color(0xFF4CAF50); // Green for collected
+      case 4:
+      case 5:
+        return const Color(0xFF00BCD4); // Cyan for delivered/received
+      case 6:
+        return const Color(0xFFFF9800); // Orange for on hold
+      case 7:
+        return const Color(0xFF2196F3); // Blue for in process
+      case 8:
+        return const Color(0xFF4CAF50); // Green for completed
+      case 9:
+        return const Color(0xFF8BC34A); // Light green for confirmed
+      case 90:
+        return const Color(0xFF8BC34A); // Light green for validated
+      case 99:
+        return const Color(0xFF3F51B5); // Indigo for released
+      default:
+        return const Color(0xFF9E9E9E); // Gray for unknown
+    }
+  }
+}
+
+/// Model for Test from tests API
+class Test {
+  final int id;
+  final int sid;
+  final int? subID;
+  final String testCode;
+  final int createdBy;
+  final bool isCreatedBySystem;
+  final String testCategory;
+  final String testCategoryName;
+  final String sampleType;
+  final String sampleTypeName;
+  final String? profileCode;
+  final String state;
+  final String sampleState;
+  final String effectiveTime;
+  final String createdMethod;
+  final String? sttgpb;
+  final String? sttvs;
+  final String? sampleLocation;
+  final String reportType;
+  final int sampleTypeInSID;
+  final int? collectorUserId;
+  final String? collectionTime;
+  final int? receiverUserId;
+  final String? receivedTime;
+  final int? deliveryUserId;
+  final String? deliveryTime;
+  final String collectorUserName;
+
+  Test({
+    required this.id,
+    required this.sid,
+    this.subID,
+    required this.testCode,
+    required this.createdBy,
+    required this.isCreatedBySystem,
+    required this.testCategory,
+    required this.testCategoryName,
+    required this.sampleType,
+    required this.sampleTypeName,
+    this.profileCode,
+    required this.state,
+    required this.sampleState,
+    required this.effectiveTime,
+    required this.createdMethod,
+    this.sttgpb,
+    this.sttvs,
+    this.sampleLocation,
+    required this.reportType,
+    required this.sampleTypeInSID,
+    this.collectorUserId,
+    this.collectionTime,
+    this.receiverUserId,
+    this.receivedTime,
+    this.deliveryUserId,
+    this.deliveryTime,
+    required this.collectorUserName,
+  });
+
+  factory Test.fromJson(Map<String, dynamic> json) {
+    return Test(
+      id: json['id'] as int,
+      sid: json['sid'] as int,
+      subID: json['subID'] as int?,
+      testCode: json['testCode'] as String,
+      createdBy: json['createdBy'] as int,
+      isCreatedBySystem: json['isCreatedBySystem'] as bool,
+      testCategory: json['testCategory'] as String,
+      testCategoryName: json['testCategoryName'] as String,
+      sampleType: json['sampleType'] as String,
+      sampleTypeName: json['sampleTypeName'] as String,
+      profileCode: json['profileCode'] as String?,
+      state: json['state'].toString(),
+      sampleState: json['sampleState'].toString(),
+      effectiveTime: json['effectiveTime'] as String,
+      createdMethod: json['createdMethod'] as String,
+      sttgpb: json['sttgpb'] as String?,
+      sttvs: json['sttvs'] as String?,
+      sampleLocation: json['sampleLocation'] as String?,
+      reportType: json['reportType'] as String,
+      sampleTypeInSID: json['sampleTypeInSID'] as int,
+      collectorUserId: json['collectorUserId'] as int?,
+      collectionTime: json['collectionTime'] as String?,
+      receiverUserId: json['receiverUserId'] as int?,
+      receivedTime: json['receivedTime'] as String?,
+      deliveryUserId: json['deliveryUserId'] as int?,
+      deliveryTime: json['deliveryTime'] as String?,
+      collectorUserName: json['collectorUserName'] as String? ?? '',
+    );
+  }
+
+  /// Get status name based on state value
+  String getStateName() {
+    final stateInt = int.tryParse(state) ?? 0;
+    switch (stateInt) {
+      case 0:
+        return 'Draft';
+      case 1:
+        return 'Submitted';
+      case 2:
+        return 'Canceled';
+      case 3:
+        return 'Collected';
+      case 4:
+        return 'Delivered';
+      case 5:
+        return 'Received';
+      case 6:
+        return 'OnHold';
+      case 61:
+        return 'RDS';
+      case 7:
+        return 'InProcess';
+      case 8:
+        return 'Completed';
+      case 9:
+        return 'Confirmed';
+      case 90:
+        return 'Validated';
+      case 99:
+        return 'Released';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  /// Get localized status key based on state value
+  String getStateKey() {
+    final stateInt = int.tryParse(state) ?? 0;
+    switch (stateInt) {
+      case 0:
+        return 'patientStateDraft';
+      case 1:
+        return 'patientStateSubmitted';
+      case 2:
+        return 'patientStateCanceled';
+      case 3:
+        return 'patientStateCollected';
+      case 4:
+        return 'patientStateDelivered';
+      case 5:
+        return 'patientStateReceived';
+      case 6:
+        return 'patientStateOnHold';
+      case 61:
+        return 'patientStateSubmitted'; // RDS maps to submitted
+      case 7:
+        return 'patientStateInProcess';
+      case 8:
+        return 'patientStateCompleted';
+      case 9:
+        return 'patientStateConfirmed';
+      case 90:
+        return 'patientStateValidated';
+      case 99:
+        return 'patientStateReleased';
+      default:
+        return 'patientStateDraft';
+    }
+  }
+
+  /// Get status color based on state
+  Color getStatusColor() {
+    final stateInt = int.tryParse(state) ?? 0;
+    switch (stateInt) {
+      case 0:
+        return const Color(0xFF9E9E9E); // Gray for draft
+      case 1:
+      case 61:
+        return const Color(0xFF2196F3); // Blue for submitted/RDS
+      case 2:
+        return const Color(0xFFF44336); // Red for canceled
+      case 3:
+        return const Color(0xFF4CAF50); // Green for collected
+      case 4:
+      case 5:
+        return const Color(0xFF00BCD4); // Cyan for delivered/received
+      case 6:
+        return const Color(0xFFFF9800); // Orange for on hold
+      case 7:
+        return const Color(0xFF2196F3); // Blue for in process
+      case 8:
+        return const Color(0xFF4CAF50); // Green for completed
+      case 9:
+        return const Color(0xFF8BC34A); // Light green for confirmed
+      case 90:
+        return const Color(0xFF8BC34A); // Light green for validated
+      case 99:
+        return const Color(0xFF3F51B5); // Indigo for released
+      default:
+        return const Color(0xFF9E9E9E); // Gray for unknown
+    }
+  }
+}
+
+/// Model for Test details from GetTestByCode API
+class TestDetails {
+  final String code;
+  final String name;
+  final String sampleType;
+  final String? sampleTypeName;
+  final String? category;
+  final Map<String, dynamic>? additionalData;
+
+  TestDetails({
+    required this.code,
+    required this.name,
+    required this.sampleType,
+    this.sampleTypeName,
+    this.category,
+    this.additionalData,
+  });
+
+  factory TestDetails.fromJson(Map<String, dynamic> json) {
+    return TestDetails(
+      code: json['testCode'] ?? '',
+      name: json['testName'] ?? '',
+      sampleType: json['sampleType'] ?? '',
+      sampleTypeName: json['sampleTypeName'],
+      category: json['category'],
+      additionalData: json,
+    );
+  }
 }
 
 /// Model for API query parameters

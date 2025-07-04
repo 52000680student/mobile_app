@@ -284,6 +284,46 @@
   "@service": {
     "description": "Service label"
   },
+  "services": "Services:",
+  "@services": {
+    "description": "Services section label"
+  },
+  "sampleType": "Sample Type:",
+  "@sampleType": {
+    "description": "Sample type field label"
+  },
+  "subSID": "Sub SID:",
+  "@subSID": {
+    "description": "Sub SID field label"
+  },
+  "collector": "Collector:",
+  "@collector": {
+    "description": "Collector field label"
+  },
+  "receiver": "Receiver:",
+  "@receiver": {
+    "description": "Receiver field label"
+  },
+  "collectionTime": "Collection Time:",
+  "@collectionTime": {
+    "description": "Collection time field label"
+  },
+  "receivedTime": "Received Time:",
+  "@receivedTime": {
+    "description": "Received time field label"
+  },
+  "testCode": "Test Code:",
+  "@testCode": {
+    "description": "Test code field label"
+  },
+  "testName": "Test Name:",
+  "@testName": {
+    "description": "Test name field label"
+  },
+  "testDescription": "Description:",
+  "@testDescription": {
+    "description": "Test description field label"
+  },
   "good": "Good",
   "@good": {
     "description": "Good quality status"
@@ -437,5 +477,9 @@
   "vietnamese": "Vietnamese",
   "@vietnamese": {
     "description": "Vietnamese language name"
+  },
+  "sampleType": "Sample type",
+  "@sampleType": {
+    "description": "Sample type"
   }
 }

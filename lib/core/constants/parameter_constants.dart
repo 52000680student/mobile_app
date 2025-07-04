@@ -14,6 +14,11 @@ class ParameterConstants {
   static const String sampleTakenEndpoint =
       '/api/la/v1/requests/collected/patientVisit';
 
+  // Sample and Test endpoints
+  static const String requestSamplesEndpoint = '/api/la/v1/requests';
+  static const String requestTestsEndpoint = '/api/la/v1/requests';
+  static const String testByCodeEndpoint = '/api/la/v1/tests/GetTestByCode';
+
   // Department codes mapping
   static const Map<String, String> departmentCodes = {
     'all': '',
@@ -31,5 +36,20 @@ class ParameterConstants {
 class ApiParameters {
   static String getDepartmentCodesUrl(String parameterCode) {
     return '${ParameterConstants.parametersEndpoint}/$parameterCode/codes';
+  }
+
+  /// Get samples URL for a request
+  static String getRequestSamplesUrl(int requestId) {
+    return '${ParameterConstants.requestSamplesEndpoint}/$requestId/samples';
+  }
+
+  /// Get tests URL for a request
+  static String getRequestTestsUrl(int requestId) {
+    return '${ParameterConstants.requestTestsEndpoint}/$requestId/tests';
+  }
+
+  /// Get test details URL by code and effective time
+  static String getTestByCodeUrl(String testCode, String effectiveTime) {
+    return '${ParameterConstants.testByCodeEndpoint}/$testCode?effectiveTime=${Uri.encodeComponent(effectiveTime)}';
   }
 }
