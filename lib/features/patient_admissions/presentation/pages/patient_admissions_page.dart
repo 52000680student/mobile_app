@@ -8,6 +8,7 @@ import '../bloc/patient_admissions_bloc.dart';
 import '../bloc/patient_admissions_event.dart';
 import '../bloc/patient_admissions_state.dart';
 import '../widgets/patient_card.dart';
+import '../widgets/loading_widgets.dart';
 
 class PatientAdmissionsPage extends StatefulWidget {
   const PatientAdmissionsPage({super.key});
@@ -310,7 +311,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Từ ngày',
+                                        l10n.fromDate,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey.shade600,
@@ -364,7 +365,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Đến ngày',
+                                        l10n.toDate,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey.shade600,
@@ -404,7 +405,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
                                 code: '',
                                 sequence: 0,
                                 languageCode: 'vi',
-                                languageName: 'Tiếng Việt',
+                                languageName: l10n.vietnamese,
                                 message: ParameterConstants
                                     .allDepartmentsDisplayName,
                                 inUse: true,
@@ -491,7 +492,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
               ),
             ),
 
-            // Patient ID Search
+            // Patient SID Search
             Container(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               color: Colors.white,
@@ -636,13 +637,14 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
         // Show initial loading with skeleton
         if (state.isLoadingWaitingForAdmission &&
             state.waitingForAdmissionPatients.isEmpty) {
-          return _buildSkeletonLoading();
+          return LoadingWidgets.buildSkeletonLoading();
         }
 
         // Show error state with retry option
         if (state.errorMessage != null &&
             state.waitingForAdmissionPatients.isEmpty) {
-          return _buildErrorState(
+          return LoadingWidgets.buildErrorState(
+            context: context,
             errorMessage: state.errorMessage!,
             onRetry: () => _loadWaitingForAdmission(isRefresh: true),
           );
@@ -650,8 +652,10 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
 
         // Show empty state
         if (state.waitingForAdmissionPatients.isEmpty) {
-          return _buildEmptyState(
-            message: 'Không có bệnh nhân chờ nhập viện',
+          final l10n = AppLocalizations.of(context)!;
+          return LoadingWidgets.buildEmptyState(
+            context: context,
+            message: l10n.noWaitingPatients,
             icon: Icons.hourglass_empty,
           );
         }
@@ -671,7 +675,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
             separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               if (index >= state.waitingForAdmissionPatients.length) {
-                return _buildPaginationLoading();
+                return LoadingWidgets.buildPaginationLoading(context);
               }
 
               final patientVisit = state.waitingForAdmissionPatients[index];
@@ -691,12 +695,13 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
       builder: (context, state) {
         // Show initial loading with skeleton
         if (state.isLoadingSampleTaken && state.sampleTakenPatients.isEmpty) {
-          return _buildSkeletonLoading();
+          return LoadingWidgets.buildSkeletonLoading();
         }
 
         // Show error state with retry option
         if (state.errorMessage != null && state.sampleTakenPatients.isEmpty) {
-          return _buildErrorState(
+          return LoadingWidgets.buildErrorState(
+            context: context,
             errorMessage: state.errorMessage!,
             onRetry: () => _loadSampleTaken(isRefresh: true),
           );
@@ -704,8 +709,10 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
 
         // Show empty state
         if (state.sampleTakenPatients.isEmpty) {
-          return _buildEmptyState(
-            message: 'Không có bệnh nhân đã lấy mẫu',
+          final l10n = AppLocalizations.of(context)!;
+          return LoadingWidgets.buildEmptyState(
+            context: context,
+            message: l10n.noSampleTakenPatients,
             icon: Icons.science,
           );
         }
@@ -725,7 +732,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
             separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               if (index >= state.sampleTakenPatients.length) {
-                return _buildPaginationLoading();
+                return LoadingWidgets.buildPaginationLoading(context);
               }
 
               final patientVisit = state.sampleTakenPatients[index];
@@ -820,258 +827,5 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
     _loadSampleTaken(isRefresh: true);
     // Wait for loading to complete
     await Future.delayed(const Duration(milliseconds: 500));
-  }
-
-  // Enhanced UI components for better UX
-  Widget _buildSkeletonLoading() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(20),
-      itemCount: 3, // Show 3 skeleton items
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) => _buildSkeletonCard(),
-    );
-  }
-
-  Widget _buildSkeletonCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _buildShimmerContainer(
-                      height: 20, width: double.infinity),
-                ),
-                const SizedBox(width: 12),
-                _buildShimmerContainer(height: 24, width: 80),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _buildShimmerContainer(height: 16, width: 120),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _buildShimmerContainer(height: 12, width: 60),
-                        const SizedBox(height: 8),
-                        _buildShimmerContainer(height: 16, width: 80),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _buildShimmerContainer(height: 12, width: 60),
-                        const SizedBox(height: 8),
-                        _buildShimmerContainer(height: 16, width: 80),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                    child: _buildShimmerContainer(
-                        height: 40, width: double.infinity)),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: _buildShimmerContainer(
-                        height: 40, width: double.infinity)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShimmerContainer(
-      {required double height, required double width}) {
-    return Container(
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            Colors.grey.shade200,
-            Colors.grey.shade100,
-            Colors.grey.shade200,
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
-  }
-
-  Widget _buildErrorState({
-    required String errorMessage,
-    required VoidCallback onRetry,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.error_outline,
-                size: 48,
-                color: Colors.red.shade400,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Có lỗi xảy ra',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              errorMessage,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1976D2),
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: const Icon(Icons.refresh, size: 20),
-              label: const Text(
-                'Thử lại',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState({
-    required String message,
-    required IconData icon,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: Colors.grey.shade400,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Hãy thử thay đổi bộ lọc hoặc kéo xuống để làm mới',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaginationLoading() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            'Đang tải thêm...',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

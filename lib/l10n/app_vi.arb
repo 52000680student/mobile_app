@@ -214,5 +214,13 @@
     "errorLoadMorePatients": "Không thể tải thêm bệnh nhân",
     "errorInvalidDateRange": "Khoảng thời gian không hợp lệ",
     "errorNoData": "Không có dữ liệu",
-    "errorEmptySearch": "Vui lòng nhập tiêu chí tìm kiếm"
+    "errorEmptySearch": "Vui lòng nhập tiêu chí tìm kiếm",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày",
+    "loadingMore": "Đang tải thêm...",
+    "errorOccurred": "Có lỗi xảy ra",
+    "emptyStateGuidance": "Hãy thử thay đổi bộ lọc hoặc kéo xuống để làm mới",
+    "noWaitingPatients": "Không có bệnh nhân chờ lấy mẫu",
+    "noSampleTakenPatients": "Không có bệnh nhân đã lấy mẫu",
+    "vietnamese": "Tiếng Việt"
 }

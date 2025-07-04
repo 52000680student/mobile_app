@@ -405,5 +405,37 @@
   "errorEmptySearch": "Please enter search criteria",
   "@errorEmptySearch": {
     "description": "Error message for empty search"
+  },
+  "fromDate": "From date",
+  "@fromDate": {
+    "description": "From date label in date range picker"
+  },
+  "toDate": "To date",
+  "@toDate": {
+    "description": "To date label in date range picker"
+  },
+  "loadingMore": "Loading more...",
+  "@loadingMore": {
+    "description": "Loading more items indicator text"
+  },
+  "errorOccurred": "An error occurred",
+  "@errorOccurred": {
+    "description": "Generic error occurred message"
+  },
+  "emptyStateGuidance": "Try changing filters or pull down to refresh",
+  "@emptyStateGuidance": {
+    "description": "Guidance text for empty state"
+  },
+  "noWaitingPatients": "No patients waiting for admission",
+  "@noWaitingPatients": {
+    "description": "Empty state message for waiting patients"
+  },
+  "noSampleTakenPatients": "No patients with samples taken",
+  "@noSampleTakenPatients": {
+    "description": "Empty state message for sample taken patients"
+  },
+  "vietnamese": "Vietnamese",
+  "@vietnamese": {
+    "description": "Vietnamese language name"
   }
 }

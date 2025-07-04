@@ -97,7 +97,7 @@ class PatientCard extends StatelessWidget {
 
               // Patient ID
               Text(
-                'SID: ${patient.id}',
+                'SID: ${patient.sid}',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 14,

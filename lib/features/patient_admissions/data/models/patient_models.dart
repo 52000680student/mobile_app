@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/patient_states.dart';
 
@@ -146,6 +147,23 @@ class PatientVisit {
     );
   }
 
+  String getSidFromSampleIds() {
+    String sid = '';
+    try {
+      final sampleIdsList = jsonDecode(sampleIds) as List?;
+      if (sampleIdsList != null && sampleIdsList.isNotEmpty) {
+        final firstSample = sampleIdsList[0] as Map<String, dynamic>?;
+        if (firstSample != null && firstSample.containsKey('SID')) {
+          sid = firstSample['SID']?.toString() ?? '';
+          sid = sid.length == 9 ? '0$sid' : sid;
+        }
+      }
+    } catch (e) {
+      sid = '';
+    }
+    return sid;
+  }
+
   /// Convert to legacy PatientInfo model for UI compatibility
   PatientInfo toPatientInfo() {
     DateTime birthDate;
@@ -184,7 +202,9 @@ class PatientVisit {
     Color statusColor = _getStatusColor(stateName);
 
     return PatientInfo(
-      id: patientId,
+      id: id,
+      patientId: patientId,
+      sid: getSidFromSampleIds(),
       name: patientName,
       birthDate: birthDate,
       gender: gender,
@@ -235,7 +255,9 @@ class PatientVisit {
 
 // Legacy models for UI compatibility
 class PatientInfo {
-  final String id;
+  final int id;
+  final String patientId;
+  final String sid;
   final String name;
   final DateTime birthDate;
   final String gender;
@@ -248,6 +270,8 @@ class PatientInfo {
 
   PatientInfo({
     required this.id,
+    required this.patientId,
+    required this.sid,
     required this.name,
     required this.birthDate,
     required this.gender,

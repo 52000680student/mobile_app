@@ -1,3 +1,36 @@
+---
+alwaysApply: true
+---
+
+# Flutter Agent Coding Rules
+
+## 1. Widget Composition
+
+- Always split UI widgets into reusable components.
+- If a widget (or part of it) can be reused in multiple places, **extract it into a separate component file**.
+- Component files should have clear and descriptive names.
+- Place shared components in a `components/` directory or similar to promote reuse and maintainability.
+
+**Example:**
+
+- Instead of duplicating a `CustomButton` widget in multiple screens, create `components/custom_button.dart` and import it where needed.
+
+## 2. Error Messages and Labels
+
+- Do not hardcode error messages or labels directly inside widgets or business logic.
+- Always move static text, error messages, and labels to the I10n (internationalization) definition file.
+- Use the generated I10n accessors to fetch strings in your UI code.
+
+**Example:**
+
+```dart
+// ❌ Bad:
+Text("Invalid email address");
+
+// ✅ Good:
+Text(l10n.validEmail);
+```
+
 # Flutter Agent Coding Rules
 
 ## 1. Widget Composition
