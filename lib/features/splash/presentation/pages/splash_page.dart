@@ -12,7 +12,7 @@ class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SplashBloc>()..add(SplashStarted()),
+      create: (context) => getIt<SplashBloc>()..add(const SplashStarted()),
       child: BlocListener<SplashBloc, SplashState>(
         listener: (context, state) {
           if (state is SplashCompleted) {

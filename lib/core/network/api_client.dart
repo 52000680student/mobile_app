@@ -57,7 +57,7 @@ class ApiClient {
       throw _handleDioException(e);
     } catch (e) {
       _logger.e('Unexpected error in GET request: $e');
-      throw UnknownException(message: 'Unexpected error occurred');
+      throw const UnknownException(message: 'Unexpected error occurred');
     }
   }
 
@@ -81,7 +81,7 @@ class ApiClient {
       throw _handleDioException(e);
     } catch (e) {
       _logger.e('Unexpected error in POST request: $e');
-      throw UnknownException(message: 'Unexpected error occurred');
+      throw const UnknownException(message: 'Unexpected error occurred');
     }
   }
 
@@ -105,7 +105,7 @@ class ApiClient {
       throw _handleDioException(e);
     } catch (e) {
       _logger.e('Unexpected error in PUT request: $e');
-      throw UnknownException(message: 'Unexpected error occurred');
+      throw const UnknownException(message: 'Unexpected error occurred');
     }
   }
 
@@ -129,7 +129,7 @@ class ApiClient {
       throw _handleDioException(e);
     } catch (e) {
       _logger.e('Unexpected error in DELETE request: $e');
-      throw UnknownException(message: 'Unexpected error occurred');
+      throw const UnknownException(message: 'Unexpected error occurred');
     }
   }
 
@@ -153,7 +153,7 @@ class ApiClient {
       throw _handleDioException(e);
     } catch (e) {
       _logger.e('Unexpected error in PATCH request: $e');
-      throw UnknownException(message: 'Unexpected error occurred');
+      throw const UnknownException(message: 'Unexpected error occurred');
     }
   }
 
@@ -162,10 +162,10 @@ class ApiClient {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkException(message: 'Connection timeout');
+        return const NetworkException(message: 'Connection timeout');
 
       case DioExceptionType.connectionError:
-        return NetworkException(message: 'Connection error');
+        return const NetworkException(message: 'Connection error');
 
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
@@ -173,11 +173,11 @@ class ApiClient {
         return ServerException(message: message, statusCode: statusCode);
 
       case DioExceptionType.cancel:
-        return NetworkException(message: 'Request cancelled');
+        return const NetworkException(message: 'Request cancelled');
 
       case DioExceptionType.unknown:
       default:
-        return UnknownException(message: 'Unknown error occurred');
+        return const UnknownException(message: 'Unknown error occurred');
     }
   }
 

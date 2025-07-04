@@ -19,10 +19,10 @@ class EnvConfig {
 
     // Debug logging
     print('📋 Environment Configuration:');
-    print('  - Environment: ${environmentName}');
-    print('  - API Base URL: ${apiBaseUrl}');
-    print('  - Enable Logging: ${enableLogging}');
-    print('  - Debug Mode: ${debugMode}');
+    print('  - Environment: $environmentName');
+    print('  - API Base URL: $apiBaseUrl');
+    print('  - Enable Logging: $enableLogging');
+    print('  - Debug Mode: $debugMode');
   }
 
   static Future<void> _loadEnvFile(Environment env) async {
@@ -93,6 +93,7 @@ class EnvConfig {
 
   // Configuration getters
   static String get apiBaseUrl => dotenv.env['API_BASE_URL'] ?? '';
+  static String get apiAuthBaseUrl => dotenv.env['API_AUTH_BASE_URL'] ?? '';
   static int get apiTimeout =>
       int.tryParse(dotenv.env['API_TIMEOUT'] ?? '30000') ?? 30000;
   static bool get enableLogging =>

@@ -44,7 +44,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       await _prefs.setInt(
           'login_timestamp', DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
-      throw CacheException(message: 'Failed to save auth data');
+      throw const CacheException(message: 'Failed to save auth data');
     }
   }
 
@@ -59,7 +59,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       }
       return null;
     } catch (e) {
-      throw CacheException(message: 'Failed to retrieve auth data');
+      throw const CacheException(message: 'Failed to retrieve auth data');
     }
   }
 
@@ -75,7 +75,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         _clearLoginCredentialsIfNeeded(),
       ]);
     } catch (e) {
-      throw CacheException(message: 'Failed to clear auth data');
+      throw const CacheException(message: 'Failed to clear auth data');
     }
   }
 
@@ -127,7 +127,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         _prefs.setString(AppConstants.savedPasswordKey, password),
       ]);
     } catch (e) {
-      throw CacheException(message: 'Failed to save login credentials');
+      throw const CacheException(message: 'Failed to save login credentials');
     }
   }
 
@@ -141,7 +141,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         'password': password,
       };
     } catch (e) {
-      throw CacheException(message: 'Failed to retrieve login credentials');
+      throw const CacheException(message: 'Failed to retrieve login credentials');
     }
   }
 
@@ -154,7 +154,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         _prefs.remove(AppConstants.rememberMeKey),
       ]);
     } catch (e) {
-      throw CacheException(message: 'Failed to clear login credentials');
+      throw const CacheException(message: 'Failed to clear login credentials');
     }
   }
 
@@ -163,7 +163,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       await _prefs.setBool(AppConstants.rememberMeKey, remember);
     } catch (e) {
-      throw CacheException(message: 'Failed to save remember me preference');
+      throw const CacheException(message: 'Failed to save remember me preference');
     }
   }
 

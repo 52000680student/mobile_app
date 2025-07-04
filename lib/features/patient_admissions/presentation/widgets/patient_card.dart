@@ -15,240 +15,235 @@ class PatientCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: Colors.grey.shade200,
-            width: 1,
-          ),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Colors.grey.shade200,
+          width: 1,
         ),
-        color: Colors.white,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                offset: const Offset(0, 2),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Patient Name and Status
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
+      ),
+      color: Colors.white,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              offset: const Offset(0, 2),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Patient Name and Status
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      patient.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1F2937),
+                        letterSpacing: -0.5,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: patient.statusColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: patient.statusColor.withOpacity(0.3),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
                       child: Text(
-                        patient.name,
+                        _getStatusText(patient.status, l10n),
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
-                          letterSpacing: -0.5,
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: patient.statusColor,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: patient.statusColor.withOpacity(0.3),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 4),
+
+              // Patient ID
+              Text(
+                'SID: ${patient.id}',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Patient Details Grid
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                    width: 1,
+                  ),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildDetailRow(
+                              l10n.birthDate,
+                              '${patient.birthDate.day.toString().padLeft(2, '0')}/${patient.birthDate.month.toString().padLeft(2, '0')}/${patient.birthDate.year}',
+                              Icons.cake_outlined,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildDetailRow(
+                              l10n.gender,
+                              patient.gender,
+                              patient.gender == 'Nam'
+                                  ? Icons.male
+                                  : Icons.female,
                             ),
                           ],
                         ),
-                        child: Text(
-                          _getStatusText(patient.status, l10n),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 4),
-
-                // Patient ID
-                Text(
-                  'ID: ${patient.id}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Patient Details Grid
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.grey.shade200,
-                      width: 1,
-                    ),
-                  ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildDetailRow(
-                                l10n.birthDate,
-                                '${patient.birthDate.day.toString().padLeft(2, '0')}/${patient.birthDate.month.toString().padLeft(2, '0')}/${patient.birthDate.year}',
-                                Icons.cake_outlined,
-                              ),
-                              const SizedBox(height: 12),
-                              _buildDetailRow(
-                                l10n.gender,
-                                patient.gender,
-                                patient.gender == 'Nam'
-                                    ? Icons.male
-                                    : Icons.female,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 1,
-                          color: Colors.grey.shade300,
-                          margin: const EdgeInsets.symmetric(horizontal: 12),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildDetailRow(
-                                l10n.age,
-                                '${patient.age}',
-                                Icons.access_time_outlined,
-                              ),
-                              const SizedBox(height: 12),
-                              _buildDetailRow(
-                                l10n.patientType,
-                                patient.object,
-                                Icons.card_membership_outlined,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () =>
-                            SampleDetailsModal.show(context, patient),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: Color(0xFF1976D2), width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        icon: const Icon(
-                          Icons.visibility_outlined,
-                          size: 18,
-                          color: Color(0xFF1976D2),
-                        ),
-                        label: Text(
-                          l10n.viewSample,
-                          style: const TextStyle(
-                            color: Color(0xFF1976D2),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Container(
+                        width: 1,
+                        color: Colors.grey.shade300,
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1976D2),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 0,
-                          shadowColor: const Color(0xFF1976D2).withOpacity(0.3),
-                        ),
-                        icon: Icon(
-                          patient.status == 'waitingForSample'
-                              ? Icons.medical_services_outlined
-                              : Icons.info_outline,
-                          size: 18,
-                        ),
-                        label: Flexible(
-                          child: Text(
-                            patient.status == 'waitingForSample'
-                                ? l10n.takeSample
-                                : l10n.viewDetails,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildDetailRow(
+                              l10n.age,
+                              '${patient.age}',
+                              Icons.access_time_outlined,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(height: 12),
+                            _buildDetailRow(
+                              l10n.patientType,
+                              patient.object,
+                              Icons.card_membership_outlined,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Action Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          SampleDetailsModal.show(context, patient),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                            color: Color(0xFF1976D2), width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      icon: const Icon(
+                        Icons.visibility_outlined,
+                        size: 18,
+                        color: Color(0xFF1976D2),
+                      ),
+                      label: Text(
+                        l10n.viewSample,
+                        style: const TextStyle(
+                          color: Color(0xFF1976D2),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1976D2),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shadowColor: const Color(0xFF1976D2).withOpacity(0.3),
+                      ),
+                      icon: Icon(
+                        _shouldShowTakeSampleButton(patient.status)
+                            ? Icons.medical_services_outlined
+                            : Icons.info_outline,
+                        size: 18,
+                      ),
+                      label: Text(
+                        _shouldShowTakeSampleButton(patient.status)
+                            ? l10n.takeSample
+                            : l10n.viewDetails,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -256,13 +251,56 @@ class PatientCard extends StatelessWidget {
   }
 
   String _getStatusText(String statusKey, AppLocalizations l10n) {
+    // Use reflection-like approach to get localized text based on the status key
     switch (statusKey) {
+      case 'patientStateDraft':
+        return l10n.patientStateDraft;
+      case 'patientStateSubmitted':
+        return l10n.patientStateSubmitted;
+      case 'patientStateCanceled':
+        return l10n.patientStateCanceled;
+      case 'patientStateCollected':
+        return l10n.patientStateCollected;
+      case 'patientStateDelivered':
+        return l10n.patientStateDelivered;
+      case 'patientStateReceived':
+        return l10n.patientStateReceived;
+      case 'patientStateOnHold':
+        return l10n.patientStateOnHold;
+      case 'patientStateInProcess':
+        return l10n.patientStateInProcess;
+      case 'patientStateCompleted':
+        return l10n.patientStateCompleted;
+      case 'patientStateConfirmed':
+        return l10n.patientStateConfirmed;
+      case 'patientStateValidated':
+        return l10n.patientStateValidated;
+      case 'patientStateReleased':
+        return l10n.patientStateReleased;
+      case 'patientStateSigned':
+        return l10n.patientStateSigned;
+      case 'patientStateApproved':
+        return l10n.patientStateApproved;
+      // Legacy support for old status keys
       case 'waitingForSample':
         return l10n.waitingForSample;
       case 'sampleCollected':
         return l10n.sampleCollected;
       default:
         return statusKey;
+    }
+  }
+
+  bool _shouldShowTakeSampleButton(String statusKey) {
+    // Show "Take Sample" button for states that are waiting for sample collection
+    switch (statusKey) {
+      case 'patientStateDraft':
+      case 'patientStateSubmitted':
+      case 'patientStateConfirmed':
+      case 'waitingForSample': // Legacy support
+        return true;
+      default:
+        return false;
     }
   }
 

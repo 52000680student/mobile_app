@@ -37,7 +37,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       }
     } catch (e, stackTrace) {
       AppLogger.error('Error during app initialization', e, stackTrace);
-      emit(SplashError(message: 'Failed to initialize app'));
+      emit(const SplashError(message: 'Failed to initialize app'));
     }
   }
 }

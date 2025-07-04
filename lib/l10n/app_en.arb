@@ -196,7 +196,7 @@
       }
     }
   },
-  "lastUpdated": "• Last updated 16:22",
+  "lastUpdated": "• Last updated",
   "@lastUpdated": {
     "description": "Last updated timestamp"
   },
@@ -295,5 +295,115 @@
   "generalUrineAnalysis": "General urine analysis",
   "@generalUrineAnalysis": {
     "description": "General urine analysis service"
+  },
+
+  "patientStateDraft": "Draft",
+  "@patientStateDraft": {
+    "description": "Patient state: Draft"
+  },
+  "patientStateSubmitted": "Received",
+  "@patientStateSubmitted": {
+    "description": "Patient state: Submitted/Received"
+  },
+  "patientStateCanceled": "Cancelled",
+  "@patientStateCanceled": {
+    "description": "Patient state: Canceled/Cancelled"
+  },
+  "patientStateCollected": "Sample taken",
+  "@patientStateCollected": {
+    "description": "Patient state: Collected/Sample taken"
+  },
+  "patientStateDelivered": "Sample delivered",
+  "@patientStateDelivered": {
+    "description": "Patient state: Delivered/Sample delivered"
+  },
+  "patientStateReceived": "Sample received",
+  "@patientStateReceived": {
+    "description": "Patient state: Received/Sample received"
+  },
+  "patientStateOnHold": "Pause",
+  "@patientStateOnHold": {
+    "description": "Patient state: On Hold/Pause"
+  },
+  "patientStateInProcess": "Accumulating",
+  "@patientStateInProcess": {
+    "description": "Patient state: In Process/Accumulating"
+  },
+  "patientStateCompleted": "Results available",
+  "@patientStateCompleted": {
+    "description": "Patient state: Completed/Results available"
+  },
+  "patientStateConfirmed": "Received",
+  "@patientStateConfirmed": {
+    "description": "Patient state: Confirmed/Received"
+  },
+  "patientStateValidated": "Approved",
+  "@patientStateValidated": {
+    "description": "Patient state: Validated/Approved"
+  },
+  "patientStateReleased": "Results sent",
+  "@patientStateReleased": {
+    "description": "Patient state: Released/Results sent"
+  },
+  "patientStateSigned": "Signed",
+  "@patientStateSigned": {
+    "description": "Patient state: Signed"
+  },
+  "patientStateApproved": "Confirmed",
+  "@patientStateApproved": {
+    "description": "Patient state: Approved/Confirmed"
+  },
+
+  "errorNetwork": "Network connection error",
+  "@errorNetwork": {
+    "description": "Network connection error message"
+  },
+  "errorServer": "Server error occurred",
+  "@errorServer": {
+    "description": "Server error message"
+  },
+  "errorTimeout": "Request timeout",
+  "@errorTimeout": {
+    "description": "Request timeout error message"
+  },
+  "errorUnauthorized": "Unauthorized access",
+  "@errorUnauthorized": {
+    "description": "Unauthorized access error message"
+  },
+  "errorForbidden": "Access forbidden",
+  "@errorForbidden": {
+    "description": "Access forbidden error message"
+  },
+  "errorNotFound": "Resource not found",
+  "@errorNotFound": {
+    "description": "Resource not found error message"
+  },
+  "errorUnknown": "An unknown error occurred",
+  "@errorUnknown": {
+    "description": "Unknown error message"
+  },
+  "errorFetchDepartments": "Failed to load departments",
+  "@errorFetchDepartments": {
+    "description": "Error message when fetching departments fails"
+  },
+  "errorFetchPatients": "Failed to load patients",
+  "@errorFetchPatients": {
+    "description": "Error message when fetching patients fails"
+  },
+  "errorLoadMorePatients": "Failed to load more patients",
+  "@errorLoadMorePatients": {
+    "description": "Error message when loading more patients fails"
+  },
+  "errorInvalidDateRange": "Invalid date range selected",
+  "@errorInvalidDateRange": {
+    "description": "Error message for invalid date range"
+  },
+  "errorNoData": "No data available",
+  "@errorNoData": {
+    "description": "Error message when no data is available"
+  },
+  "errorEmptySearch": "Please enter search criteria",
+  "@errorEmptySearch": {
+    "description": "Error message for empty search"
   }
 }

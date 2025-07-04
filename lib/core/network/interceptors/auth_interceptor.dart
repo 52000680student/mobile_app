@@ -45,10 +45,7 @@ class AuthInterceptor extends Interceptor {
 
   bool _shouldSkipAuth(String path) {
     const unauthenticatedPaths = [
-      '/auth/login',
-      '/auth/register',
-      '/auth/refresh',
-      '/auth/forgot-password',
+      '/connect/token', // OAuth token endpoint
     ];
 
     return unauthenticatedPaths.any((p) => path.contains(p));

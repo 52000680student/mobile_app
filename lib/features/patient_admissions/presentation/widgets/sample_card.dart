@@ -139,7 +139,7 @@ class SampleCard extends StatelessWidget {
                                 ],
                               ),
                             ))
-                        .toList(),
+                        ,
                   ],
                 ),
               ),

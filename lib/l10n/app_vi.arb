@@ -155,7 +155,7 @@
     "@manualServices": {
         "description": "Nhãn tab dịch vụ thủ công"
     },
-    "waitingForAdmission": "Chờ tiếp nhận",
+    "waitingForAdmission": "Chờ lấy mẫu",
     "sampleTaken": "Đã lấy mẫu",
     "allDepartments": "Tất cả khoa",
     "internalMedicine": "Khoa Nội",
@@ -164,7 +164,7 @@
     "pediatrics": "Khoa Nhi",
     "enterPatientId": "Nhập mã bệnh nhân",
     "patientCount": "{count} bệnh nhân",
-    "lastUpdated": "• Cập nhật mới nhất 16:22",
+    "lastUpdated": "• Cập nhật mới nhất",
     "birthDate": "Ngày sinh",
     "gender": "Giới tính",
     "age": "Tuổi",
@@ -185,5 +185,34 @@
     "service": "Dịch vụ:",
     "good": "Tốt",
     "comprehensiveBloodTest": "Xét nghiệm máu tổng quát",
-    "generalUrineAnalysis": "Tổng phân tích nước tiểu"
+    "generalUrineAnalysis": "Tổng phân tích nước tiểu",
+
+    "patientStateDraft": "Bản nháp",
+    "patientStateSubmitted": "Đã tiếp nhận",
+    "patientStateCanceled": "Đã hủy",
+    "patientStateCollected": "Đã lấy mẫu",
+    "patientStateDelivered": "Đã giao mẫu",
+    "patientStateReceived": "Đã nhận mẫu",
+    "patientStateOnHold": "Tạm dừng",
+    "patientStateInProcess": "Đang xử lý",
+    "patientStateCompleted": "Có kết quả",
+    "patientStateConfirmed": "Đã xác nhận",
+    "patientStateValidated": "Đã phê duyệt",
+    "patientStateReleased": "Đã gửi kết quả",
+    "patientStateSigned": "Đã ký",
+    "patientStateApproved": "Đã phê duyệt",
+
+    "errorNetwork": "Lỗi kết nối mạng",
+    "errorServer": "Đã xảy ra lỗi máy chủ",
+    "errorTimeout": "Hết thời gian chờ",
+    "errorUnauthorized": "Không có quyền truy cập",
+    "errorForbidden": "Truy cập bị cấm",
+    "errorNotFound": "Không tìm thấy tài nguyên",
+    "errorUnknown": "Đã xảy ra lỗi không xác định",
+    "errorFetchDepartments": "Không thể tải danh sách khoa",
+    "errorFetchPatients": "Không thể tải danh sách bệnh nhân",
+    "errorLoadMorePatients": "Không thể tải thêm bệnh nhân",
+    "errorInvalidDateRange": "Khoảng thời gian không hợp lệ",
+    "errorNoData": "Không có dữ liệu",
+    "errorEmptySearch": "Vui lòng nhập tiêu chí tìm kiếm"
 }

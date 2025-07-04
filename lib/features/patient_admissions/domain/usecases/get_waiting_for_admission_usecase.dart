@@ -1,0 +1,17 @@
+import 'package:dartz/dartz.dart';
+import 'package:injectable/injectable.dart';
+import '../../../../core/error/failures.dart';
+import '../../data/models/patient_models.dart';
+import '../repositories/patient_admissions_repository.dart';
+
+@injectable
+class GetWaitingForAdmissionUseCase {
+  final PatientAdmissionsRepository _repository;
+
+  GetWaitingForAdmissionUseCase(this._repository);
+
+  Future<Either<Failure, PatientVisitResponse>> call(
+      PatientVisitQueryParams params) async {
+    return await _repository.getWaitingForAdmission(params);
+  }
+}

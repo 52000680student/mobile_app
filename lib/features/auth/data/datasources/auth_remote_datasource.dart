@@ -25,7 +25,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       AppLogger.info('🔑 Grant Type: ${loginRequest.grantType}');
 
       // Use the specific login endpoint
-      final loginUrl = '${EnvConfig.apiBaseUrl}/connect/token';
+      final loginUrl = '${EnvConfig.apiAuthBaseUrl}/connect/token';
       AppLogger.info('🌐 Login URL: $loginUrl');
 
       // Create form data as Map<String, dynamic> for proper form encoding
@@ -98,7 +98,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         );
       } else if (response.statusCode == 401) {
         AppLogger.error('❌ Login failed (401): Unauthorized');
-        throw ServerException(
+        throw const ServerException(
           message: 'Invalid username or password',
           statusCode: 401,
         );
@@ -142,7 +142,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           statusCode: 400,
         );
       } else if (e.response?.statusCode == 401) {
-        throw ServerException(
+        throw const ServerException(
           message: 'Invalid username or password',
           statusCode: 401,
         );

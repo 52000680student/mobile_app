@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         children: [
                           // Header with Illustration
-                          Container(
+                          SizedBox(
                             height: constraints.maxHeight * 0.35,
                             width: double.infinity,
                             child: _buildHeaderIllustration(),
@@ -158,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                                       // Username Field
                                       Text(
                                         l10n.username,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
                                           color: AppTheme.onBackgroundColor,
@@ -177,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                                       // Password Field
                                       Text(
                                         l10n.password,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
                                           color: AppTheme.onBackgroundColor,
