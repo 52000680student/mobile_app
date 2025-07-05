@@ -8,16 +8,21 @@ import '../../../patient_admissions/presentation/bloc/sample_details_event.dart'
 import '../../../patient_admissions/presentation/bloc/sample_details_state.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/dialog_service.dart';
+import '../../../../core/utils/toast_service.dart';
 
 class SampleDetailsModal extends StatefulWidget {
   final PatientInfo patient;
+  final bool isFromWaitingForAdmission;
 
   const SampleDetailsModal({
     super.key,
     required this.patient,
+    this.isFromWaitingForAdmission = false,
   });
 
-  static void show(BuildContext context, PatientInfo patient) {
+  static void show(BuildContext context, PatientInfo patient,
+      {bool isFromWaitingForAdmission = false}) {
     AppLogger.debug(
         'Opening sample details modal for patient ID: ${patient.id}');
     showModalBottomSheet(
@@ -28,7 +33,10 @@ class SampleDetailsModal extends StatefulWidget {
         return BlocProvider(
           create: (ctx) => getIt<SampleDetailsBloc>()
             ..add(LoadSampleDetails(id: patient.id)),
-          child: SampleDetailsModal(patient: patient),
+          child: SampleDetailsModal(
+            patient: patient,
+            isFromWaitingForAdmission: isFromWaitingForAdmission,
+          ),
         );
       },
     );
@@ -41,6 +49,8 @@ class SampleDetailsModal extends StatefulWidget {
 class _SampleDetailsModalState extends State<SampleDetailsModal> {
   // Map to store controllers for each sample
   final Map<int, ValueNotifier<bool>> _switchControllers = {};
+  // Map to track which switches have been manually changed by user
+  final Map<int, bool> _userModifiedSwitches = {};
 
   @override
   void dispose() {
@@ -56,11 +66,15 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
       final isCollected =
           sample.state >= 3 || (sample.collectionTime?.isNotEmpty == true);
       _switchControllers[sample.sampleId] = ValueNotifier<bool>(isCollected);
+      _userModifiedSwitches[sample.sampleId] =
+          false; // Initially not modified by user
     } else {
-      // Update existing controller value based on current sample state
-      final isCollected =
-          sample.state >= 3 || (sample.collectionTime?.isNotEmpty == true);
-      _switchControllers[sample.sampleId]!.value = isCollected;
+      // Only update from server data if user hasn't manually modified this switch
+      if (!_userModifiedSwitches[sample.sampleId]!) {
+        final isCollected =
+            sample.state >= 3 || (sample.collectionTime?.isNotEmpty == true);
+        _switchControllers[sample.sampleId]!.value = isCollected;
+      }
     }
     return _switchControllers[sample.sampleId]!;
   }
@@ -69,182 +83,203 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<SampleDetailsBloc, SampleDetailsState>(
-      builder: (context, state) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.5,
-          maxChildSize: 0.9,
-          builder: (context, scrollController) => Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+    return BlocListener<SampleDetailsBloc, SampleDetailsState>(
+      listener: (context, state) {
+        if (state.updateSuccessful) {
+          // Show success message
+          ToastService.showSuccess(context, l10n.recordSampleSuccess);
+        } else if (state.updateErrorMessage != null) {
+          // Show error message
+          ToastService.showError(context, state.updateErrorMessage!);
+        }
+      },
+      child: BlocBuilder<SampleDetailsBloc, SampleDetailsState>(
+        builder: (context, state) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.5,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) => Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                // Handle bar
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    children: [
-                      Text(
-                        l10n.sampleDetails,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2937),
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.grey.shade100,
-                          foregroundColor: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Loading State
-                if (state.isLoading)
-                  const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-
-                // Error State
-                if (state.errorMessage != null && !state.isLoading)
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 48,
-                              color: Colors.red.shade400,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              state.errorMessage!,
-                              style: TextStyle(
-                                color: Colors.red.shade600,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                context.read<SampleDetailsBloc>().add(
-                                      LoadSampleDetails(id: widget.patient.id),
-                                    );
-                              },
-                              child: Text(l10n.retry),
-                            ),
-                          ],
-                        ),
-                      ),
+              child: Column(
+                children: [
+                  // Handle bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
 
-                // Success State with Data
-                if (!state.isLoading && state.errorMessage == null) ...[
-                  // Patient Info Header
+                  // Header
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
                       children: [
                         Text(
-                          widget.patient.name,
+                          l10n.sampleDetails,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                             color: Color(0xFF1F2937),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'SID: ${widget.patient.sid}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.sampleList(state.samples.length),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1976D2),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.grey.shade100,
+                            foregroundColor: Colors.grey.shade600,
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  // Loading State
+                  if (state.isLoading)
+                    const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
 
-                  // Sample List with Two-Column Layout
-                  Expanded(
-                    child: state.samples.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.science_outlined,
-                                  size: 48,
-                                  color: Colors.grey.shade400,
+                  // Error State
+                  if (state.errorMessage != null && !state.isLoading)
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 48,
+                                color: Colors.red.shade400,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                state.errorMessage!,
+                                style: TextStyle(
+                                  color: Colors.red.shade600,
+                                  fontSize: 16,
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  l10n.errorNoData,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : ListView.builder(
-                            controller: scrollController,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            itemCount: state.samples.length,
-                            itemBuilder: (context, index) {
-                              final sample = state.samples[index];
-                              return _buildSampleCard(
-                                  sample, state.testDetails, l10n);
-                            },
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  context.read<SampleDetailsBloc>().add(
+                                        LoadSampleDetails(
+                                            id: widget.patient.id),
+                                      );
+                                },
+                                child: Text(l10n.retry),
+                              ),
+                            ],
                           ),
-                  ),
+                        ),
+                      ),
+                    ),
+
+                  // Success State with Data
+                  if (!state.isLoading && state.errorMessage == null) ...[
+                    // Patient Info Header
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.patient.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1F2937),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'SID: ${widget.patient.sid}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.sampleList(state.samples.length),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1976D2),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Sample List with Two-Column Layout
+                    Expanded(
+                      child: state.samples.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.science_outlined,
+                                    size: 48,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    l10n.errorNoData,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              controller: scrollController,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              itemCount: state.samples.length,
+                              itemBuilder: (context, index) {
+                                final sample = state.samples[index];
+                                return _buildSampleCard(
+                                    sample, state.testDetails, l10n);
+                              },
+                            ),
+                    ),
+
+                    // Common Record Me Button (only show if from waiting for admission tab and has samples)
+                    if (widget.isFromWaitingForAdmission &&
+                        state.samples.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _buildCommonRecordMeButton(context, state.samples, l10n),
+                      const SizedBox(height: 20),
+                    ],
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -442,41 +477,156 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
     return SizedBox(
       width: 60,
       height: 32,
-      child: AdvancedSwitch(
-        controller: controller,
-        activeColor: const Color(0xFF1976D2),
-        inactiveColor: Colors.grey.shade400,
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        width: 60.0,
-        height: 32.0,
-        enabled: false, // Read-only since it's based on API data
-        thumb: Container(
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: controller.value
-                ? const Color(0xFF1976D2)
-                : Colors.grey.shade400,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: controller,
+        builder: (context, value, child) {
+          return AdvancedSwitch(
+            controller: controller,
+            initialValue: controller.value,
+            activeColor: const Color(0xFF1976D2),
+            inactiveColor: Colors.grey.shade400,
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            width: 60.0,
+            height: 32.0,
+            enabled: widget
+                .isFromWaitingForAdmission, // Enable interaction only for waiting for admission tab
+            thumb: Container(
+              margin: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: value ? const Color(0xFF1976D2) : Colors.grey.shade400,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Center(
-            child: Icon(
-              controller.value ? Icons.check : Icons.close,
-              color: Colors.white,
-              size: 16,
+              child: Center(
+                child: Icon(
+                  value ? Icons.check : Icons.close,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
             ),
-          ),
-        ),
-        onChanged: (value) {
-          //handle change
+            onChanged: (newValue) {
+              // Update the controller value
+              controller.value = newValue;
+
+              // Mark this switch as user-modified
+              _userModifiedSwitches[sample.sampleId] = true;
+
+              // If from waiting for admission tab, update collectorUserId
+              if (widget.isFromWaitingForAdmission) {
+                // Update the collectorUserId based on switch state
+                // When true, set to logged in user ID (hardcoded as "1000004" for now)
+                // When false, set to null
+                final updatedUserId = newValue ? "1000004" : null;
+                AppLogger.debug(
+                    'Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: $updatedUserId');
+
+                // You can add logic here to update the sample model if needed
+                // For now, just logging the change
+              } else {
+                AppLogger.debug(
+                    'Sample collection status changed for sample ${sample.sampleId}: $newValue (read-only mode)');
+              }
+            },
+          );
         },
       ),
     );
+  }
+
+  Widget _buildCommonRecordMeButton(
+      BuildContext context, List<Sample> samples, AppLocalizations l10n) {
+    return BlocBuilder<SampleDetailsBloc, SampleDetailsState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: state.isUpdating
+                  ? null
+                  : () => _onCommonRecordMePressed(context, samples, l10n),
+              icon: state.isUpdating
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.assignment_turned_in),
+              label: Text(
+                state.isUpdating ? l10n.processing : l10n.recordMe,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1976D2),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 2,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onCommonRecordMePressed(
+      BuildContext context, List<Sample> samples, AppLocalizations l10n) async {
+    // Show confirmation dialog
+    final confirmed = await DialogService.showConfirmation(
+      context,
+      title: l10n.recordSampleConfirmTitle,
+      message: l10n.recordSampleConfirmMessage,
+      confirmText: l10n.confirm,
+      cancelText: l10n.cancel,
+    );
+
+    if (confirmed && context.mounted) {
+      // Build the sample data according to the API specification
+      final sampleData = {
+        "id": widget.patient.id,
+        "isCollected": true,
+        "isReceived": false,
+        "samples": samples.map((sample) {
+          // Get the current switch state for each sample
+          final switchController = _getOrCreateController(sample);
+          final currentUserId = switchController.value ? "1000004" : null;
+
+          return {
+            "sampleType": sample.sampleType,
+            "sampleColor": sample.sampleColor,
+            "numberOfLabels": sample.numberOfLabels.toString(),
+            "collectionTime": sample.collectionTime,
+            "quality": sample.quality ?? "G",
+            "collectorUserId": currentUserId,
+            "receivedTime": sample.receivedTime,
+            "receiverUserId": sample.receiverUserId,
+            "sID": sample.sid,
+            "subSID": sample.subSID,
+          };
+        }).toList(),
+        "isManual": false,
+      };
+
+      // Send the update request
+      context.read<SampleDetailsBloc>().add(
+            UpdateSample(
+              requestId: widget.patient.id,
+              sampleData: sampleData,
+            ),
+          );
+    }
   }
 }

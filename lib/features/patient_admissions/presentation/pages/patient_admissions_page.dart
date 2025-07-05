@@ -682,6 +682,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
               return PatientCard(
                 key: ValueKey('waiting_${patientVisit.id}'),
                 patient: patientVisit.toPatientInfo(),
+                isFromWaitingForAdmission: true,
               );
             },
           ),
@@ -739,6 +740,7 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
               return PatientCard(
                 key: ValueKey('sample_${patientVisit.id}'),
                 patient: patientVisit.toPatientInfo(),
+                isFromWaitingForAdmission: false,
               );
             },
           ),

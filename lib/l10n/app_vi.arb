@@ -40,6 +40,10 @@
     "@loading": {
         "description": "Văn bản chỉ báo tải"
     },
+    "processing": "Đang xử lý...",
+    "@processing": {
+        "description": "Văn bản chỉ báo xử lý"
+    },
     "login": "Đăng nhập",
     "@login": {
         "description": "Văn bản đăng nhập"
@@ -146,7 +150,6 @@
     "@featureComingSoon": {
         "description": "Thông báo tính năng sắp ra mắt"
     },
-
     "patientAdmissions": "Tiếp nhận bệnh nhân",
     "@patientAdmissions": {
         "description": "Nhãn tab tiếp nhận bệnh nhân"
@@ -197,7 +200,6 @@
     "sampleType": "Loại mẫu",
     "comprehensiveBloodTest": "Xét nghiệm máu tổng quát",
     "generalUrineAnalysis": "Tổng phân tích nước tiểu",
-
     "patientStateDraft": "Bản nháp",
     "patientStateSubmitted": "Đã tiếp nhận",
     "patientStateCanceled": "Đã hủy",
@@ -212,7 +214,6 @@
     "patientStateReleased": "Đã gửi kết quả",
     "patientStateSigned": "Đã ký",
     "patientStateApproved": "Đã phê duyệt",
-
     "errorNetwork": "Lỗi kết nối mạng",
     "errorServer": "Đã xảy ra lỗi máy chủ",
     "errorTimeout": "Hết thời gian chờ",
@@ -233,5 +234,14 @@
     "emptyStateGuidance": "Hãy thử thay đổi bộ lọc hoặc kéo xuống để làm mới",
     "noWaitingPatients": "Không có bệnh nhân chờ lấy mẫu",
     "noSampleTakenPatients": "Không có bệnh nhân đã lấy mẫu",
-    "vietnamese": "Tiếng Việt"
+    "vietnamese": "Tiếng Việt",
+    "recordMe": "Ghi nhận",
+    "recordSampleConfirmTitle": "Ghi nhận mẫu",
+    "recordSampleConfirmMessage": "Bạn có chắc chắn muốn ghi nhận việc lấy mẫu này không?",
+    "recordSampleSuccess": "Đã ghi nhận mẫu thành công",
+    "recordSampleError": "Không thể ghi nhận mẫu",
+    "takeSampleConfirmTitle": "Lấy Tất Cả Mẫu",
+    "takeSampleConfirmMessage": "Bạn có chắc chắn muốn lấy tất cả mẫu cho bệnh nhân này không?",
+    "takeSampleSuccess": "Đã lấy tất cả mẫu thành công",
+    "takeSampleError": "Không thể lấy mẫu"
 }

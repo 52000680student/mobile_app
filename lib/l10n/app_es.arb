@@ -35,7 +35,6 @@
   "profileDescription": "Gestionar la información de su perfil",
   "settingsDescription": "Configurar las preferencias de su aplicación",
   "featureComingSoon": "¡Función próximamente!",
-
   "patientAdmissions": "Admisiones de pacientes",
   "manualServices": "Servicios manuales",
   "waitingForAdmission": "Esperando admisión",
@@ -78,5 +77,14 @@
   "testDescription": "Descripción:",
   "good": "Buena",
   "comprehensiveBloodTest": "Análisis de sangre completo",
-  "generalUrineAnalysis": "Análisis general de orina"
+  "generalUrineAnalysis": "Análisis general de orina",
+  "recordMe": "Registrarme",
+  "recordSampleConfirmTitle": "Registrar Muestra",
+  "recordSampleConfirmMessage": "¿Está seguro de que desea registrar esta recolección de muestra?",
+  "recordSampleSuccess": "Muestra registrada exitosamente",
+  "recordSampleError": "No se pudo registrar la muestra",
+  "takeSampleConfirmTitle": "Tomar Todas las Muestras",
+  "takeSampleConfirmMessage": "¿Está seguro de que desea tomar todas las muestras de este paciente?",
+  "takeSampleSuccess": "Todas las muestras tomadas exitosamente",
+  "takeSampleError": "No se pudieron tomar las muestras"
 }

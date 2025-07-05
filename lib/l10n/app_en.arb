@@ -40,6 +40,10 @@
   "@loading": {
     "description": "Loading indicator text"
   },
+  "processing": "Processing...",
+  "@processing": {
+    "description": "Processing indicator text"
+  },
   "login": "Login",
   "@login": {
     "description": "Login text"
@@ -336,7 +340,6 @@
   "@generalUrineAnalysis": {
     "description": "General urine analysis service"
   },
-
   "patientStateDraft": "Draft",
   "@patientStateDraft": {
     "description": "Patient state: Draft"
@@ -393,7 +396,6 @@
   "@patientStateApproved": {
     "description": "Patient state: Approved/Confirmed"
   },
-
   "errorNetwork": "Network connection error",
   "@errorNetwork": {
     "description": "Network connection error message"
@@ -481,5 +483,41 @@
   "sampleType": "Sample type",
   "@sampleType": {
     "description": "Sample type"
+  },
+  "recordMe": "Record Me",
+  "@recordMe": {
+    "description": "Record me button text"
+  },
+  "recordSampleConfirmTitle": "Record Sample",
+  "@recordSampleConfirmTitle": {
+    "description": "Record sample confirmation dialog title"
+  },
+  "recordSampleConfirmMessage": "Are you sure you want to record this sample collection?",
+  "@recordSampleConfirmMessage": {
+    "description": "Record sample confirmation dialog message"
+  },
+  "recordSampleSuccess": "Sample recorded successfully",
+  "@recordSampleSuccess": {
+    "description": "Sample recorded success message"
+  },
+  "recordSampleError": "Failed to record sample",
+  "@recordSampleError": {
+    "description": "Sample record error message"
+  },
+  "takeSampleConfirmTitle": "Take All Samples",
+  "@takeSampleConfirmTitle": {
+    "description": "Take all samples confirmation dialog title"
+  },
+  "takeSampleConfirmMessage": "Are you sure you want to take all samples for this patient?",
+  "@takeSampleConfirmMessage": {
+    "description": "Take all samples confirmation dialog message"
+  },
+  "takeSampleSuccess": "All samples taken successfully",
+  "@takeSampleSuccess": {
+    "description": "All samples taken success message"
+  },
+  "takeSampleError": "Failed to take samples",
+  "@takeSampleError": {
+    "description": "Take samples error message"
   }
 }

@@ -80,7 +80,7 @@ class PatientVisitResponse {
 class PatientVisit {
   final int id;
   final String sid;
-  final String requestDate;
+  final DateTime requestDate;
   final String patientId;
   final String? familyName;
   final String? givenName;
@@ -126,7 +126,7 @@ class PatientVisit {
     return PatientVisit(
       id: json['id'],
       sid: json['sid'],
-      requestDate: json['requestDate'],
+      requestDate: json['requestDate'] as DateTime,
       patientId: json['patientId'],
       familyName: json['familyName'],
       givenName: json['givenName'],
@@ -207,6 +207,7 @@ class PatientVisit {
       sid: getSidFromSampleIds(),
       name: patientName,
       birthDate: birthDate,
+      requestDate: requestDate,
       gender: gender,
       age: age,
       object: serviceType,
@@ -261,6 +262,7 @@ class PatientInfo {
   final String sid;
   final String name;
   final DateTime birthDate;
+  final DateTime requestDate;
   final String gender;
   final int age;
   final String object;
@@ -276,6 +278,7 @@ class PatientInfo {
     required this.sid,
     required this.name,
     required this.birthDate,
+    required this.requestDate,
     required this.gender,
     required this.age,
     required this.object,

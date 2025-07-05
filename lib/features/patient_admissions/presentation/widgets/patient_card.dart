@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../data/models/patient_models.dart';
 import 'sample_details_modal.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/dialog_service.dart';
+import '../../../../core/utils/toast_service.dart';
+import '../../domain/usecases/take_all_samples_usecase.dart';
 
 class PatientCard extends StatelessWidget {
   final PatientInfo patient;
+  final bool isFromWaitingForAdmission;
 
   const PatientCard({
     super.key,
     required this.patient,
+    this.isFromWaitingForAdmission = false,
   });
 
   @override
@@ -181,8 +187,11 @@ class PatientCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () =>
-                          SampleDetailsModal.show(context, patient),
+                      onPressed: () => SampleDetailsModal.show(
+                        context,
+                        patient,
+                        isFromWaitingForAdmission: isFromWaitingForAdmission,
+                      ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
                             color: Color(0xFF1976D2), width: 1.5),
@@ -209,38 +218,39 @@ class PatientCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1976D2),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  if (_shouldShowTakeSampleButton(patient.status))
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _onTakeSamplePressed(context, patient),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1976D2),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                          shadowColor: const Color(0xFF1976D2).withOpacity(0.3),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                        shadowColor: const Color(0xFF1976D2).withOpacity(0.3),
-                      ),
-                      icon: Icon(
-                        _shouldShowTakeSampleButton(patient.status)
-                            ? Icons.medical_services_outlined
-                            : Icons.info_outline,
-                        size: 18,
-                      ),
-                      label: Text(
-                        _shouldShowTakeSampleButton(patient.status)
-                            ? l10n.takeSample
-                            : l10n.viewDetails,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                        icon: Icon(
+                          _shouldShowTakeSampleButton(patient.status)
+                              ? Icons.medical_services_outlined
+                              : Icons.info_outline,
+                          size: 18,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        label: Text(
+                          _shouldShowTakeSampleButton(patient.status)
+                              ? l10n.takeSample
+                              : l10n.viewDetails,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -345,5 +355,48 @@ class PatientCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _onTakeSamplePressed(
+      BuildContext context, PatientInfo patient) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    // Show confirmation dialog
+    final confirmed = await DialogService.showConfirmation(
+      context,
+      title: l10n.takeSampleConfirmTitle,
+      message: l10n.takeSampleConfirmMessage,
+      confirmText: l10n.confirm,
+      cancelText: l10n.cancel,
+    );
+
+    if (confirmed && context.mounted) {
+      try {
+        // Get the use case and call the API
+        final takeAllSamplesUseCase = getIt<TakeAllSamplesUseCase>();
+        final result = await takeAllSamplesUseCase(
+            patient.id, "1000004"); // Hardcoded user ID
+
+        result.fold(
+          (failure) {
+            // Show error message
+            if (context.mounted) {
+              ToastService.showError(context, failure.message);
+            }
+          },
+          (_) {
+            // Show success message
+            if (context.mounted) {
+              ToastService.showSuccess(context, l10n.takeSampleSuccess);
+            }
+          },
+        );
+      } catch (e) {
+        // Handle any unexpected errors
+        if (context.mounted) {
+          ToastService.showError(context, l10n.takeSampleError);
+        }
+      }
+    }
   }
 }

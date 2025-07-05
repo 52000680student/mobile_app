@@ -116,4 +116,50 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
       return const Left(UnknownFailure(message: ErrorMessages.unknownError));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateSample(
+      int requestId, Map<String, dynamic> sampleData) async {
+    try {
+      AppLogger.debug('Updating sample for request ID: $requestId');
+      await _remoteDataSource.updateSample(requestId, sampleData);
+      AppLogger.debug('Successfully updated sample');
+      return const Right(null);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error updating sample: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to update sample', code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error updating sample: ${e.message}');
+      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+    } catch (e, stackTrace) {
+      AppLogger.error('Unknown error updating sample: $e');
+      AppLogger.error('Stack trace: $stackTrace');
+      return Left(
+          UnknownFailure(message: 'Failed to update sample: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> takeAllSamples(
+      int requestId, String collectorUserId) async {
+    try {
+      AppLogger.debug('Taking all samples for request ID: $requestId');
+      await _remoteDataSource.takeAllSamples(requestId, collectorUserId);
+      AppLogger.debug('Successfully took all samples');
+      return const Right(null);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error taking all samples: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to take all samples', code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error taking all samples: ${e.message}');
+      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+    } catch (e, stackTrace) {
+      AppLogger.error('Unknown error taking all samples: $e');
+      AppLogger.error('Stack trace: $stackTrace');
+      return Left(UnknownFailure(
+          message: 'Failed to take all samples: ${e.toString()}'));
+    }
+  }
 }

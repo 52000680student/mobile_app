@@ -14,6 +14,12 @@ abstract class PatientAdmissionsRemoteDataSource {
   Future<SampleResponse> getRequestSamples(int requestId);
   Future<List<Test>> getRequestTests(int requestId);
   Future<TestDetails> getTestByCode(String testCode, String effectiveTime);
+
+  // Method to update sample data
+  Future<void> updateSample(int requestId, Map<String, dynamic> sampleData);
+
+  // Method to take all samples (set all collectorUserId)
+  Future<void> takeAllSamples(int requestId, String collectorUserId);
 }
 
 @LazySingleton(as: PatientAdmissionsRemoteDataSource)
@@ -162,6 +168,71 @@ class PatientAdmissionsRemoteDataSourceImpl
       throw Exception('No test details received');
     } catch (e) {
       throw Exception('Failed to fetch test details: $e');
+    }
+  }
+
+  @override
+  Future<void> updateSample(
+      int requestId, Map<String, dynamic> sampleData) async {
+    try {
+      AppLogger.debug(
+          'Making API call to: ${ApiParameters.getRequestSamplesUrl(requestId)}');
+
+      final response = await _apiClient.put<void>(
+        ApiParameters.getRequestSamplesUrl(requestId),
+        data: sampleData,
+      );
+
+      AppLogger.debug('API Response status: ${response.statusCode}');
+      AppLogger.debug('Sample updated successfully');
+    } catch (e) {
+      AppLogger.error('Error in updateSample: $e');
+      throw Exception('Failed to update sample data: $e');
+    }
+  }
+
+  @override
+  Future<void> takeAllSamples(int requestId, String collectorUserId) async {
+    try {
+      AppLogger.debug('Taking all samples for request ID: $requestId');
+
+      // First, get the current samples
+      final samplesResponse = await getRequestSamples(requestId);
+
+      // Build the sample data with all samples having collectorUserId set
+      final sampleData = {
+        "id": requestId,
+        "isCollected": true,
+        "isReceived": false,
+        "samples": samplesResponse.samples
+            .map((sample) => {
+                  "sampleType": sample.sampleType,
+                  "sampleColor": sample.sampleColor,
+                  "numberOfLabels": sample.numberOfLabels.toString(),
+                  "collectionTime": sample.collectionTime,
+                  "quality": sample.quality ?? "G",
+                  "collectorUserId":
+                      collectorUserId, // Set all samples to have this collectorUserId
+                  "receivedTime": sample.receivedTime,
+                  "receiverUserId": sample.receiverUserId,
+                  "sID": sample.sid,
+                  "subSID": sample.subSID,
+                })
+            .toList(),
+        "isManual": false,
+      };
+
+      // Call the same update API
+      final response = await _apiClient.put<void>(
+        ApiParameters.getRequestSamplesUrl(requestId),
+        data: sampleData,
+      );
+
+      AppLogger.debug('API Response status: ${response.statusCode}');
+      AppLogger.debug('All samples taken successfully');
+    } catch (e) {
+      AppLogger.error('Error in takeAllSamples: $e');
+      throw Exception('Failed to take all samples: $e');
     }
   }
 }

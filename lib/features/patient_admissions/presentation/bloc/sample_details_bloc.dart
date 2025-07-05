@@ -4,6 +4,7 @@ import '../../data/models/patient_models.dart';
 import '../../domain/usecases/get_request_samples_usecase.dart';
 import '../../domain/usecases/get_request_tests_usecase.dart';
 import '../../domain/usecases/get_test_by_code_usecase.dart';
+import '../../domain/usecases/update_sample_usecase.dart';
 import 'sample_details_event.dart';
 import 'sample_details_state.dart';
 
@@ -12,13 +13,46 @@ class SampleDetailsBloc extends Bloc<SampleDetailsEvent, SampleDetailsState> {
   final GetRequestSamplesUseCase _getRequestSamplesUseCase;
   final GetRequestTestsUseCase _getRequestTestsUseCase;
   final GetTestByCodeUseCase _getTestByCodeUseCase;
+  final UpdateSampleUseCase _updateSampleUseCase;
 
   SampleDetailsBloc(
     this._getRequestSamplesUseCase,
     this._getRequestTestsUseCase,
     this._getTestByCodeUseCase,
+    this._updateSampleUseCase,
   ) : super(const SampleDetailsState()) {
     on<LoadSampleDetails>(_onLoadSampleDetails);
+    on<UpdateSample>(_onUpdateSample);
+  }
+
+  Future<void> _onUpdateSample(
+    UpdateSample event,
+    Emitter<SampleDetailsState> emit,
+  ) async {
+    emit(state.copyWith(
+        isUpdating: true, clearUpdateError: true, updateSuccessful: false));
+
+    final result =
+        await _updateSampleUseCase(event.requestId, event.sampleData);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          isUpdating: false,
+          updateErrorMessage: failure.message,
+          updateSuccessful: false,
+        ));
+      },
+      (_) {
+        emit(state.copyWith(
+          isUpdating: false,
+          updateSuccessful: true,
+          clearUpdateError: true,
+        ));
+        // Reload the sample details to get the updated data
+        add(LoadSampleDetails(id: event.requestId));
+      },
+    );
   }
 
   Future<void> _onLoadSampleDetails(

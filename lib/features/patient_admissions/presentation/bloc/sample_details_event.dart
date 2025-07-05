@@ -15,3 +15,13 @@ class LoadSampleDetails extends SampleDetailsEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class UpdateSample extends SampleDetailsEvent {
+  final int requestId;
+  final Map<String, dynamic> sampleData;
+
+  const UpdateSample({required this.requestId, required this.sampleData});
+
+  @override
+  List<Object?> get props => [requestId, sampleData];
+}

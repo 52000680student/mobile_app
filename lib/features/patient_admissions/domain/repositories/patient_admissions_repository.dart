@@ -14,4 +14,12 @@ abstract class PatientAdmissionsRepository {
   Future<Either<Failure, List<Test>>> getRequestTests(int requestId);
   Future<Either<Failure, TestDetails>> getTestByCode(
       String testCode, String effectiveTime);
+
+  // Method to update sample data
+  Future<Either<Failure, void>> updateSample(
+      int requestId, Map<String, dynamic> sampleData);
+
+  // Method to take all samples (set all collectorUserId)
+  Future<Either<Failure, void>> takeAllSamples(
+      int requestId, String collectorUserId);
 }
