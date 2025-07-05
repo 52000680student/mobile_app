@@ -16,17 +16,14 @@ class UserService {
     try {
       final token = await _authLocalDataSource.getAccessToken();
       if (token == null) {
-        AppLogger.warning('No access token found');
         return null;
       }
 
       final userId = _jwtService.getUserId(token);
       if (userId == null) {
-        AppLogger.warning('No user ID found in token');
         return null;
       }
 
-      AppLogger.debug('Current user ID: $userId');
       return userId;
     } catch (e) {
       AppLogger.error('Error getting current user ID: $e');
@@ -39,17 +36,14 @@ class UserService {
     try {
       final token = await _authLocalDataSource.getAccessToken();
       if (token == null) {
-        AppLogger.warning('No access token found');
         return null;
       }
 
       final username = _jwtService.getUsername(token);
       if (username == null) {
-        AppLogger.warning('No username found in token');
         return null;
       }
 
-      AppLogger.debug('Current username: $username');
       return username;
     } catch (e) {
       AppLogger.error('Error getting current username: $e');
@@ -62,17 +56,14 @@ class UserService {
     try {
       final token = await _authLocalDataSource.getAccessToken();
       if (token == null) {
-        AppLogger.warning('No access token found');
         return null;
       }
 
       final userInfo = _jwtService.getUserInfo(token);
       if (userInfo == null) {
-        AppLogger.warning('No user info found in token');
         return null;
       }
 
-      AppLogger.debug('Current user info retrieved successfully');
       return userInfo;
     } catch (e) {
       AppLogger.error('Error getting current user info: $e');
@@ -103,7 +94,6 @@ class UserService {
       return userId;
     }
 
-    AppLogger.warning('Using fallback user ID: $fallback');
     return fallback;
   }
 }

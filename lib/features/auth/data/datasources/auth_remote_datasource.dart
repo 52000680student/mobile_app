@@ -4,6 +4,7 @@ import 'package:mobile_app/core/env/env_config.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/constants/patient_states.dart';
 import '../models/auth_response_model.dart';
 import '../../domain/entities/login_request.dart';
 
@@ -20,13 +21,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthResponseModel> login(LoginRequest loginRequest) async {
     try {
-      AppLogger.info('🔐 Starting login request...');
-      AppLogger.info('👤 Username: ${loginRequest.username}');
-      AppLogger.info('🔑 Grant Type: ${loginRequest.grantType}');
-
       // Use the specific login endpoint
       final loginUrl = '${EnvConfig.apiAuthBaseUrl}/connect/token';
-      AppLogger.info('🌐 Login URL: $loginUrl');
 
       // Create form data as Map<String, dynamic> for proper form encoding
       final formData = <String, dynamic>{
@@ -35,9 +31,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'grant_type': loginRequest.grantType,
         'scope': '',
       };
-
-      AppLogger.info(
-          '📝 Form Data: ${formData.map((key, value) => MapEntry(key, key == 'password' ? '*****' : value))}');
 
       final response = await _apiClient.post<Map<String, dynamic>>(
         loginUrl,
@@ -51,7 +44,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           },
           followRedirects: false,
           validateStatus: (status) {
-            AppLogger.info('📊 Response Status: $status');
             return status != null &&
                 status <
                     500; // Don't throw for 4xx errors, handle them manually
@@ -60,81 +52,94 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        AppLogger.info('🎉 Login successful!');
         return AuthResponseModel.fromJson(response.data!);
       } else if (response.statusCode == 400) {
         final errorData = response.data;
-        AppLogger.info('🔍 Error Data: $errorData');
-        String errorMessage = 'Invalid credentials';
+        String errorMessage = ErrorMessages.invalidUsernameOrPassword;
 
         if (errorData is Map<String, dynamic>) {
           if (errorData.containsKey('error_description')) {
-            errorMessage = errorData['error_description'] as String;
+            final description = errorData['error_description'] as String;
+            if (description.toLowerCase().contains('invalid') ||
+                description.toLowerCase().contains('credentials') ||
+                description.toLowerCase().contains('username') ||
+                description.toLowerCase().contains('password')) {
+              errorMessage = ErrorMessages.invalidUsernameOrPassword;
+            } else {
+              errorMessage = description;
+            }
           } else if (errorData.containsKey('error')) {
             final error = errorData['error'] as String;
             switch (error) {
               case 'invalid_request':
-                errorMessage = 'Invalid request format or missing parameters';
+                errorMessage = ErrorMessages.invalidRequest;
                 break;
               case 'invalid_client':
-                errorMessage = 'Invalid client credentials';
+                errorMessage = ErrorMessages.authenticationServiceError;
                 break;
               case 'invalid_grant':
-                errorMessage = 'Invalid username or password';
+                errorMessage = ErrorMessages.invalidUsernameOrPassword;
                 break;
               case 'unsupported_grant_type':
-                errorMessage = 'Unsupported grant type';
+                errorMessage = ErrorMessages.authenticationServiceError;
                 break;
               default:
-                errorMessage = 'Authentication failed: $error';
+                errorMessage = ErrorMessages.invalidUsernameOrPassword;
             }
           }
         }
 
-        AppLogger.error('❌ Login failed (400): $errorMessage');
         throw ServerException(
           message: errorMessage,
           statusCode: 400,
         );
       } else if (response.statusCode == 401) {
-        AppLogger.error('❌ Login failed (401): Unauthorized');
         throw const ServerException(
-          message: 'Invalid username or password',
+          message: ErrorMessages.invalidUsernameOrPassword,
           statusCode: 401,
         );
       } else {
-        AppLogger.error(
-            '❌ Login failed (${response.statusCode}): Unexpected response');
         throw ServerException(
-          message: 'Login failed',
+          message: ErrorMessages.authenticationServiceError,
           statusCode: response.statusCode,
         );
       }
     } on DioException catch (e) {
-      AppLogger.error('🚨 DioException occurred', e);
-      AppLogger.error('🔍 Request options: ${e.requestOptions.toString()}');
-      AppLogger.error('🔍 Request data: ${e.requestOptions.data}');
-      AppLogger.error('🔍 Request headers: ${e.requestOptions.headers}');
-
-      if (e.response != null) {
-        AppLogger.error('🔍 Response status: ${e.response?.statusCode}');
-        AppLogger.error('🔍 Response data: ${e.response?.data}');
-        AppLogger.error('🔍 Response headers: ${e.response?.headers.map}');
-      }
-
-      if (e.response?.statusCode == 400) {
+      // Handle network-related errors
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else if (e.response?.statusCode == 400) {
         // Extract more specific error information
         final responseData = e.response?.data;
-        String errorMessage = 'Invalid request format or missing parameters';
+        String errorMessage = ErrorMessages.invalidUsernameOrPassword;
 
         if (responseData is Map<String, dynamic>) {
           if (responseData.containsKey('error_description')) {
-            errorMessage = responseData['error_description'] as String;
+            final description = responseData['error_description'] as String;
+            if (description.toLowerCase().contains('invalid') ||
+                description.toLowerCase().contains('credentials') ||
+                description.toLowerCase().contains('username') ||
+                description.toLowerCase().contains('password')) {
+              errorMessage = ErrorMessages.invalidUsernameOrPassword;
+            } else {
+              errorMessage = description;
+            }
           } else if (responseData.containsKey('error')) {
-            errorMessage = 'Authentication error: ${responseData['error']}';
+            final error = responseData['error'] as String;
+            if (error == 'invalid_grant' || error == 'invalid_client') {
+              errorMessage = ErrorMessages.invalidUsernameOrPassword;
+            } else {
+              errorMessage = ErrorMessages.authenticationFailed;
+            }
           }
-        } else if (responseData is String) {
-          errorMessage = responseData;
         }
 
         throw ServerException(
@@ -143,15 +148,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         );
       } else if (e.response?.statusCode == 401) {
         throw const ServerException(
-          message: 'Invalid username or password',
+          message: ErrorMessages.invalidUsernameOrPassword,
           statusCode: 401,
         );
       } else {
-        throw NetworkException(message: 'Network error: ${e.message}');
+        throw NetworkException(
+          message: ErrorMessages.networkError,
+        );
       }
     } catch (e) {
-      AppLogger.error('💥 Unexpected error during login', e);
-      throw UnknownException(message: 'Login failed: ${e.toString()}');
+      AppLogger.error('Unexpected error during login', e);
+      throw UnknownException(
+        message: ErrorMessages.anUnexpectedErrorOccurred,
+      );
     }
   }
 }

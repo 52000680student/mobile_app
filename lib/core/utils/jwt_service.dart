@@ -31,7 +31,6 @@ class JwtService {
       // Parse JSON
       final Map<String, dynamic> payloadMap = json.decode(decoded);
 
-      AppLogger.debug('JWT payload decoded successfully');
       return payloadMap;
     } catch (e) {
       AppLogger.error('Error decoding JWT token: $e');
@@ -47,26 +46,23 @@ class JwtService {
 
       // Try different possible user ID field names
       final possibleUserIdFields = [
-        'sub', // Standard JWT subject field
-        'userId', // Common user ID field
-        'user_id', // Alternative format
-        'id', // Simple ID field
-        'uid', // User identifier
-        'nameid', // NameIdentifier in .NET
+        'sub',
+        'userId',
+        'user_id',
+        'id',
+        'uid',
+        'unique_name',
       ];
 
       for (final field in possibleUserIdFields) {
         if (payload.containsKey(field)) {
           final value = payload[field];
           if (value != null) {
-            AppLogger.debug('User ID found in field "$field": $value');
             return value.toString();
           }
         }
       }
 
-      AppLogger.warning('No user ID found in JWT token payload');
-      AppLogger.debug('Available fields: ${payload.keys.toList()}');
       return null;
     } catch (e) {
       AppLogger.error('Error extracting user ID from token: $e');
@@ -94,13 +90,11 @@ class JwtService {
         if (payload.containsKey(field)) {
           final value = payload[field];
           if (value != null) {
-            AppLogger.debug('Username found in field "$field": $value');
             return value.toString();
           }
         }
       }
 
-      AppLogger.warning('No username found in JWT token payload');
       return null;
     } catch (e) {
       AppLogger.error('Error extracting username from token: $e');
@@ -120,13 +114,10 @@ class JwtService {
           final expirationDate =
               DateTime.fromMillisecondsSinceEpoch(exp * 1000);
           final isExpired = DateTime.now().isAfter(expirationDate);
-          AppLogger.debug(
-              'Token expiration check: ${isExpired ? "expired" : "valid"}');
           return isExpired;
         }
       }
 
-      AppLogger.warning('No expiration field found in token');
       return false; // If no exp field, assume it's valid
     } catch (e) {
       AppLogger.error('Error checking token expiration: $e');

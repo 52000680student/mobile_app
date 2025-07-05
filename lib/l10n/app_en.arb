@@ -535,5 +535,85 @@
   "processing": "Processing...",
   "@processing": {
     "description": "Processing indicator text"
+  },
+  "errorSessionExpired": "Your session has expired. Please login again.",
+  "@errorSessionExpired": {
+    "description": "Session expired error message"
+  },
+  "errorBadRequest": "Bad request. Please check your input.",
+  "@errorBadRequest": {
+    "description": "Bad request error message"
+  },
+  "errorAccessDenied": "Access denied. You don't have permission to perform this action.",
+  "@errorAccessDenied": {
+    "description": "Access denied error message"
+  },
+  "errorTooManyRequests": "Too many requests. Please try again later.",
+  "@errorTooManyRequests": {
+    "description": "Too many requests error message"
+  },
+  "errorInternalServer": "Internal server error. Please try again later.",
+  "@errorInternalServer": {
+    "description": "Internal server error message"
+  },
+  "errorServiceUnavailable": "Service temporarily unavailable.",
+  "@errorServiceUnavailable": {
+    "description": "Service unavailable error message"
+  },
+  "errorValidationFailed": "Validation failed.",
+  "@errorValidationFailed": {
+    "description": "Validation failed error message"
+  },
+  "errorRequestCancelled": "Request was cancelled.",
+  "@errorRequestCancelled": {
+    "description": "Request cancelled error message"
+  },
+  "errorUnexpected": "An unexpected error occurred. Please try again.",
+  "@errorUnexpected": {
+    "description": "Unexpected error message"
+  },
+  "errorConnectionTimeout": "Connection timeout. Please check your internet connection.",
+  "@errorConnectionTimeout": {
+    "description": "Connection timeout error message"
+  },
+  "errorNetworkConnection": "Network error. Please check your internet connection.",
+  "@errorNetworkConnection": {
+    "description": "Network connection error message"
+  },
+  "errorAuthServiceError": "Authentication service error. Please contact support.",
+  "@errorAuthServiceError": {
+    "description": "Authentication service error message"
+  },
+  "errorInvalidRequest": "Invalid request. Please try again.",
+  "@errorInvalidRequest": {
+    "description": "Invalid request error message"
+  },
+  "errorFailedToParseData": "Failed to parse data",
+  "@errorFailedToParseData": {
+    "description": "Failed to parse data error message"
+  },
+  "errorFailedToUpdateSample": "Failed to update sample",
+  "@errorFailedToUpdateSample": {
+    "description": "Failed to update sample error message"
+  },
+  "errorFailedToTakeSamples": "Failed to take all samples",
+  "@errorFailedToTakeSamples": {
+    "description": "Failed to take samples error message"
+  },
+  "errorCacheOperation": "Cache operation failed",
+  "@errorCacheOperation": {
+    "description": "Cache operation failed error message"
+  },
+  "errorInitializationFailed": "Failed to initialize app",
+  "@errorInitializationFailed": {
+    "description": "App initialization failed error message"
+  },
+  "errorInvalidUsernameOrPassword": "Invalid username or password",
+  "@errorInvalidUsernameOrPassword": {
+    "description": "Invalid username or password error message"
+  },
+  "errorAuthenticationFailed": "Authentication failed. Please try again.",
+  "@errorAuthenticationFailed": {
+    "description": "Authentication failed error message"
   }
 }

@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mobile_app/core/constants/patient_states.dart';
+import 'package:mobile_app/core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/parameter_constants.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -47,8 +50,25 @@ class PatientAdmissionsRemoteDataSourceImpl
       }
 
       return [];
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
-      // Re-throw the original exception so it can be handled properly by the repository
+      AppLogger.error('Error in getDepartments: $e');
       rethrow;
     }
   }
@@ -75,8 +95,25 @@ class PatientAdmissionsRemoteDataSourceImpl
         totalPages: 0,
         last: true,
       );
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
-      // Re-throw the original exception so it can be handled properly by the repository
+      AppLogger.error('Error in getWaitingForAdmission: $e');
       rethrow;
     }
   }
@@ -103,8 +140,25 @@ class PatientAdmissionsRemoteDataSourceImpl
         totalPages: 0,
         last: true,
       );
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
-      // Re-throw the original exception so it can be handled properly by the repository
+      AppLogger.error('Error in getSampleTaken: $e');
       rethrow;
     }
   }
@@ -112,28 +166,35 @@ class PatientAdmissionsRemoteDataSourceImpl
   @override
   Future<SampleResponse> getRequestSamples(int requestId) async {
     try {
-      AppLogger.debug(
-          'Making API call to: ${ApiParameters.getRequestSamplesUrl(requestId)}');
-
       final response = await _apiClient.get<Map<String, dynamic>>(
         ApiParameters.getRequestSamplesUrl(requestId),
       );
 
-      AppLogger.debug('API Response status: ${response.statusCode}');
-      AppLogger.debug('API Response data: ${response.data}');
-
       if (response.data != null) {
-        AppLogger.debug('Parsing SampleResponse from JSON...');
         final sampleResponse = SampleResponse.fromJson(response.data!);
-        AppLogger.debug(
-            'Successfully parsed ${sampleResponse.samples.length} samples');
         return sampleResponse;
       }
 
       throw Exception('No sample data received');
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
       AppLogger.error('Error in getRequestSamples: $e');
-      // Re-throw the original exception so it can be handled properly by the repository
       rethrow;
     }
   }
@@ -152,8 +213,25 @@ class PatientAdmissionsRemoteDataSourceImpl
       }
 
       return [];
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
-      // Re-throw the original exception so it can be handled properly by the repository
+      AppLogger.error('Error in getRequestTests: $e');
       rethrow;
     }
   }
@@ -171,8 +249,25 @@ class PatientAdmissionsRemoteDataSourceImpl
       }
 
       throw Exception('No test details received');
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
-      // Re-throw the original exception so it can be handled properly by the repository
+      AppLogger.error('Error in getTestByCode: $e');
       rethrow;
     }
   }
@@ -181,20 +276,33 @@ class PatientAdmissionsRemoteDataSourceImpl
   Future<void> updateSample(
       int requestId, Map<String, dynamic> sampleData) async {
     try {
-      AppLogger.debug(
-          'Making API call to: ${ApiParameters.getRequestSamplesUrl(requestId)}');
-      AppLogger.debug('Using extended timeout for sample update operation');
-
       final response = await _apiClient.putWithTimeout<void>(
         ApiParameters.getRequestSamplesUrl(requestId),
         data: sampleData,
       );
 
-      AppLogger.debug('API Response status: ${response.statusCode}');
-      AppLogger.debug('Sample updated successfully');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update sample');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
       AppLogger.error('Error in updateSample: $e');
-      // Re-throw the original exception so it can be handled properly by the repository
       rethrow;
     }
   }
@@ -202,8 +310,6 @@ class PatientAdmissionsRemoteDataSourceImpl
   @override
   Future<void> takeAllSamples(int requestId, String collectorUserId) async {
     try {
-      AppLogger.debug('Taking all samples for request ID: $requestId');
-
       // First, get the current samples
       final samplesResponse = await getRequestSamples(requestId);
 
@@ -236,11 +342,28 @@ class PatientAdmissionsRemoteDataSourceImpl
         data: sampleData,
       );
 
-      AppLogger.debug('API Response status: ${response.statusCode}');
-      AppLogger.debug('All samples taken successfully');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to take all samples');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: ErrorMessages.connectionTimeout,
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: ErrorMessages.networkError,
+        );
+      } else {
+        // Handle all other DioException types
+        throw NetworkException(
+          message: e.message ?? ErrorMessages.serverError,
+        );
+      }
     } catch (e) {
       AppLogger.error('Error in takeAllSamples: $e');
-      // Re-throw the original exception so it can be handled properly by the repository
       rethrow;
     }
   }

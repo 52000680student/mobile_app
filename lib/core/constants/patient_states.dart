@@ -84,6 +84,35 @@ class ErrorMessages {
   static const String sampleUpdateTimeoutError = 'sampleUpdateTimeout';
   static const String sampleCollectionTimeoutError = 'sampleCollectionTimeout';
 
+  // New error keys for additional error scenarios
+  static const String sessionExpiredError = 'errorSessionExpired';
+  static const String badRequestError = 'errorBadRequest';
+  static const String accessDeniedError = 'errorAccessDenied';
+  static const String tooManyRequestsError = 'errorTooManyRequests';
+  static const String internalServerError = 'errorInternalServer';
+  static const String serviceUnavailableError = 'errorServiceUnavailable';
+  static const String validationFailedError = 'errorValidationFailed';
+  static const String requestCancelledError = 'errorRequestCancelled';
+  static const String unexpectedError = 'errorUnexpected';
+  static const String connectionTimeoutError = 'errorConnectionTimeout';
+  static const String networkConnectionError = 'errorNetworkConnection';
+  static const String authServiceError = 'errorAuthServiceError';
+  static const String invalidRequestError = 'errorInvalidRequest';
+  static const String failedToParseDataError = 'errorFailedToParseData';
+  static const String failedToUpdateSampleError = 'errorFailedToUpdateSample';
+  static const String failedToTakeSamplesError = 'errorFailedToTakeSamples';
+  static const String cacheOperationError = 'errorCacheOperation';
+  static const String initializationFailedError = 'errorInitializationFailed';
+
+  // Auth-specific error keys
+  static const String invalidUsernameOrPassword =
+      'errorInvalidUsernameOrPassword';
+  static const String invalidRequest = 'errorInvalidRequest';
+  static const String authenticationServiceError = 'errorAuthServiceError';
+  static const String authenticationFailed = 'errorAuthenticationFailed';
+  static const String connectionTimeout = 'errorConnectionTimeout';
+  static const String anUnexpectedErrorOccurred = 'errorUnexpected';
+
   // All error keys for easy reference
   static List<String> get allErrorKeys => [
         networkError,
@@ -101,5 +130,29 @@ class ErrorMessages {
         emptySearchError,
         sampleUpdateTimeoutError,
         sampleCollectionTimeoutError,
+        sessionExpiredError,
+        badRequestError,
+        accessDeniedError,
+        tooManyRequestsError,
+        internalServerError,
+        serviceUnavailableError,
+        validationFailedError,
+        requestCancelledError,
+        unexpectedError,
+        connectionTimeoutError,
+        networkConnectionError,
+        authServiceError,
+        invalidRequestError,
+        failedToParseDataError,
+        failedToUpdateSampleError,
+        failedToTakeSamplesError,
+        cacheOperationError,
+        initializationFailedError,
+        invalidUsernameOrPassword,
+        invalidRequest,
+        authenticationServiceError,
+        authenticationFailed,
+        connectionTimeout,
+        anUnexpectedErrorOccurred,
       ];
 }

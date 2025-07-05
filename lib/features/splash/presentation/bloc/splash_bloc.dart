@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/constants/patient_states.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
 
 part 'splash_event.dart';
@@ -20,8 +21,6 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     Emitter<SplashState> emit,
   ) async {
     try {
-      AppLogger.info('Splash screen started');
-
       // Simulate app initialization (e.g., loading user data, checking auth)
       await Future.delayed(const Duration(seconds: 2));
 
@@ -29,15 +28,13 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       final isLoggedIn = await _authLocalDataSource.isLoggedIn();
 
       if (isLoggedIn) {
-        AppLogger.info('User is already authenticated, redirecting to home');
         emit(SplashAuthenticated());
       } else {
-        AppLogger.info('User is not authenticated, redirecting to login');
         emit(SplashCompleted());
       }
     } catch (e, stackTrace) {
       AppLogger.error('Error during app initialization', e, stackTrace);
-      emit(const SplashError(message: 'Failed to initialize app'));
+      emit(const SplashError(message: ErrorMessages.initializationFailedError));
     }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/constants/patient_states.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../domain/entities/login_request.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -28,8 +30,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      AppLogger.info('Login attempt for: ${event.email}');
-
       final loginRequest = LoginRequest(
         username: event.email,
         password: event.password,
@@ -44,8 +44,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthFailure(message: failure.message));
       } else {
         // Handle success
-        AppLogger.info('Login successful for: ${event.email}');
-
         // Handle remember me functionality
         if (event.rememberMe) {
           await _authLocalDataSource.setRememberMe(true);
@@ -62,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     } catch (e, stackTrace) {
       AppLogger.error('Login failed', e, stackTrace);
-      emit(const AuthFailure(message: 'Login failed. Please try again.'));
+      emit(const AuthFailure(message: ErrorMessages.authenticationFailed));
     }
   }
 
@@ -71,16 +69,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     try {
-      AppLogger.info('Logout requested');
-
       // Clear all auth data (this will preserve remember me if enabled)
       await _authLocalDataSource.clearAuthData();
 
       emit(AuthInitial());
-      AppLogger.info('Logout successful');
     } catch (e, stackTrace) {
       AppLogger.error('Logout failed', e, stackTrace);
-      emit(const AuthFailure(message: 'Logout failed'));
+      emit(const AuthFailure(message: ErrorMessages.unexpectedError));
     }
   }
 
@@ -89,15 +84,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     try {
-      AppLogger.info('Checking authentication status');
-
       final isLoggedIn = await _authLocalDataSource.isLoggedIn();
 
       if (isLoggedIn) {
-        AppLogger.info('User is already authenticated');
         emit(AuthAlreadyAuthenticated());
       } else {
-        AppLogger.info('User is not authenticated');
         emit(AuthInitial());
       }
     } catch (e, stackTrace) {

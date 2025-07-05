@@ -1,11 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
+import '../../constants/app_constants.dart';
+import '../../constants/patient_states.dart';
+import '../../router/app_router.dart';
 
 class ErrorInterceptor extends Interceptor {
   final Logger _logger = Logger();
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    // Check for 401 errors across all error types first
+    _checkForUnauthorizedError(err);
+
     final modifiedError = _handleError(err);
     handler.next(modifiedError);
   }
@@ -38,7 +44,7 @@ class ErrorInterceptor extends Interceptor {
     return DioException(
       requestOptions: error.requestOptions,
       type: error.type,
-      message: 'Connection timeout. Please check your internet connection.',
+      message: ErrorMessages.connectionTimeoutError,
       response: error.response,
     );
   }
@@ -49,7 +55,7 @@ class ErrorInterceptor extends Interceptor {
     return DioException(
       requestOptions: error.requestOptions,
       type: error.type,
-      message: 'No internet connection. Please check your network settings.',
+      message: ErrorMessages.networkConnectionError,
       response: error.response,
     );
   }
@@ -63,43 +69,41 @@ class ErrorInterceptor extends Interceptor {
     switch (statusCode) {
       case 400:
         message =
-            _extractErrorMessage(responseData) ??
-            'Bad request. Please check your input.';
+            _extractErrorMessage(responseData) ?? ErrorMessages.badRequestError;
         break;
       case 401:
-        message = 'Authentication failed. Please login again.';
+        message = ErrorMessages.sessionExpiredError;
+        _redirectToLogin();
         break;
       case 403:
-        message =
-            'Access denied. You don\'t have permission to perform this action.';
+        message = ErrorMessages.accessDeniedError;
         break;
       case 404:
-        message = 'Resource not found.';
+        message = ErrorMessages.notFoundError;
         break;
       case 409:
-        message =
-            _extractErrorMessage(responseData) ??
+        message = _extractErrorMessage(responseData) ??
             'Conflict. The resource already exists.';
         break;
       case 422:
-        message =
-            _extractValidationErrors(responseData) ?? 'Validation failed.';
+        message = _extractValidationErrors(responseData) ??
+            ErrorMessages.validationFailedError;
         break;
       case 429:
-        message = 'Too many requests. Please try again later.';
+        message = ErrorMessages.tooManyRequestsError;
         break;
       case 500:
-        message = 'Internal server error. Please try again later.';
+        message = ErrorMessages.internalServerError;
         break;
       case 502:
-        message = 'Service temporarily unavailable.';
+        message = ErrorMessages.serviceUnavailableError;
         break;
       case 503:
-        message = 'Service temporarily unavailable.';
+        message = ErrorMessages.serviceUnavailableError;
         break;
       default:
         message =
-            _extractErrorMessage(responseData) ?? 'Server error occurred.';
+            _extractErrorMessage(responseData) ?? ErrorMessages.serverError;
     }
 
     _logger.e('HTTP Error [$statusCode]: $message');
@@ -118,7 +122,7 @@ class ErrorInterceptor extends Interceptor {
     return DioException(
       requestOptions: error.requestOptions,
       type: error.type,
-      message: 'Request was cancelled.',
+      message: ErrorMessages.requestCancelledError,
       response: error.response,
     );
   }
@@ -129,9 +133,18 @@ class ErrorInterceptor extends Interceptor {
     return DioException(
       requestOptions: error.requestOptions,
       type: error.type,
-      message: 'An unexpected error occurred. Please try again.',
+      message: ErrorMessages.unexpectedError,
       response: error.response,
     );
+  }
+
+  void _redirectToLogin() {
+    // Use GoRouter directly to navigate to login
+    try {
+      AppRouter.router.go(AppRoutes.login);
+    } catch (e) {
+      _logger.w('Could not redirect to login: $e');
+    }
   }
 
   String? _extractErrorMessage(dynamic responseData) {
@@ -176,5 +189,40 @@ class ErrorInterceptor extends Interceptor {
     }
 
     return null;
+  }
+
+  /// Check for 401 errors regardless of the DioException type
+  void _checkForUnauthorizedError(DioException error) {
+    final statusCode = error.response?.statusCode;
+
+    // Direct status code check
+    if (statusCode == 401) {
+      _redirectToLogin();
+      return;
+    }
+
+    // Check for auth-related error messages in response data
+    final responseData = error.response?.data;
+    if (responseData is Map<String, dynamic>) {
+      final errorMessage = _extractErrorMessage(responseData)?.toLowerCase();
+      if (errorMessage != null &&
+          (errorMessage.contains('unauthorized') ||
+              errorMessage.contains('token') ||
+              errorMessage.contains('session') ||
+              errorMessage.contains('expired'))) {
+        _redirectToLogin();
+        return;
+      }
+    }
+
+    // Check for authorization errors in headers
+    final headers = error.response?.headers;
+    if (headers != null) {
+      final authHeader = headers['www-authenticate'];
+      if (authHeader != null && authHeader.isNotEmpty) {
+        _redirectToLogin();
+        return;
+      }
+    }
   }
 }

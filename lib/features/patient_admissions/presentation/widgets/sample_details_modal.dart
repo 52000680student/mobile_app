@@ -26,8 +26,6 @@ class SampleDetailsModal extends StatefulWidget {
 
   static void show(BuildContext context, PatientInfo patient,
       {bool isFromWaitingForAdmission = false, VoidCallback? onRefresh}) {
-    AppLogger.debug(
-        'Opening sample details modal for patient ID: ${patient.id}');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -114,8 +112,7 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
                   Navigator.of(context, rootNavigator: true).pop();
                 }
               } catch (e) {
-                AppLogger.debug(
-                    'Modal was already closed or context is no longer valid');
+                // Modal was already closed or context is no longer valid
               }
             }
           });
@@ -568,19 +565,11 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
                   getIt<UserService>()
                       .getCurrentUserIdWithFallback()
                       .then((userId) {
-                    AppLogger.debug(
-                        'Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: $userId');
+                    // Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: $userId
                   });
-                } else {
-                  AppLogger.debug(
-                      'Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: null');
                 }
-
                 // You can add logic here to update the sample model if needed
-                // For now, just logging the change
-              } else {
-                AppLogger.debug(
-                    'Sample collection status changed for sample ${sample.sampleId}: $newValue (read-only mode)');
+                // For now, just tracking the change
               }
             },
           );
@@ -642,13 +631,10 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
           // If no pages to pop in current navigator, try with root navigator
           if (Navigator.of(context, rootNavigator: true).canPop()) {
             Navigator.of(context, rootNavigator: true).pop();
-          } else {
-            AppLogger.debug('No pages to pop in both navigators');
           }
         }
       } catch (e) {
-        AppLogger.debug(
-            'Modal was already closed or context is no longer valid: $e');
+        // Modal was already closed or context is no longer valid
       }
     }
   }

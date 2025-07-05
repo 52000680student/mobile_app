@@ -65,21 +65,16 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
   Future<Either<Failure, SampleResponse>> getRequestSamples(
       int requestId) async {
     try {
-      AppLogger.debug('Fetching samples for request ID: $requestId');
       final result = await _remoteDataSource.getRequestSamples(requestId);
-      AppLogger.debug(
-          'Successfully fetched samples: ${result.samples.length} samples');
       return Right(result);
     } on ServerException catch (e) {
-      AppLogger.error('Server error fetching samples: ${e.message}');
       return Left(ServerFailure(
           message: ErrorMessages.fetchPatientsError, code: e.statusCode));
     } on NetworkException catch (e) {
       AppLogger.error('Network error fetching samples: ${e.message}');
       return const Left(NetworkFailure(message: ErrorMessages.networkError));
     } catch (e, stackTrace) {
-      AppLogger.error('Unknown error fetching samples: $e');
-      AppLogger.error('Stack trace: $stackTrace');
+      AppLogger.error('Unknown error fetching samples: $e', stackTrace);
       return Left(UnknownFailure(
           message: 'Failed to parse sample data: ${e.toString()}'));
     }
@@ -121,9 +116,7 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
   Future<Either<Failure, void>> updateSample(
       int requestId, Map<String, dynamic> sampleData) async {
     try {
-      AppLogger.debug('Updating sample for request ID: $requestId');
       await _remoteDataSource.updateSample(requestId, sampleData);
-      AppLogger.debug('Successfully updated sample');
       return const Right(null);
     } on ServerException catch (e) {
       AppLogger.error('Server error updating sample: ${e.message}');
@@ -138,8 +131,7 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
       }
       return Left(NetworkFailure(message: e.message));
     } catch (e, stackTrace) {
-      AppLogger.error('Unknown error updating sample: $e');
-      AppLogger.error('Stack trace: $stackTrace');
+      AppLogger.error('Unknown error updating sample: $e', stackTrace);
       return Left(
           UnknownFailure(message: 'Failed to update sample: ${e.toString()}'));
     }
@@ -149,9 +141,7 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
   Future<Either<Failure, void>> takeAllSamples(
       int requestId, String collectorUserId) async {
     try {
-      AppLogger.debug('Taking all samples for request ID: $requestId');
       await _remoteDataSource.takeAllSamples(requestId, collectorUserId);
-      AppLogger.debug('Successfully took all samples');
       return const Right(null);
     } on ServerException catch (e) {
       AppLogger.error('Server error taking all samples: ${e.message}');
@@ -166,8 +156,7 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
       }
       return Left(NetworkFailure(message: e.message));
     } catch (e, stackTrace) {
-      AppLogger.error('Unknown error taking all samples: $e');
-      AppLogger.error('Stack trace: $stackTrace');
+      AppLogger.error('Unknown error taking all samples: $e', stackTrace);
       return Left(UnknownFailure(
           message: 'Failed to take all samples: ${e.toString()}'));
     }

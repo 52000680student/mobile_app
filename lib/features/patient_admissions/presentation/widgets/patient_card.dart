@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/constants/patient_states.dart';
 import '../../data/models/patient_models.dart';
 import 'sample_details_modal.dart';
 import '../../../../core/di/injection_container.dart';
@@ -407,7 +408,6 @@ class _PatientCardState extends State<PatientCard> {
     );
 
     if (!confirmed || !context.mounted) {
-      AppLogger.debug('Take sample cancelled or context not mounted');
       return;
     }
 
@@ -421,43 +421,30 @@ class _PatientCardState extends State<PatientCard> {
       final userService = getIt<UserService>();
       final userId = await userService.getCurrentUserIdWithFallback();
 
-      AppLogger.debug('Starting take sample for patient ID: ${patient.id}');
-      AppLogger.debug('Using user ID: $userId');
-
       // Get the use case and call the API
       final takeAllSamplesUseCase = getIt<TakeAllSamplesUseCase>();
       final result = await takeAllSamplesUseCase(patient.id, userId);
 
-      AppLogger.debug('Take sample API call completed');
-
       // Check context is still mounted after async operation
       if (!context.mounted) {
-        AppLogger.warning('Context not mounted after API call');
         return;
       }
 
       result.fold(
         (failure) {
           // Show error message
-          AppLogger.error('Take sample failed with error: ${failure.message}');
           ToastService.showError(context, failure.message);
         },
         (success) {
           // Show success message
-          AppLogger.debug('Take sample successful');
-          AppLogger.debug('Showing success toast');
           ToastService.showSuccess(context, l10n.takeSampleSuccess);
-
-          AppLogger.debug('Calling refresh callback');
-          // Call refresh immediately - no delay needed
+          // Call refresh callback
           widget.onRefresh?.call();
-          AppLogger.debug('All success actions completed');
         },
       );
     } catch (e, stackTrace) {
       // Handle any unexpected errors
-      AppLogger.error('Exception in take sample: $e');
-      AppLogger.error('Stack trace: $stackTrace');
+      AppLogger.error('Exception in take sample: $e', stackTrace);
       if (context.mounted) {
         ToastService.showError(context, l10n.takeSampleError);
       }
