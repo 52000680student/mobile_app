@@ -123,10 +123,34 @@ class PatientVisit {
   });
 
   factory PatientVisit.fromJson(Map<String, dynamic> json) {
+    // Parse requestDate from string to DateTime
+    DateTime parseRequestDate(dynamic date) {
+      if (date == null) return DateTime.now();
+      if (date is DateTime) return date;
+      if (date is String) {
+        try {
+          return DateTime.parse(date);
+        } catch (e) {
+          // Try parsing different date formats
+          try {
+            final parts = date.split('/');
+            if (parts.length == 3) {
+              final day = int.parse(parts[0]);
+              final month = int.parse(parts[1]);
+              final year = int.parse(parts[2]);
+              return DateTime(year, month, day);
+            }
+          } catch (_) {}
+          return DateTime.now();
+        }
+      }
+      return DateTime.now();
+    }
+
     return PatientVisit(
       id: json['id'],
       sid: json['sid'],
-      requestDate: json['requestDate'] as DateTime,
+      requestDate: parseRequestDate(json['requestDate']),
       patientId: json['patientId'],
       familyName: json['familyName'],
       givenName: json['givenName'],

@@ -10,25 +10,31 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/dialog_service.dart';
 import '../../../../core/utils/toast_service.dart';
+import '../../../../core/utils/user_service.dart';
 
 class SampleDetailsModal extends StatefulWidget {
   final PatientInfo patient;
   final bool isFromWaitingForAdmission;
+  final VoidCallback? onRefresh;
 
   const SampleDetailsModal({
     super.key,
     required this.patient,
     this.isFromWaitingForAdmission = false,
+    this.onRefresh,
   });
 
   static void show(BuildContext context, PatientInfo patient,
-      {bool isFromWaitingForAdmission = false}) {
+      {bool isFromWaitingForAdmission = false, VoidCallback? onRefresh}) {
     AppLogger.debug(
         'Opening sample details modal for patient ID: ${patient.id}');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
+      useSafeArea: true,
       builder: (context) {
         return BlocProvider(
           create: (ctx) => getIt<SampleDetailsBloc>()
@@ -36,6 +42,7 @@ class SampleDetailsModal extends StatefulWidget {
           child: SampleDetailsModal(
             patient: patient,
             isFromWaitingForAdmission: isFromWaitingForAdmission,
+            onRefresh: onRefresh,
           ),
         );
       },
@@ -88,193 +95,227 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
         if (state.updateSuccessful) {
           // Show success message
           ToastService.showSuccess(context, l10n.recordSampleSuccess);
+
+          // Call refresh callback to update the parent page
+          if (widget.onRefresh != null) {
+            widget.onRefresh!();
+          }
+
+          // Close the modal after successful update - use a more robust approach
+          // Add a delay to ensure the toast is shown and any other UI updates are complete
+          Future.delayed(const Duration(milliseconds: 200), () {
+            if (mounted && context.mounted) {
+              try {
+                // Use the context's navigator to pop the modal
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  // If no pages to pop, try with root navigator
+                  Navigator.of(context, rootNavigator: true).pop();
+                }
+              } catch (e) {
+                AppLogger.debug(
+                    'Modal was already closed or context is no longer valid');
+              }
+            }
+          });
         } else if (state.updateErrorMessage != null) {
-          // Show error message
-          ToastService.showError(context, state.updateErrorMessage!);
+          // Show error message only if widget is still mounted
+          if (mounted && context.mounted) {
+            ToastService.showError(context, state.updateErrorMessage!);
+          }
         }
       },
       child: BlocBuilder<SampleDetailsBloc, SampleDetailsState>(
         builder: (context, state) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.7,
-            minChildSize: 0.5,
-            maxChildSize: 0.9,
-            builder: (context, scrollController) => Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+          return Material(
+            type: MaterialType.transparency,
+            child: DraggableScrollableSheet(
+              initialChildSize: 0.7,
+              minChildSize: 0.5,
+              maxChildSize: 0.9,
+              builder: (context, scrollController) => Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
                 ),
-              ),
-              child: Column(
-                children: [
-                  // Handle bar
-                  Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-
-                  // Header
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Text(
-                          l10n.sampleDetails,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1F2937),
-                          ),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.grey.shade100,
-                            foregroundColor: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Loading State
-                  if (state.isLoading)
-                    const Expanded(
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-
-                  // Error State
-                  if (state.errorMessage != null && !state.isLoading)
-                    Expanded(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                size: 48,
-                                color: Colors.red.shade400,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                state.errorMessage!,
-                                style: TextStyle(
-                                  color: Colors.red.shade600,
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () {
-                                  context.read<SampleDetailsBloc>().add(
-                                        LoadSampleDetails(
-                                            id: widget.patient.id),
-                                      );
-                                },
-                                child: Text(l10n.retry),
-                              ),
-                            ],
-                          ),
-                        ),
+                child: Column(
+                  children: [
+                    // Handle bar
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
 
-                  // Success State with Data
-                  if (!state.isLoading && state.errorMessage == null) ...[
-                    // Patient Info Header
+                    // Header
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
                         children: [
                           Text(
-                            widget.patient.name,
+                            l10n.sampleDetails,
                             style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                               color: Color(0xFF1F2937),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'SID: ${widget.patient.sid}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            l10n.sampleList(state.samples.length),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1976D2),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: () {
+                              if (mounted && context.mounted) {
+                                _safeCloseModal();
+                              }
+                            },
+                            icon: const Icon(Icons.close),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.grey.shade100,
+                              foregroundColor: Colors.grey.shade600,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    // Loading State
+                    if (state.isLoading)
+                      const Expanded(
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
 
-                    // Sample List with Two-Column Layout
-                    Expanded(
-                      child: state.samples.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.science_outlined,
-                                    size: 48,
-                                    color: Colors.grey.shade400,
+                    // Error State
+                    if (state.errorMessage != null && !state.isLoading)
+                      Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 48,
+                                  color: Colors.red.shade400,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  state.errorMessage!,
+                                  style: TextStyle(
+                                    color: Colors.red.shade600,
+                                    fontSize: 16,
                                   ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    l10n.errorNoData,
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              controller: scrollController,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              itemCount: state.samples.length,
-                              itemBuilder: (context, index) {
-                                final sample = state.samples[index];
-                                return _buildSampleCard(
-                                    sample, state.testDetails, l10n);
-                              },
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context.read<SampleDetailsBloc>().add(
+                                          LoadSampleDetails(
+                                              id: widget.patient.id),
+                                        );
+                                  },
+                                  child: Text(l10n.retry),
+                                ),
+                              ],
                             ),
-                    ),
+                          ),
+                        ),
+                      ),
 
-                    // Common Record Me Button (only show if from waiting for admission tab and has samples)
-                    if (widget.isFromWaitingForAdmission &&
-                        state.samples.isNotEmpty) ...[
+                    // Success State with Data
+                    if (!state.isLoading && state.errorMessage == null) ...[
+                      // Patient Info Header
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.patient.name,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'SID: ${widget.patient.sid}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.sampleList(state.samples.length),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1976D2),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 16),
-                      _buildCommonRecordMeButton(context, state.samples, l10n),
-                      const SizedBox(height: 20),
+
+                      // Sample List with Two-Column Layout
+                      Expanded(
+                        child: state.samples.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.science_outlined,
+                                      size: 48,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      l10n.errorNoData,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                controller: scrollController,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                itemCount: state.samples.length,
+                                itemBuilder: (context, index) {
+                                  final sample = state.samples[index];
+                                  return _buildSampleCard(
+                                      sample, state.testDetails, l10n);
+                                },
+                              ),
+                      ),
+
+                      // Common Record Me Button (only show if from waiting for admission tab and has samples)
+                      if (widget.isFromWaitingForAdmission &&
+                          state.samples.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        _buildCommonRecordMeButton(
+                            context, state.samples, l10n),
+                        const SizedBox(height: 20),
+                      ],
                     ],
                   ],
-                ],
+                ),
               ),
             ),
           );
@@ -521,11 +562,19 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
               // If from waiting for admission tab, update collectorUserId
               if (widget.isFromWaitingForAdmission) {
                 // Update the collectorUserId based on switch state
-                // When true, set to logged in user ID (hardcoded as "1000004" for now)
-                // When false, set to null
-                final updatedUserId = newValue ? "1000004" : null;
-                AppLogger.debug(
-                    'Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: $updatedUserId');
+                // When true, set to logged in user ID, when false, set to null
+                if (newValue) {
+                  // Get current user ID from token
+                  getIt<UserService>()
+                      .getCurrentUserIdWithFallback()
+                      .then((userId) {
+                    AppLogger.debug(
+                        'Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: $userId');
+                  });
+                } else {
+                  AppLogger.debug(
+                      'Sample collection status changed for sample ${sample.sampleId}: $newValue, collectorUserId: null');
+                }
 
                 // You can add logic here to update the sample model if needed
                 // For now, just logging the change
@@ -582,6 +631,28 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
     );
   }
 
+  /// Safely close the modal with proper checks
+  void _safeCloseModal() {
+    if (mounted && context.mounted) {
+      try {
+        // Check if we can pop from the current navigator
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          // If no pages to pop in current navigator, try with root navigator
+          if (Navigator.of(context, rootNavigator: true).canPop()) {
+            Navigator.of(context, rootNavigator: true).pop();
+          } else {
+            AppLogger.debug('No pages to pop in both navigators');
+          }
+        }
+      } catch (e) {
+        AppLogger.debug(
+            'Modal was already closed or context is no longer valid: $e');
+      }
+    }
+  }
+
   Future<void> _onCommonRecordMePressed(
       BuildContext context, List<Sample> samples, AppLocalizations l10n) async {
     // Show confirmation dialog
@@ -594,6 +665,11 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
     );
 
     if (confirmed && context.mounted) {
+      // Get current user ID from token
+      final userService = getIt<UserService>();
+      final currentLoggedInUserId =
+          await userService.getCurrentUserIdWithFallback();
+
       // Build the sample data according to the API specification
       final sampleData = {
         "id": widget.patient.id,
@@ -602,7 +678,8 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
         "samples": samples.map((sample) {
           // Get the current switch state for each sample
           final switchController = _getOrCreateController(sample);
-          final currentUserId = switchController.value ? "1000004" : null;
+          final currentUserId =
+              switchController.value ? currentLoggedInUserId : null;
 
           return {
             "sampleType": sample.sampleType,

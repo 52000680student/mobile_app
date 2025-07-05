@@ -128,10 +128,15 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
     } on ServerException catch (e) {
       AppLogger.error('Server error updating sample: ${e.message}');
       return Left(ServerFailure(
-          message: 'Failed to update sample', code: e.statusCode));
+          message: 'Failed to update sample: ${e.message}',
+          code: e.statusCode));
     } on NetworkException catch (e) {
       AppLogger.error('Network error updating sample: ${e.message}');
-      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+      if (e.message.toLowerCase().contains('timeout')) {
+        return Left(
+            NetworkFailure(message: ErrorMessages.sampleUpdateTimeoutError));
+      }
+      return Left(NetworkFailure(message: e.message));
     } catch (e, stackTrace) {
       AppLogger.error('Unknown error updating sample: $e');
       AppLogger.error('Stack trace: $stackTrace');
@@ -151,10 +156,15 @@ class PatientAdmissionsRepositoryImpl implements PatientAdmissionsRepository {
     } on ServerException catch (e) {
       AppLogger.error('Server error taking all samples: ${e.message}');
       return Left(ServerFailure(
-          message: 'Failed to take all samples', code: e.statusCode));
+          message: 'Failed to take all samples: ${e.message}',
+          code: e.statusCode));
     } on NetworkException catch (e) {
       AppLogger.error('Network error taking all samples: ${e.message}');
-      return const Left(NetworkFailure(message: ErrorMessages.networkError));
+      if (e.message.toLowerCase().contains('timeout')) {
+        return Left(NetworkFailure(
+            message: ErrorMessages.sampleCollectionTimeoutError));
+      }
+      return Left(NetworkFailure(message: e.message));
     } catch (e, stackTrace) {
       AppLogger.error('Unknown error taking all samples: $e');
       AppLogger.error('Stack trace: $stackTrace');

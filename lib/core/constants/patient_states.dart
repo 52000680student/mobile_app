@@ -80,6 +80,10 @@ class ErrorMessages {
   static const String noDataError = 'errorNoData';
   static const String emptySearchError = 'errorEmptySearch';
 
+  // Sample operation specific errors
+  static const String sampleUpdateTimeoutError = 'sampleUpdateTimeout';
+  static const String sampleCollectionTimeoutError = 'sampleCollectionTimeout';
+
   // All error keys for easy reference
   static List<String> get allErrorKeys => [
         networkError,
@@ -95,5 +99,7 @@ class ErrorMessages {
         invalidDateRangeError,
         noDataError,
         emptySearchError,
+        sampleUpdateTimeoutError,
+        sampleCollectionTimeoutError,
       ];
 }

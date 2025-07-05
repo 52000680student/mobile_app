@@ -48,6 +48,7 @@
   "patientCount": "{count} pacientes",
   "lastUpdated": "• Última actualización",
   "birthDate": "Fecha de nacimiento",
+  "admissionDate": "Fecha de admisión",
   "gender": "Género",
   "age": "Edad",
   "patientType": "Tipo de paciente",
@@ -86,5 +87,8 @@
   "takeSampleConfirmTitle": "Tomar Todas las Muestras",
   "takeSampleConfirmMessage": "¿Está seguro de que desea tomar todas las muestras de este paciente?",
   "takeSampleSuccess": "Todas las muestras tomadas exitosamente",
-  "takeSampleError": "No se pudieron tomar las muestras"
+  "takeSampleError": "No se pudieron tomar las muestras",
+  "sampleUpdateTimeout": "La actualización de muestra está tomando más tiempo del esperado. La actualización puede haber sido exitosa en el servidor. Por favor, actualice para verificar el estado.",
+  "sampleCollectionTimeout": "La recolección de muestra está tomando más tiempo del esperado. La operación puede haber sido exitosa en el servidor. Por favor, actualice para verificar el estado.",
+  "processing": "Procesando..."
 }

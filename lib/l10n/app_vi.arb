@@ -169,6 +169,7 @@
     "patientCount": "{count} bệnh nhân",
     "lastUpdated": "• Cập nhật mới nhất",
     "birthDate": "Ngày sinh",
+    "admissionDate": "Ngày tiếp nhận",
     "gender": "Giới tính",
     "age": "Tuổi",
     "patientType": "Đối tượng",
@@ -243,5 +244,8 @@
     "takeSampleConfirmTitle": "Lấy Tất Cả Mẫu",
     "takeSampleConfirmMessage": "Bạn có chắc chắn muốn lấy tất cả mẫu cho bệnh nhân này không?",
     "takeSampleSuccess": "Đã lấy tất cả mẫu thành công",
-    "takeSampleError": "Không thể lấy mẫu"
+    "takeSampleError": "Không thể lấy mẫu",
+    "sampleUpdateTimeout": "Việc cập nhật mẫu đang mất nhiều thời gian hơn dự kiến. Việc cập nhật có thể đã thành công trên máy chủ. Vui lòng làm mới để kiểm tra trạng thái.",
+    "sampleCollectionTimeout": "Việc lấy mẫu đang mất nhiều thời gian hơn dự kiến. Thao tác có thể đã thành công trên máy chủ. Vui lòng làm mới để kiểm tra trạng thái.",
+    "processing": "Đang xử lý..."
 }

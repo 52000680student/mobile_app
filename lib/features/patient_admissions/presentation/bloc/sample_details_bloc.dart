@@ -49,8 +49,6 @@ class SampleDetailsBloc extends Bloc<SampleDetailsEvent, SampleDetailsState> {
           updateSuccessful: true,
           clearUpdateError: true,
         ));
-        // Reload the sample details to get the updated data
-        add(LoadSampleDetails(id: event.requestId));
       },
     );
   }

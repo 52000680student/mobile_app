@@ -109,6 +109,50 @@ class ApiClient {
     }
   }
 
+  // PUT request with custom timeout for long-running operations
+  Future<Response<T>> putWithTimeout<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    int? timeoutMs,
+  }) async {
+    try {
+      final customOptions = Options(
+        sendTimeout:
+            Duration(milliseconds: timeoutMs ?? EnvConfig.longOperationTimeout),
+        receiveTimeout:
+            Duration(milliseconds: timeoutMs ?? EnvConfig.longOperationTimeout),
+      );
+
+      // Merge with existing options if provided
+      if (options != null) {
+        customOptions.headers = {
+          ...?options.headers,
+          ...?customOptions.headers
+        };
+        customOptions.responseType =
+            options.responseType ?? customOptions.responseType;
+        customOptions.contentType =
+            options.contentType ?? customOptions.contentType;
+      }
+
+      return await _dio.put<T>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: customOptions,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioException(e);
+    } catch (e) {
+      _logger.e('Unexpected error in PUT request with timeout: $e');
+      throw const UnknownException(message: 'Unexpected error occurred');
+    }
+  }
+
   // DELETE request
   Future<Response<T>> delete<T>(
     String path, {

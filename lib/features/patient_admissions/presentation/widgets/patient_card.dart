@@ -5,17 +5,28 @@ import 'sample_details_modal.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/dialog_service.dart';
 import '../../../../core/utils/toast_service.dart';
+import '../../../../core/utils/user_service.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/usecases/take_all_samples_usecase.dart';
 
-class PatientCard extends StatelessWidget {
+class PatientCard extends StatefulWidget {
   final PatientInfo patient;
   final bool isFromWaitingForAdmission;
+  final VoidCallback? onRefresh;
 
   const PatientCard({
     super.key,
     required this.patient,
     this.isFromWaitingForAdmission = false,
+    this.onRefresh,
   });
+
+  @override
+  State<PatientCard> createState() => _PatientCardState();
+}
+
+class _PatientCardState extends State<PatientCard> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +65,7 @@ class PatientCard extends StatelessWidget {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      patient.name,
+                      widget.patient.name,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -73,18 +84,18 @@ class PatientCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: patient.statusColor,
+                        color: widget.patient.statusColor,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: patient.statusColor.withOpacity(0.3),
+                            color: widget.patient.statusColor.withOpacity(0.3),
                             offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
                         ],
                       ),
                       child: Text(
-                        _getStatusText(patient.status, l10n),
+                        _getStatusText(widget.patient.status, l10n),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -103,7 +114,7 @@ class PatientCard extends StatelessWidget {
 
               // Patient ID
               Text(
-                'SID: ${patient.sid}',
+                'SID: ${widget.patient.sid}',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 14,
@@ -137,14 +148,14 @@ class PatientCard extends StatelessWidget {
                           children: [
                             _buildDetailRow(
                               l10n.birthDate,
-                              '${patient.birthDate.day.toString().padLeft(2, '0')}/${patient.birthDate.month.toString().padLeft(2, '0')}/${patient.birthDate.year}',
+                              '${widget.patient.birthDate.day.toString().padLeft(2, '0')}/${widget.patient.birthDate.month.toString().padLeft(2, '0')}/${widget.patient.birthDate.year}',
                               Icons.cake_outlined,
                             ),
                             const SizedBox(height: 12),
                             _buildDetailRow(
                               l10n.gender,
-                              patient.gender,
-                              patient.gender == 'Nam'
+                              widget.patient.gender,
+                              widget.patient.gender == 'Nam'
                                   ? Icons.male
                                   : Icons.female,
                             ),
@@ -162,14 +173,20 @@ class PatientCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             _buildDetailRow(
+                              l10n.admissionDate,
+                              '${widget.patient.requestDate.day.toString().padLeft(2, '0')}/${widget.patient.requestDate.month.toString().padLeft(2, '0')}/${widget.patient.requestDate.year}',
+                              Icons.calendar_today_outlined,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildDetailRow(
                               l10n.age,
-                              '${patient.age}',
+                              '${widget.patient.age}',
                               Icons.access_time_outlined,
                             ),
                             const SizedBox(height: 12),
                             _buildDetailRow(
                               l10n.patientType,
-                              patient.object,
+                              widget.patient.object,
                               Icons.card_membership_outlined,
                             ),
                           ],
@@ -189,8 +206,10 @@ class PatientCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () => SampleDetailsModal.show(
                         context,
-                        patient,
-                        isFromWaitingForAdmission: isFromWaitingForAdmission,
+                        widget.patient,
+                        isFromWaitingForAdmission:
+                            widget.isFromWaitingForAdmission,
+                        onRefresh: widget.onRefresh,
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
@@ -218,10 +237,13 @@ class PatientCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  if (_shouldShowTakeSampleButton(patient.status))
+                  if (_shouldShowTakeSampleButton(widget.patient.status))
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => _onTakeSamplePressed(context, patient),
+                        onPressed: _isLoading
+                            ? null
+                            : () =>
+                                _onTakeSamplePressed(context, widget.patient),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1976D2),
                           foregroundColor: Colors.white,
@@ -232,16 +254,30 @@ class PatientCard extends StatelessWidget {
                           elevation: 0,
                           shadowColor: const Color(0xFF1976D2).withOpacity(0.3),
                         ),
-                        icon: Icon(
-                          _shouldShowTakeSampleButton(patient.status)
-                              ? Icons.medical_services_outlined
-                              : Icons.info_outline,
-                          size: 18,
-                        ),
+                        icon: _isLoading
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              )
+                            : Icon(
+                                _shouldShowTakeSampleButton(
+                                        widget.patient.status)
+                                    ? Icons.medical_services_outlined
+                                    : Icons.info_outline,
+                                size: 18,
+                              ),
                         label: Text(
-                          _shouldShowTakeSampleButton(patient.status)
-                              ? l10n.takeSample
-                              : l10n.viewDetails,
+                          _isLoading
+                              ? l10n.processing
+                              : (_shouldShowTakeSampleButton(
+                                      widget.patient.status)
+                                  ? l10n.takeSample
+                                  : l10n.viewDetails),
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -370,32 +406,67 @@ class PatientCard extends StatelessWidget {
       cancelText: l10n.cancel,
     );
 
-    if (confirmed && context.mounted) {
-      try {
-        // Get the use case and call the API
-        final takeAllSamplesUseCase = getIt<TakeAllSamplesUseCase>();
-        final result = await takeAllSamplesUseCase(
-            patient.id, "1000004"); // Hardcoded user ID
+    if (!confirmed || !context.mounted) {
+      AppLogger.debug('Take sample cancelled or context not mounted');
+      return;
+    }
 
-        result.fold(
-          (failure) {
-            // Show error message
-            if (context.mounted) {
-              ToastService.showError(context, failure.message);
-            }
-          },
-          (_) {
-            // Show success message
-            if (context.mounted) {
-              ToastService.showSuccess(context, l10n.takeSampleSuccess);
-            }
-          },
-        );
-      } catch (e) {
-        // Handle any unexpected errors
-        if (context.mounted) {
-          ToastService.showError(context, l10n.takeSampleError);
-        }
+    // Set loading state
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get current user ID from token
+      final userService = getIt<UserService>();
+      final userId = await userService.getCurrentUserIdWithFallback();
+
+      AppLogger.debug('Starting take sample for patient ID: ${patient.id}');
+      AppLogger.debug('Using user ID: $userId');
+
+      // Get the use case and call the API
+      final takeAllSamplesUseCase = getIt<TakeAllSamplesUseCase>();
+      final result = await takeAllSamplesUseCase(patient.id, userId);
+
+      AppLogger.debug('Take sample API call completed');
+
+      // Check context is still mounted after async operation
+      if (!context.mounted) {
+        AppLogger.warning('Context not mounted after API call');
+        return;
+      }
+
+      result.fold(
+        (failure) {
+          // Show error message
+          AppLogger.error('Take sample failed with error: ${failure.message}');
+          ToastService.showError(context, failure.message);
+        },
+        (success) {
+          // Show success message
+          AppLogger.debug('Take sample successful');
+          AppLogger.debug('Showing success toast');
+          ToastService.showSuccess(context, l10n.takeSampleSuccess);
+
+          AppLogger.debug('Calling refresh callback');
+          // Call refresh immediately - no delay needed
+          widget.onRefresh?.call();
+          AppLogger.debug('All success actions completed');
+        },
+      );
+    } catch (e, stackTrace) {
+      // Handle any unexpected errors
+      AppLogger.error('Exception in take sample: $e');
+      AppLogger.error('Stack trace: $stackTrace');
+      if (context.mounted) {
+        ToastService.showError(context, l10n.takeSampleError);
+      }
+    } finally {
+      // Clear loading state
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }

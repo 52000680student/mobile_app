@@ -61,6 +61,7 @@ class EnvConfig {
           'ENVIRONMENT': 'dev',
           'API_BASE_URL': 'https://api-dev.yourapp.com',
           'API_TIMEOUT': '30000',
+          'LONG_OPERATION_TIMEOUT': '90000',
           'ENABLE_LOGGING': 'true',
           'DEBUG_MODE': 'true',
         };
@@ -70,6 +71,7 @@ class EnvConfig {
           'ENVIRONMENT': 'sta',
           'API_BASE_URL': 'https://api-staging.yourapp.com',
           'API_TIMEOUT': '30000',
+          'LONG_OPERATION_TIMEOUT': '90000',
           'ENABLE_LOGGING': 'true',
           'DEBUG_MODE': 'false',
         };
@@ -79,6 +81,7 @@ class EnvConfig {
           'ENVIRONMENT': 'prod',
           'API_BASE_URL': 'https://api.yourapp.com',
           'API_TIMEOUT': '30000',
+          'LONG_OPERATION_TIMEOUT': '90000',
           'ENABLE_LOGGING': 'false',
           'DEBUG_MODE': 'false',
         };
@@ -96,6 +99,8 @@ class EnvConfig {
   static String get apiAuthBaseUrl => dotenv.env['API_AUTH_BASE_URL'] ?? '';
   static int get apiTimeout =>
       int.tryParse(dotenv.env['API_TIMEOUT'] ?? '30000') ?? 30000;
+  static int get longOperationTimeout =>
+      int.tryParse(dotenv.env['LONG_OPERATION_TIMEOUT'] ?? '90000') ?? 90000;
   static bool get enableLogging =>
       dotenv.env['ENABLE_LOGGING']?.toLowerCase() == 'true';
   static bool get debugMode =>

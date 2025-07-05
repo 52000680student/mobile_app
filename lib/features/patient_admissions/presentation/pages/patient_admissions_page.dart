@@ -640,6 +640,34 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
           return LoadingWidgets.buildSkeletonLoading();
         }
 
+        // Show loading overlay when filtering (has data but is loading)
+        if (state.isLoadingWaitingForAdmission &&
+            state.waitingForAdmissionPatients.isNotEmpty) {
+          return Stack(
+            children: [
+              // Existing content with opacity
+              Opacity(
+                opacity: 0.5,
+                child: _buildPatientList(
+                  state.waitingForAdmissionPatients,
+                  state.isLoadingMoreWaitingForAdmission,
+                  true,
+                ),
+              ),
+              // Loading overlay
+              Container(
+                color: Colors.white.withOpacity(0.8),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
         // Show error state with retry option
         if (state.errorMessage != null &&
             state.waitingForAdmissionPatients.isEmpty) {
@@ -661,31 +689,10 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
         }
 
         // Show list with pull-to-refresh
-        return RefreshIndicator(
-          onRefresh: () => _handleRefreshWaitingForAdmission(),
-          color: const Color(0xFF1976D2),
-          backgroundColor: Colors.white,
-          strokeWidth: 2.5,
-          child: ListView.separated(
-            controller: _waitingScrollController,
-            padding: const EdgeInsets.all(20),
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: state.waitingForAdmissionPatients.length +
-                (state.isLoadingMoreWaitingForAdmission ? 1 : 0),
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              if (index >= state.waitingForAdmissionPatients.length) {
-                return LoadingWidgets.buildPaginationLoading(context);
-              }
-
-              final patientVisit = state.waitingForAdmissionPatients[index];
-              return PatientCard(
-                key: ValueKey('waiting_${patientVisit.id}'),
-                patient: patientVisit.toPatientInfo(),
-                isFromWaitingForAdmission: true,
-              );
-            },
-          ),
+        return _buildPatientList(
+          state.waitingForAdmissionPatients,
+          state.isLoadingMoreWaitingForAdmission,
+          true,
         );
       },
     );
@@ -697,6 +704,34 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
         // Show initial loading with skeleton
         if (state.isLoadingSampleTaken && state.sampleTakenPatients.isEmpty) {
           return LoadingWidgets.buildSkeletonLoading();
+        }
+
+        // Show loading overlay when filtering (has data but is loading)
+        if (state.isLoadingSampleTaken &&
+            state.sampleTakenPatients.isNotEmpty) {
+          return Stack(
+            children: [
+              // Existing content with opacity
+              Opacity(
+                opacity: 0.5,
+                child: _buildPatientList(
+                  state.sampleTakenPatients,
+                  state.isLoadingMoreSampleTaken,
+                  false,
+                ),
+              ),
+              // Loading overlay
+              Container(
+                color: Colors.white.withOpacity(0.8),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
+                  ),
+                ),
+              ),
+            ],
+          );
         }
 
         // Show error state with retry option
@@ -719,33 +754,47 @@ class _PatientAdmissionsPageState extends State<PatientAdmissionsPage>
         }
 
         // Show list with pull-to-refresh
-        return RefreshIndicator(
-          onRefresh: () => _handleRefreshSampleTaken(),
-          color: const Color(0xFF1976D2),
-          backgroundColor: Colors.white,
-          strokeWidth: 2.5,
-          child: ListView.separated(
-            controller: _sampleTakenScrollController,
-            padding: const EdgeInsets.all(20),
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: state.sampleTakenPatients.length +
-                (state.isLoadingMoreSampleTaken ? 1 : 0),
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              if (index >= state.sampleTakenPatients.length) {
-                return LoadingWidgets.buildPaginationLoading(context);
-              }
-
-              final patientVisit = state.sampleTakenPatients[index];
-              return PatientCard(
-                key: ValueKey('sample_${patientVisit.id}'),
-                patient: patientVisit.toPatientInfo(),
-                isFromWaitingForAdmission: false,
-              );
-            },
-          ),
+        return _buildPatientList(
+          state.sampleTakenPatients,
+          state.isLoadingMoreSampleTaken,
+          false,
         );
       },
+    );
+  }
+
+  Widget _buildPatientList(List<PatientVisit> patients, bool isLoadingMore,
+      bool isWaitingForAdmission) {
+    return RefreshIndicator(
+      onRefresh: () => isWaitingForAdmission
+          ? _handleRefreshWaitingForAdmission()
+          : _handleRefreshSampleTaken(),
+      color: const Color(0xFF1976D2),
+      backgroundColor: Colors.white,
+      strokeWidth: 2.5,
+      child: ListView.separated(
+        controller: isWaitingForAdmission
+            ? _waitingScrollController
+            : _sampleTakenScrollController,
+        padding: const EdgeInsets.all(20),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: patients.length + (isLoadingMore ? 1 : 0),
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          if (index >= patients.length) {
+            return LoadingWidgets.buildPaginationLoading(context);
+          }
+
+          final patientVisit = patients[index];
+          return PatientCard(
+            key: ValueKey(
+                '${isWaitingForAdmission ? 'waiting' : 'sample'}_${patientVisit.id}'),
+            patient: patientVisit.toPatientInfo(),
+            isFromWaitingForAdmission: isWaitingForAdmission,
+            onRefresh: () => _refreshData(),
+          );
+        },
+      ),
     );
   }
 

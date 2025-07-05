@@ -43,6 +43,9 @@ dependencies:
   logger: ^2.0.2+1
   connectivity_plus: ^5.0.1
 
+  # JWT
+  dart_jsonwebtoken: ^2.12.2
+
   # UI
   cupertino_icons: ^1.0.6
   flutter_advanced_switch: ^3.1.0

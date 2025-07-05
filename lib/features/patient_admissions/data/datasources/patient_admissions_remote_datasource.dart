@@ -48,7 +48,8 @@ class PatientAdmissionsRemoteDataSourceImpl
 
       return [];
     } catch (e) {
-      throw Exception('Failed to fetch departments: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -75,7 +76,8 @@ class PatientAdmissionsRemoteDataSourceImpl
         last: true,
       );
     } catch (e) {
-      throw Exception('Failed to fetch waiting for admission patients: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -102,7 +104,8 @@ class PatientAdmissionsRemoteDataSourceImpl
         last: true,
       );
     } catch (e) {
-      throw Exception('Failed to fetch sample taken patients: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -130,7 +133,8 @@ class PatientAdmissionsRemoteDataSourceImpl
       throw Exception('No sample data received');
     } catch (e) {
       AppLogger.error('Error in getRequestSamples: $e');
-      throw Exception('Failed to fetch request samples: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -149,7 +153,8 @@ class PatientAdmissionsRemoteDataSourceImpl
 
       return [];
     } catch (e) {
-      throw Exception('Failed to fetch request tests: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -167,7 +172,8 @@ class PatientAdmissionsRemoteDataSourceImpl
 
       throw Exception('No test details received');
     } catch (e) {
-      throw Exception('Failed to fetch test details: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -177,8 +183,9 @@ class PatientAdmissionsRemoteDataSourceImpl
     try {
       AppLogger.debug(
           'Making API call to: ${ApiParameters.getRequestSamplesUrl(requestId)}');
+      AppLogger.debug('Using extended timeout for sample update operation');
 
-      final response = await _apiClient.put<void>(
+      final response = await _apiClient.putWithTimeout<void>(
         ApiParameters.getRequestSamplesUrl(requestId),
         data: sampleData,
       );
@@ -187,7 +194,8 @@ class PatientAdmissionsRemoteDataSourceImpl
       AppLogger.debug('Sample updated successfully');
     } catch (e) {
       AppLogger.error('Error in updateSample: $e');
-      throw Exception('Failed to update sample data: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 
@@ -223,7 +231,7 @@ class PatientAdmissionsRemoteDataSourceImpl
       };
 
       // Call the same update API
-      final response = await _apiClient.put<void>(
+      final response = await _apiClient.putWithTimeout<void>(
         ApiParameters.getRequestSamplesUrl(requestId),
         data: sampleData,
       );
@@ -232,7 +240,8 @@ class PatientAdmissionsRemoteDataSourceImpl
       AppLogger.debug('All samples taken successfully');
     } catch (e) {
       AppLogger.error('Error in takeAllSamples: $e');
-      throw Exception('Failed to take all samples: $e');
+      // Re-throw the original exception so it can be handled properly by the repository
+      rethrow;
     }
   }
 }
