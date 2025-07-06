@@ -1,0 +1,370 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
+import 'package:mobile_app/core/constants/app_constants.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+
+class SampleTab extends StatefulWidget {
+  final List<SampleItem> samples;
+  final Function(SampleItem) onSaveBarcode;
+  final Function() onSaveAllBarcodes;
+
+  const SampleTab({
+    super.key,
+    required this.samples,
+    required this.onSaveBarcode,
+    required this.onSaveAllBarcodes,
+  });
+
+  @override
+  State<SampleTab> createState() => _SampleTabState();
+}
+
+class _SampleTabState extends State<SampleTab> {
+  late ValueNotifier<bool> _switchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _switchController = ValueNotifier<bool>(false);
+  }
+
+  @override
+  void dispose() {
+    _switchController.dispose();
+    super.dispose();
+  }
+
+  void _showActionsMenu(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final Offset position =
+        button.localToGlobal(Offset.zero, ancestor: overlay);
+
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromRect(
+        Rect.fromLTWH(position.dx, position.dy + button.size.height, 0, 0),
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem<String>(
+          value: AppConstants.getAllSamples,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_box_outlined,
+                  size: 20, color: theme.primaryColor),
+              const SizedBox(width: 12),
+              Text(l10n.getAllSamples),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: AppConstants.saveAllBarcodes,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.save_alt, size: 20, color: theme.primaryColor),
+              const SizedBox(width: 12),
+              Text(l10n.saveAllBarcodes),
+            ],
+          ),
+        ),
+      ],
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case AppConstants.getAllSamples:
+            _switchController.value = !_switchController.value;
+            break;
+          case AppConstants.saveAllBarcodes:
+            widget.onSaveAllBarcodes();
+            break;
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        // Header with menu and switch
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: theme.primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.primaryColor.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                // Menu icon
+                Builder(
+                  builder: (context) => InkWell(
+                    onTap: () => _showActionsMenu(context),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor.withValues(alpha: 0.1),
+                      ),
+                      child: Icon(
+                        Icons.more_vert,
+                        color: theme.primaryColor,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // Icon section
+                Icon(
+                  Icons.checklist_rounded,
+                  color: theme.primaryColor,
+                  size: 20,
+                ),
+
+                const SizedBox(width: 12),
+
+                // Text section
+                Expanded(
+                  child: Text(
+                    l10n.selectAllSamples,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.primaryColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // Advanced Switch
+                AdvancedSwitch(
+                  controller: _switchController,
+                  activeColor: theme.primaryColor,
+                  inactiveColor: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(15),
+                  width: 50,
+                  height: 30,
+                  thumb: Container(
+                    margin: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(13),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Samples list
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: widget.samples.length,
+            itemBuilder: (context, index) {
+              final sample = widget.samples[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          // Barcode icon/image
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Image.asset(
+                              'assets/images/barcode.png',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+
+                          // Sample information
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  sample.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.sampleType}: ${sample.type}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.serialNumber}: ${sample.serialNumber}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.sidNumber}: ${sample.sid}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.timeCollected}: ${sample.collectionTime?.toString().split(' ')[0] ?? l10n.notAvailable}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.collectedBy}: ${sample.collectionUserId?.toString() ?? l10n.notAvailable}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Selection indicator
+                          ValueListenableBuilder<bool>(
+                            valueListenable: _switchController,
+                            builder: (context, isSelected, child) {
+                              return Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? theme.primaryColor
+                                      : Colors.grey[300],
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? theme.primaryColor
+                                        : Colors.grey[400]!,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 16,
+                                      )
+                                    : null,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Save barcode button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            widget.onSaveBarcode(sample);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: theme.primaryColor,
+                            side: BorderSide(color: theme.primaryColor),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.save, size: 18),
+                              const SizedBox(width: 8),
+                              Text(l10n.saveBarcode),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class SampleItem {
+  final String name;
+  final String type;
+  final String serialNumber;
+  final String sid;
+  final DateTime? collectionTime;
+  final int? collectionUserId;
+
+  SampleItem({
+    required this.name,
+    required this.type,
+    required this.serialNumber,
+    required this.sid,
+    this.collectionTime,
+    this.collectionUserId,
+  });
+}

@@ -65,6 +65,10 @@ class AppConstants {
   static const Duration errorToastDuration = Duration(seconds: 4);
   static const Duration warningToastDuration = Duration(seconds: 3);
   static const Duration successToastDuration = Duration(seconds: 2);
+
+  //menu value
+  static const String getAllSamples = 'getAllSamples';
+  static const String saveAllBarcodes = 'saveAllBarcodes';
 }
 
 class AppRoutes {

@@ -532,10 +532,6 @@
   "@sampleCollectionTimeout": {
     "description": "Sample collection timeout error message"
   },
-  "processing": "Processing...",
-  "@processing": {
-    "description": "Processing indicator text"
-  },
   "errorSessionExpired": "Your session has expired. Please login again.",
   "@errorSessionExpired": {
     "description": "Session expired error message"
@@ -615,5 +611,245 @@
   "errorAuthenticationFailed": "Authentication failed. Please try again.",
   "@errorAuthenticationFailed": {
     "description": "Authentication failed error message"
+  },
+  "processManagement": "Process Management",
+  "@processManagement": {
+    "description": "Process Management title"
+  },
+  "manualServiceTitle": "Manual Service",
+  "@manualServiceTitle": {
+    "description": "Manual Service title"
+  },
+  "administrativeInformation": "Administrative Information",
+  "@administrativeInformation": {
+    "description": "Administrative Information section title"
+  },
+  "patientId": "Patient ID",
+  "@patientId": {
+    "description": "Patient ID field label"
+  },
+  "cccdNumber": "CCCD",
+  "@cccdNumber": {
+    "description": "CCCD number field label"
+  },
+  "sidNumber": "SID",
+  "@sidNumber": {
+    "description": "SID number field label"
+  },
+  "fullName": "Full Name",
+  "@fullName": {
+    "description": "Full Name field label"
+  },
+  "medicalCode": "Medical Code/HSSV Code",
+  "@medicalCode": {
+    "description": "Medical Code/HSSV Code field label"
+  },
+  "insuranceNumber": "Insurance Number",
+  "@insuranceNumber": {
+    "description": "Insurance Number field label"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender field label"
+  },
+  "male": "Male",
+  "@male": {
+    "description": "Male gender option"
+  },
+  "female": "Female",
+  "@female": {
+    "description": "Female gender option"
+  },
+  "appointmentDate": "Appointment Date",
+  "@appointmentDate": {
+    "description": "Appointment Date field label"
+  },
+  "serviceObject": "Service Object",
+  "@serviceObject": {
+    "description": "Service Object field label"
+  },
+  "dateOfBirth": "Date of Birth",
+  "@dateOfBirth": {
+    "description": "Date of Birth field label"
+  },
+  "doctor": "Doctor",
+  "@doctor": {
+    "description": "Doctor field label"
+  },
+  "department": "Department",
+  "@department": {
+    "description": "Department field label"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Age field label"
+  },
+  "phone": "Phone",
+  "@phone": {
+    "description": "Phone field label"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "address": "Address",
+  "@address": {
+    "description": "Address field label"
+  },
+  "notes": "Notes",
+  "@notes": {
+    "description": "Notes field label"
+  },
+  "diagnosis": "Diagnosis",
+  "@diagnosis": {
+    "description": "Diagnosis field label"
+  },
+  "inpatient": "Inpatient",
+  "@inpatient": {
+    "description": "Inpatient toggle label"
+  },
+  "emergency": "Emergency",
+  "@emergency": {
+    "description": "Emergency toggle label"
+  },
+  "services": "Services",
+  "@services": {
+    "description": "Services tab label"
+  },
+  "sample": "Sample",
+  "@sample": {
+    "description": "Sample tab label"
+  },
+  "sampleTab": "Sample",
+  "@sampleTab": {
+    "description": "Sample tab title"
+  },
+  "selectService": "Select service...",
+  "@selectService": {
+    "description": "Select service dropdown placeholder"
+  },
+  "selectServiceLabel": "Select service",
+  "@selectServiceLabel": {
+    "description": "Select service label"
+  },
+  "chooseOption": "Choose...",
+  "@chooseOption": {
+    "description": "Choose option placeholder"
+  },
+  "patientIdHint": "Enter patient ID",
+  "@patientIdHint": {
+    "description": "Patient ID field hint"
+  },
+  "cccdHint": "CCCD",
+  "@cccdHint": {
+    "description": "CCCD field hint"
+  },
+  "fullNameHint": "Full Name",
+  "@fullNameHint": {
+    "description": "Full Name field hint"
+  },
+  "medicalCodeHint": "Medical Code",
+  "@medicalCodeHint": {
+    "description": "Medical Code field hint"
+  },
+  "insuranceNumberHint": "Insurance Number",
+  "@insuranceNumberHint": {
+    "description": "Insurance Number field hint"
+  },
+  "phoneHint": "Phone",
+  "@phoneHint": {
+    "description": "Phone field hint"
+  },
+  "emailHint": "Email",
+  "@emailHint": {
+    "description": "Email field hint"
+  },
+  "addressHint": "Address",
+  "@addressHint": {
+    "description": "Address field hint"
+  },
+  "notesHint": "Notes...",
+  "@notesHint": {
+    "description": "Notes field hint"
+  },
+  "diagnosisHint": "Diagnosis...",
+  "@diagnosisHint": {
+    "description": "Diagnosis field hint"
+  },
+  "ageHint": "Age",
+  "@ageHint": {
+    "description": "Age field hint"
+  },
+  "serialNumber": "Serial Number",
+  "@serialNumber": {
+    "description": "Serial Number field label"
+  },
+  "saveBarcode": "Save Barcode",
+  "@saveBarcode": {
+    "description": "Save Barcode button text"
+  },
+  "selectAllServices": "Select All Services",
+  "@selectAllServices": {
+    "description": "Select all services switch label"
+  },
+  "saveAllBarcodes": "Save All Barcodes",
+  "@saveAllBarcodes": {
+    "description": "Save all barcodes button text"
+  },
+  "notAvailable": "N/A",
+  "@notAvailable": {
+    "description": "Not available text"
+  },
+  "selectAllSamples": "Select All Samples",
+  "@selectAllSamples": {
+    "description": "Select all samples switch label"
+  },
+  "selectAllSamplesDescription": "Toggle to select or deselect all sample items",
+  "@selectAllSamplesDescription": {
+    "description": "Description text for select all samples functionality"
+  },
+  "getAllSamples": "Get All Samples",
+  "@getAllSamples": {
+    "description": "Get all samples action"
+  },
+  "sampleActions": "Sample Actions",
+  "@sampleActions": {
+    "description": "Sample actions menu title"
+  },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Refresh button text"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "confirmRefresh": "Confirm Refresh",
+  "@confirmRefresh": {
+    "description": "Confirm refresh dialog title"
+  },
+  "confirmRefreshMessage": "Are you sure you want to clear all entered data? This action cannot be undone.",
+  "@confirmRefreshMessage": {
+    "description": "Confirm refresh dialog message"
+  },
+  "formsCleared": "All forms have been cleared successfully",
+  "@formsCleared": {
+    "description": "Success message when forms are cleared"
+  },
+  "pleaseCompleteAllFields": "Please complete all required fields",
+  "@pleaseCompleteAllFields": {
+    "description": "Validation error message"
+  },
+  "dataSavedSuccessfully": "Data saved successfully",
+  "@dataSavedSuccessfully": {
+    "description": "Success message when data is saved"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button text"
   }
 }
