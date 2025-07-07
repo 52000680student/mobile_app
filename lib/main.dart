@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize environment (change this for different builds)
-  await EnvConfig.initialize(env: Environment.dev);
+  await EnvConfig.initialize(env: Environment.sta);
 
   // Initialize logging
   AppLogger.initialize();
