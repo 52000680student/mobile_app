@@ -98,9 +98,6 @@ class _SampleDetailsModalState extends State<SampleDetailsModal> {
           if (widget.onRefresh != null) {
             widget.onRefresh!();
           }
-
-          // Close the modal after successful update - use a more robust approach
-          // Add a delay to ensure the toast is shown and any other UI updates are complete
           Future.delayed(const Duration(milliseconds: 200), () {
             if (mounted && context.mounted) {
               try {

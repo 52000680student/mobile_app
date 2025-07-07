@@ -330,7 +330,6 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           compareFn: (patient1, patient2) =>
               patient1.patientId == patient2.patientId,
           items: (filter, loadProps) {
-            // Always return current data first, then trigger search if needed
             if (filter.isEmpty) {
               // Load initial data if needed
               if (state.patientSearchResults.isEmpty &&
@@ -342,14 +341,12 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                 });
               }
             } else {
-              // Trigger search with filter
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 context
                     .read<ManualServiceBloc>()
                     .add(SearchPatientsEvent(filter));
               });
             }
-            // Always return current data immediately
             return state.patientSearchResults;
           },
           selectedItem: state.selectedPatient,
@@ -452,8 +449,8 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                     const SizedBox(height: 8),
                     Text(
                       searchEntry.isEmpty
-                          ? 'No patients found'
-                          : 'No results for "$searchEntry"',
+                          ? l10n.errorNoData
+                          : '${l10n.errorNoData} "$searchEntry"',
                       style: TextStyle(color: Colors.grey.shade600),
                       textAlign: TextAlign.center,
                     ),

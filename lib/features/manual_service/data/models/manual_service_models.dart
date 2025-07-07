@@ -483,7 +483,7 @@ class PatientSearchQueryParams {
     };
 
     if (query != null && query!.isNotEmpty) {
-      params['q'] = query;
+      params['search'] = query;
     }
 
     return params;

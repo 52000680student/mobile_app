@@ -10,8 +10,23 @@ import 'l10n/generated/app_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize environment (change this for different builds)
-  await EnvConfig.initialize(env: Environment.sta);
+  const String envString = String.fromEnvironment('ENV', defaultValue: 'sta');
+  Environment env;
+  switch (envString.toLowerCase()) {
+    case 'dev':
+      env = Environment.dev;
+      break;
+    case 'sta':
+    case 'staging':
+      env = Environment.sta;
+      break;
+    case 'prod':
+    case 'production':
+    default:
+      env = Environment.prod;
+      break;
+  }
+  await EnvConfig.initialize(env: env);
 
   // Initialize logging
   AppLogger.initialize();
