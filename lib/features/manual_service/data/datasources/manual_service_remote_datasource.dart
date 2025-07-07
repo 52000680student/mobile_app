@@ -30,15 +30,29 @@ class ManualServiceRemoteDataSourceImpl
   Future<PatientSearchResponse> searchPatients(
       PatientSearchQueryParams params) async {
     try {
+      final queryParams = params.toQueryParameters();
+      AppLogger.info('Searching patients with params: $queryParams');
+      AppLogger.info('API endpoint: /api/pt/v1/individuals/patients/patientId');
+
       final response = await _apiClient.get<Map<String, dynamic>>(
         '/api/pt/v1/individuals/patients/patientId',
-        queryParameters: params.toQueryParameters(),
+        queryParameters: queryParams,
       );
 
+      AppLogger.info('Patient search response status: ${response.statusCode}');
+      AppLogger.info(
+          'Patient search response data keys: ${response.data?.keys}');
+
       if (response.data != null) {
-        return PatientSearchResponse.fromJson(response.data!);
+        final patientResponse = PatientSearchResponse.fromJson(response.data!);
+        AppLogger.info(
+            'Parsed ${patientResponse.data.length} patients from API response');
+        AppLogger.info('Total elements: ${patientResponse.totalElements}');
+        return patientResponse;
       }
 
+      AppLogger.warning(
+          'Patient search returned null data, returning empty response');
       // Return empty response if no data
       return PatientSearchResponse(
         data: [],
@@ -50,6 +64,9 @@ class ManualServiceRemoteDataSourceImpl
       );
     } on DioException catch (e) {
       AppLogger.error('DioException in searchPatients: ${e.message}');
+      AppLogger.error('DioException type: ${e.type}');
+      AppLogger.error('DioException response: ${e.response?.data}');
+
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.sendTimeout ||
           e.type == DioExceptionType.receiveTimeout) {

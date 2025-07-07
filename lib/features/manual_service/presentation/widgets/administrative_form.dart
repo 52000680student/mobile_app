@@ -31,6 +31,19 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   final _notesController = TextEditingController();
   final _diagnosisController = TextEditingController();
 
+  // Add focus nodes for better focus management
+  final _cccdFocusNode = FocusNode();
+  final _sidFocusNode = FocusNode();
+  final _fullNameFocusNode = FocusNode();
+  final _medicalCodeFocusNode = FocusNode();
+  final _insuranceNumberFocusNode = FocusNode();
+  final _ageFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _addressFocusNode = FocusNode();
+  final _notesFocusNode = FocusNode();
+  final _diagnosisFocusNode = FocusNode();
+
   String _selectedGender = 'F';
   DateTime? _appointmentDate;
   DateTime? _dateOfBirth;
@@ -68,6 +81,20 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
     _addressController.dispose();
     _notesController.dispose();
     _diagnosisController.dispose();
+
+    // Dispose focus nodes
+    _cccdFocusNode.dispose();
+    _sidFocusNode.dispose();
+    _fullNameFocusNode.dispose();
+    _medicalCodeFocusNode.dispose();
+    _insuranceNumberFocusNode.dispose();
+    _ageFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _addressFocusNode.dispose();
+    _notesFocusNode.dispose();
+    _diagnosisFocusNode.dispose();
+
     _inpatientSwitch.dispose();
     _emergencySwitch.dispose();
     _inputDebouncer.dispose();
@@ -85,9 +112,17 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
         return previous.selectedPatient != current.selectedPatient;
       },
       listener: (context, state) {
-        // Auto-fill form when patient is selected
         if (state.selectedPatient != null) {
+          // Auto-fill form when patient is selected
           _autoFillPatientData(state.selectedPatient!);
+        } else {
+          // Clear local form when patient is deselected/cleared
+          // Use a small delay to ensure the clearing happens after any ongoing state updates
+          Future.delayed(const Duration(milliseconds: 50), () {
+            if (mounted) {
+              _clearLocalFormState();
+            }
+          });
         }
       },
       child: BlocBuilder<ManualServiceBloc, ManualServiceState>(
@@ -98,7 +133,14 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
               previous.departments != current.departments ||
               previous.isLoadingServiceParameters !=
                   current.isLoadingServiceParameters ||
-              previous.isLoadingDepartments != current.isLoadingDepartments;
+              previous.isLoadingDepartments != current.isLoadingDepartments ||
+              previous.patientSearchResults != current.patientSearchResults ||
+              previous.isSearchingPatients != current.isSearchingPatients ||
+              previous.patientSearchError != current.patientSearchError ||
+              previous.selectedDepartment != current.selectedDepartment ||
+              previous.selectedServiceParameter !=
+                  current.selectedServiceParameter ||
+              previous.selectedTestServices != current.selectedTestServices;
         },
         builder: (context, state) {
           return Form(
@@ -117,6 +159,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       label: l10n.cccdNumber,
                       hint: l10n.cccdHint,
                       enabled: state.selectedPatient == null,
+                      focusNode: _cccdFocusNode,
                     ),
                   ),
                   Expanded(
@@ -124,6 +167,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       controller: _sidController,
                       label: l10n.sidNumber,
                       hint: l10n.sidNumber,
+                      focusNode: _sidFocusNode,
                     ),
                   ),
                 ]),
@@ -138,6 +182,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       label: l10n.fullName,
                       hint: l10n.fullNameHint,
                       isRequired: true,
+                      focusNode: _fullNameFocusNode,
                     ),
                   ),
                   Expanded(
@@ -145,6 +190,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       controller: _medicalCodeController,
                       label: l10n.medicalCode,
                       hint: l10n.medicalCodeHint,
+                      focusNode: _medicalCodeFocusNode,
                     ),
                   ),
                   Expanded(
@@ -152,6 +198,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       controller: _insuranceNumberController,
                       label: l10n.insuranceNumber,
                       hint: l10n.insuranceNumberHint,
+                      focusNode: _insuranceNumberFocusNode,
                     ),
                   ),
                 ]),
@@ -215,6 +262,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       hint: l10n.ageHint,
                       keyboardType: TextInputType.number,
                       isRequired: true,
+                      focusNode: _ageFocusNode,
                     ),
                   ),
                   Expanded(
@@ -223,6 +271,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       label: l10n.phone,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
+                      focusNode: _phoneFocusNode,
                     ),
                   ),
                   Expanded(
@@ -231,6 +280,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       label: l10n.email,
                       hint: l10n.emailHint,
                       keyboardType: TextInputType.emailAddress,
+                      focusNode: _emailFocusNode,
                     ),
                   ),
                 ]),
@@ -244,6 +294,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       controller: _addressController,
                       label: l10n.address,
                       hint: l10n.addressHint,
+                      focusNode: _addressFocusNode,
                     ),
                   ),
                   Expanded(
@@ -252,6 +303,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       label: l10n.notes,
                       hint: l10n.notesHint,
                       maxLines: 3,
+                      focusNode: _notesFocusNode,
                     ),
                   ),
                   Expanded(
@@ -260,6 +312,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       label: l10n.diagnosis,
                       hint: l10n.diagnosisHint,
                       maxLines: 3,
+                      focusNode: _diagnosisFocusNode,
                     ),
                   ),
                 ]),
@@ -321,6 +374,12 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   /// Optimized patient dropdown with search functionality
   Widget _buildPatientDropdown(
       AppLocalizations l10n, ManualServiceState state) {
+    // Add debugging for dropdown state
+    print(
+        'PatientDropdown: Building with ${state.patientSearchResults.length} results');
+    print(
+        'PatientDropdown: isSearching=${state.isSearchingPatients}, error=${state.patientSearchError}');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -330,27 +389,26 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           compareFn: (patient1, patient2) =>
               patient1.patientId == patient2.patientId,
           items: (filter, loadProps) {
-            if (filter.isEmpty) {
-              // Load initial data if needed
-              if (state.patientSearchResults.isEmpty &&
-                  !state.isSearchingPatients) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  context
-                      .read<ManualServiceBloc>()
-                      .add(const LoadInitialPatientsEvent());
-                });
-              }
-            } else {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context
-                    .read<ManualServiceBloc>()
-                    .add(SearchPatientsEvent(filter));
-              });
-            }
+            print(
+                'DropdownSearch items callback: filter="$filter", results=${state.patientSearchResults.length}');
+
+            // Always trigger search for any filter change (including empty, space, or any text)
+            final searchQuery =
+                filter.trim(); // Trim spaces but allow empty search
+            print('DropdownSearch: Triggering search for "$searchQuery"');
+
+            // Use debouncer to avoid excessive API calls while typing
+            _inputDebouncer.call(() {
+              context
+                  .read<ManualServiceBloc>()
+                  .add(SearchPatientsEvent(searchQuery));
+            });
+
             return state.patientSearchResults;
           },
           selectedItem: state.selectedPatient,
           onChanged: (PatientSearchResult? patient) {
+            print('DropdownSearch: Patient selected: ${patient?.name}');
             if (patient != null) {
               setState(() {
                 _patientIdController.text = patient.patientId;
@@ -380,13 +438,14 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                 vertical: 8,
               ),
             ),
+            baseStyle: const TextStyle(fontSize: 14),
           ),
           popupProps: PopupProps.menu(
             showSearchBox: true,
             searchFieldProps: TextFieldProps(
               decoration: InputDecoration(
                 hintText: l10n.searchPatients,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
               ),
             ),
             itemBuilder: (context, patient, isDisabled, isSelected) {
@@ -434,7 +493,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                   const SizedBox(width: 12),
-                  Text(l10n.loading),
+                  Text(state.isSearchingPatients ? l10n.loading : l10n.loading),
                 ],
               ),
             ),
@@ -448,9 +507,11 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                         color: Colors.grey.shade400, size: 48),
                     const SizedBox(height: 8),
                     Text(
-                      searchEntry.isEmpty
-                          ? l10n.errorNoData
-                          : '${l10n.errorNoData} "$searchEntry"',
+                      state.patientSearchError != null
+                          ? state.patientSearchError!
+                          : (searchEntry.trim().isEmpty
+                              ? 'Type to search for patients'
+                              : '${l10n.errorNoData} "$searchEntry"'),
                       style: TextStyle(color: Colors.grey.shade600),
                       textAlign: TextAlign.center,
                     ),
@@ -595,6 +656,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
     int? maxLines,
     bool isRequired = false,
     bool enabled = true,
+    FocusNode? focusNode,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,6 +665,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          focusNode: focusNode,
           keyboardType: keyboardType,
           maxLines: maxLines ?? 1,
           enabled: enabled,
@@ -628,8 +691,18 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           ),
           // Add input formatters for better performance
           onTapOutside: (event) {
-            // Dismiss keyboard when tapping outside
+            // Explicitly unfocus this field when tapping outside
+            focusNode?.unfocus();
+            // Also ensure no other fields are focused
             FocusScope.of(context).unfocus();
+          },
+          // Prevent auto focus restoration during rebuilds
+          onTap: () {
+            // Only request focus if user explicitly taps the field
+            // This prevents auto focus during widget rebuilds
+            if (focusNode != null && !focusNode.hasFocus) {
+              FocusScope.of(context).requestFocus(focusNode);
+            }
           },
         ),
       ],
@@ -862,95 +935,183 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
       children: [
         _buildLabel(l10n.doctor, true),
         const SizedBox(height: 8),
-        DropdownSearch<String>(
-          items: (filter, loadProps) {
-            // Filter doctors based on search input
-            if (filter.isEmpty) {
-              return doctorOptions;
-            }
-            return doctorOptions
-                .where((doctor) =>
-                    doctor.toLowerCase().contains(filter.toLowerCase()))
-                .toList();
-          },
-          selectedItem: _selectedDoctor,
-          onChanged: (String? doctor) {
-            setState(() {
-              _selectedDoctor = doctor;
-            });
-          },
-          decoratorProps: DropDownDecoratorProps(
-            decoration: InputDecoration(
-              hintText: l10n.chooseOption,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Theme.of(context).primaryColor),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-            ),
-          ),
-          popupProps: PopupProps.menu(
-            showSearchBox: true,
-            searchFieldProps: const TextFieldProps(
-              decoration: InputDecoration(
-                hintText: 'Tìm kiếm bác sĩ...',
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
-              ),
-            ),
-            itemBuilder: (context, doctor, isDisabled, isSelected) {
-              return Container(
+        doctorOptions.isEmpty
+            ? Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).primaryColor.withOpacity(0.1)
-                      : null,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.shade50,
                 ),
-                child: Text(
-                  doctor,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: isSelected ? Theme.of(context).primaryColor : null,
-                  ),
-                ),
-              );
-            },
-            fit: FlexFit.loose,
-            constraints: const BoxConstraints(maxHeight: 300),
-            emptyBuilder: (context, searchEntry) => Container(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: Row(
                   children: [
-                    Icon(Icons.search_off,
-                        color: Colors.grey.shade400, size: 48),
-                    const SizedBox(height: 8),
-                    Text(
-                      searchEntry.isEmpty
-                          ? 'No doctors found'
-                          : 'No results for "$searchEntry"',
-                      style: TextStyle(color: Colors.grey.shade600),
-                      textAlign: TextAlign.center,
+                    Icon(Icons.info_outline,
+                        color: Colors.grey.shade600, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Doctor data not available',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                   ],
                 ),
+              )
+            : DropdownSearch<String>(
+                items: (filter, loadProps) {
+                  // Only provide search functionality when data is available
+                  if (doctorOptions.isEmpty) {
+                    return <String>[];
+                  }
+
+                  // Filter doctors based on search input
+                  if (filter.isEmpty) {
+                    return doctorOptions;
+                  }
+                  return doctorOptions
+                      .where((doctor) =>
+                          doctor.toLowerCase().contains(filter.toLowerCase()))
+                      .toList();
+                },
+                selectedItem: _selectedDoctor,
+                onChanged: (String? doctor) {
+                  setState(() {
+                    _selectedDoctor = doctor;
+                  });
+                },
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
+                    hintText: l10n.chooseOption,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide:
+                          BorderSide(color: Theme.of(context).primaryColor),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                ),
+                popupProps: PopupProps.menu(
+                  showSearchBox: doctorOptions.isNotEmpty,
+                  searchFieldProps: const TextFieldProps(
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm bác sĩ...',
+                      prefixIcon: Icon(Icons.search, color: Colors.grey),
+                    ),
+                  ),
+                  itemBuilder: (context, doctor, isDisabled, isSelected) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Theme.of(context).primaryColor.withOpacity(0.1)
+                            : null,
+                      ),
+                      child: Text(
+                        doctor,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: isSelected
+                              ? Theme.of(context).primaryColor
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                  fit: FlexFit.loose,
+                  constraints: const BoxConstraints(maxHeight: 300),
+                  emptyBuilder: (context, searchEntry) => Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.search_off,
+                              color: Colors.grey.shade400, size: 48),
+                          const SizedBox(height: 8),
+                          Text(
+                            searchEntry.isEmpty
+                                ? 'No doctors found'
+                                : 'No results for "$searchEntry"',
+                            style: TextStyle(color: Colors.grey.shade600),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
       ],
     );
+  }
+
+  /// Clear only local UI state without triggering bloc events
+  void _clearLocalFormState() {
+    setState(() {
+      // Clear all text controllers
+      _patientIdController.clear();
+      _cccdController.clear();
+      _sidController.clear();
+      _fullNameController.clear();
+      _medicalCodeController.clear();
+      _insuranceNumberController.clear();
+      _ageController.clear();
+      _phoneController.clear();
+      _emailController.clear();
+      _addressController.clear();
+      _notesController.clear();
+      _diagnosisController.clear();
+
+      // Reset dropdown selections
+      _selectedGender = 'F';
+      _appointmentDate = null;
+      _dateOfBirth = null;
+      _selectedServiceObject = null;
+      _selectedDoctor = null;
+      _selectedDepartment = null;
+
+      // Reset switches
+      _inpatientSwitch.value = false;
+      _emergencySwitch.value = false;
+    });
+
+    // Clear focus from all input fields
+    _cccdFocusNode.unfocus();
+    _sidFocusNode.unfocus();
+    _fullNameFocusNode.unfocus();
+    _medicalCodeFocusNode.unfocus();
+    _insuranceNumberFocusNode.unfocus();
+    _ageFocusNode.unfocus();
+    _phoneFocusNode.unfocus();
+    _emailFocusNode.unfocus();
+    _addressFocusNode.unfocus();
+    _notesFocusNode.unfocus();
+    _diagnosisFocusNode.unfocus();
+  }
+
+  /// Clear all form data and reset to initial state with bloc events
+  void clearForm() {
+    // Clear local UI state first
+    _clearLocalFormState();
+
+    // Then trigger bloc events
+    context.read<ManualServiceBloc>().add(const ClearFormEvent());
+    context.read<ManualServiceBloc>().add(const ResetPatientSearchEvent());
   }
 }

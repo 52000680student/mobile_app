@@ -33,6 +33,17 @@ class _ServiceSelectionState extends State<ServiceSelection>
     super.dispose();
   }
 
+  /// Clear all selected services and reset selection state
+  void clearSelection() {
+    setState(() {
+      _selectedServiceName = null;
+      _tabController.index = 0; // Reset to first tab
+    });
+
+    // Clear selected test services in the bloc
+    context.read<ManualServiceBloc>().add(const ClearFormEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;

@@ -8,6 +8,7 @@ import '../../domain/usecases/get_test_services_usecase.dart';
 import '../../data/models/manual_service_models.dart';
 import 'manual_service_event.dart';
 import 'manual_service_state.dart';
+import '../../../../core/utils/app_logger.dart';
 
 @injectable
 class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
@@ -62,20 +63,42 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
       return;
     }
 
+    AppLogger.info('Starting patient search with query: "${event.query}"');
     emit(state.copyWith(isSearchingPatients: true, patientSearchError: null));
 
     final params = PatientSearchQueryParams(query: event.query, size: 10);
+    AppLogger.info('Created search params: ${params.toQueryParameters()}');
+
     final result = await _searchPatientsUseCase(params);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        isSearchingPatients: false,
-        patientSearchError: failure.message,
-      )),
-      (response) => emit(state.copyWith(
-        isSearchingPatients: false,
-        patientSearchResults: response.data,
-      )),
+      (failure) {
+        AppLogger.error('Patient search failed: ${failure.message}');
+        emit(state.copyWith(
+          isSearchingPatients: false,
+          patientSearchError: failure.message,
+        ));
+      },
+      (response) {
+        AppLogger.info(
+            'Patient search successful: found ${response.data.length} patients');
+        AppLogger.info(
+            'Patient search response: totalElements=${response.totalElements}, page=${response.page}');
+
+        // Log first few patient names for debugging
+        if (response.data.isNotEmpty) {
+          final firstFewNames =
+              response.data.take(3).map((p) => p.name).join(', ');
+          AppLogger.info('First few patient names: $firstFewNames');
+        }
+
+        emit(state.copyWith(
+          isSearchingPatients: false,
+          patientSearchResults: response.data,
+        ));
+
+        AppLogger.info('State updated with ${response.data.length} patients');
+      },
     );
   }
 
@@ -83,6 +106,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     LoadInitialPatientsEvent event,
     Emitter<ManualServiceState> emit,
   ) async {
+    AppLogger.info('Loading initial patients');
     emit(state.copyWith(isSearchingPatients: true, patientSearchError: null));
 
     // Load initial patients without search query (query: null means no 'q' parameter)
@@ -91,17 +115,27 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
       size: 15, // Load more initially for better UX
       page: 1,
     );
+    AppLogger.info(
+        'Created initial load params: ${params.toQueryParameters()}');
+
     final result = await _searchPatientsUseCase(params);
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        isSearchingPatients: false,
-        patientSearchError: failure.message,
-      )),
-      (response) => emit(state.copyWith(
-        isSearchingPatients: false,
-        patientSearchResults: response.data,
-      )),
+      (failure) {
+        AppLogger.error('Initial patient load failed: ${failure.message}');
+        emit(state.copyWith(
+          isSearchingPatients: false,
+          patientSearchError: failure.message,
+        ));
+      },
+      (response) {
+        AppLogger.info(
+            'Initial patient load successful: found ${response.data.length} patients');
+        emit(state.copyWith(
+          isSearchingPatients: false,
+          patientSearchResults: response.data,
+        ));
+      },
     );
   }
 

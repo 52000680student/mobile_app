@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/di/injection_container.dart';
 import '../bloc/manual_service_bloc.dart';
+import '../bloc/manual_service_event.dart';
 import 'collapsible_section.dart';
 import 'administrative_form.dart';
 import 'service_selection.dart';
@@ -15,6 +16,22 @@ class ResponsiveLayout extends StatefulWidget {
 }
 
 class _ResponsiveLayoutState extends State<ResponsiveLayout> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<ManualServiceBloc>(),
+      child: _ResponsiveLayoutContent(),
+    );
+  }
+}
+
+class _ResponsiveLayoutContent extends StatefulWidget {
+  @override
+  State<_ResponsiveLayoutContent> createState() =>
+      _ResponsiveLayoutContentState();
+}
+
+class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
   final GlobalKey _administrativeFormKey = GlobalKey();
   final GlobalKey _serviceSelectionKey = GlobalKey();
   bool _isLoading = false;
@@ -57,9 +74,9 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
     );
 
     if (shouldClear == true) {
-      // TODO: Clear all forms - implement form clearing logic
-      // _administrativeFormKey.currentState?.clearForm();
-      // _serviceSelectionKey.currentState?.clearSelection();
+      // Clear all forms by triggering bloc events to reset state
+      context.read<ManualServiceBloc>().add(const ClearFormEvent());
+      context.read<ManualServiceBloc>().add(const ResetPatientSearchEvent());
 
       // Show success message
       if (mounted) {
@@ -213,20 +230,17 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return BlocProvider(
-      create: (context) => getIt<ManualServiceBloc>(),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Mobile layout (< 900px)
-          if (constraints.maxWidth < 900) {
-            return _buildMobileLayout(context, l10n, theme);
-          }
-          // Tablet/Desktop layout (>= 900px)
-          else {
-            return _buildTabletLayout(context, l10n, theme);
-          }
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Mobile layout (< 900px)
+        if (constraints.maxWidth < 900) {
+          return _buildMobileLayout(context, l10n, theme);
+        }
+        // Tablet/Desktop layout (>= 900px)
+        else {
+          return _buildTabletLayout(context, l10n, theme);
+        }
+      },
     );
   }
 
