@@ -17,4 +17,11 @@ abstract class ManualServiceRepository {
   /// Get test services
   Future<Either<Failure, TestServiceResponse>> getTestServices(
       TestServiceQueryParams params);
+
+  /// Get doctors list
+  Future<Either<Failure, DoctorResponse>> getDoctors(DoctorQueryParams params);
+
+  /// Save manual service request
+  Future<Either<Failure, ManualServiceRequestResponse>>
+      saveManualServiceRequest(ManualServiceRequest request);
 }

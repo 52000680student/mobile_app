@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mobile_app/core/constants/parameter_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -17,6 +18,13 @@ abstract class ManualServiceRemoteDataSource {
 
   /// Get test services
   Future<TestServiceResponse> getTestServices(TestServiceQueryParams params);
+
+  /// Get doctors list
+  Future<DoctorResponse> getDoctors(DoctorQueryParams params);
+
+  /// Save manual service request
+  Future<ManualServiceRequestResponse> saveManualServiceRequest(
+      ManualServiceRequest request);
 }
 
 @LazySingleton(as: ManualServiceRemoteDataSource)
@@ -32,7 +40,6 @@ class ManualServiceRemoteDataSourceImpl
     try {
       final queryParams = params.toQueryParameters();
       AppLogger.info('Searching patients with params: $queryParams');
-      AppLogger.info('API endpoint: /api/pt/v1/individuals/patients/patientId');
 
       final response = await _apiClient.get<Map<String, dynamic>>(
         '/api/pt/v1/individuals/patients/patientId',
@@ -51,8 +58,6 @@ class ManualServiceRemoteDataSourceImpl
         return patientResponse;
       }
 
-      AppLogger.warning(
-          'Patient search returned null data, returning empty response');
       // Return empty response if no data
       return PatientSearchResponse(
         data: [],
@@ -137,7 +142,7 @@ class ManualServiceRemoteDataSourceImpl
   Future<List<ServiceParameter>> getServiceParameters() async {
     try {
       final response = await _apiClient.get<List<dynamic>>(
-        '/api/ms/v1/parameters/L125/codes',
+        '/api/ms/v1/parameters/${ParameterConstants.departmentParameterCode}/codes',
       );
 
       if (response.data != null) {
@@ -214,6 +219,102 @@ class ManualServiceRemoteDataSourceImpl
       }
     } catch (e) {
       AppLogger.error('Error in getTestServices: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<DoctorResponse> getDoctors(DoctorQueryParams params) async {
+    try {
+      final response = await _apiClient.get<Map<String, dynamic>>(
+        '/api/pt/v1/individuals/patients',
+        queryParameters: params.toQueryParameters(),
+      );
+
+      if (response.data != null) {
+        return DoctorResponse.fromJson(response.data!);
+      }
+
+      // Return empty response if no data
+      return DoctorResponse(
+        data: [],
+        page: 1,
+        size: params.size,
+        totalElements: 0,
+        totalPages: 0,
+        last: true,
+      );
+    } on DioException catch (e) {
+      AppLogger.error('DioException in getDoctors: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: 'Connection timeout while fetching doctors',
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: 'Connection error while fetching doctors',
+        );
+      } else {
+        throw NetworkException(
+          message: e.message ?? 'Failed to fetch doctors',
+        );
+      }
+    } catch (e) {
+      AppLogger.error('Error in getDoctors: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ManualServiceRequestResponse> saveManualServiceRequest(
+      ManualServiceRequest request) async {
+    try {
+      AppLogger.info(
+          'Saving manual service request with data: ${request.toJson()}');
+
+      final response = await _apiClient.post<Map<String, dynamic>>(
+        '/api/la/v1/requests',
+        data: request.toJson(),
+      );
+
+      AppLogger.info(
+          'Manual service request response status: ${response.statusCode}');
+      AppLogger.info('Manual service request response data: ${response.data}');
+
+      if (response.data != null) {
+        final requestResponse =
+            ManualServiceRequestResponse.fromJson(response.data!);
+        AppLogger.info(
+            'Successfully saved manual service request with ID: ${requestResponse.id}');
+        return requestResponse;
+      }
+
+      AppLogger.error('Manual service request returned null data');
+      throw const ServerException(message: 'Invalid response from server');
+    } on DioException catch (e) {
+      AppLogger.error('DioException in saveManualServiceRequest: ${e.message}');
+      AppLogger.error('DioException type: ${e.type}');
+      AppLogger.error('DioException response: ${e.response?.data}');
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: 'Connection timeout while saving manual service request',
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: 'Connection error while saving manual service request',
+        );
+      } else {
+        throw NetworkException(
+          message: e.message ?? 'Failed to save manual service request',
+        );
+      }
+    } catch (e) {
+      AppLogger.error('Error in saveManualServiceRequest: $e');
       rethrow;
     }
   }

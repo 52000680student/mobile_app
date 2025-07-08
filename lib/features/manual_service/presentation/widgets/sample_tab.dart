@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:mobile_app/core/constants/app_constants.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../data/models/manual_service_models.dart';
+import '../bloc/manual_service_bloc.dart';
+import '../bloc/manual_service_event.dart';
 
 class SampleTab extends StatefulWidget {
   final List<SampleItem> samples;
@@ -27,6 +30,15 @@ class _SampleTabState extends State<SampleTab> {
   void initState() {
     super.initState();
     _switchController = ValueNotifier<bool>(false);
+
+    // Listen to switch changes and update BLoC state
+    _switchController.addListener(() {
+      if (mounted) {
+        context.read<ManualServiceBloc>().add(
+              ToggleSampleCollectionEvent(_switchController.value),
+            );
+      }
+    });
   }
 
   @override
@@ -270,7 +282,7 @@ class _SampleTabState extends State<SampleTab> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${l10n.timeCollected}: ${sample.collectionTime?.toString().split(' ')[0] ?? l10n.notAvailable}',
+                                  '${l10n.timeCollected}: ${sample.collectionTime?.toString().split(' ')[0] ?? ''}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,
@@ -278,7 +290,7 @@ class _SampleTabState extends State<SampleTab> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${l10n.collectedBy}: ${sample.collectionUserId?.toString() ?? l10n.notAvailable}',
+                                  '${l10n.collectedBy}: ${sample.collectionUserId?.toString() ?? ''}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,
@@ -356,4 +368,10 @@ class _SampleTabState extends State<SampleTab> {
       ],
     );
   }
+
+  /// Get the current value of the switch controller (isCollected state)
+  bool get isCollected => _switchController.value;
+
+  /// Get the current samples list
+  List<SampleItem> get currentSamples => widget.samples;
 }

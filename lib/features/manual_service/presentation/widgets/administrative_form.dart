@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../data/models/manual_service_models.dart';
@@ -48,7 +49,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   DateTime? _appointmentDate;
   DateTime? _dateOfBirth;
   String? _selectedServiceObject;
-  String? _selectedDoctor;
+  Doctor? _selectedDoctor;
   String? _selectedDepartment;
 
   final ValueNotifier<bool> _inpatientSwitch = ValueNotifier<bool>(false);
@@ -624,23 +625,24 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           );
         }
 
-        // Desktop layout - use Row with Flexible instead of Expanded to prevent overflow
+        // Desktop layout - use Row with proper constraints
         return Row(
           children: children.asMap().entries.map((entry) {
             final child = entry.value;
-            Widget actualChild = child;
+            final isLast = entry.key == children.length - 1;
+
+            // Keep Expanded widgets as they are for proper constraints
             if (child is Expanded) {
-              actualChild = Flexible(
-                flex: child.flex,
-                child: child.child,
+              return Padding(
+                padding: EdgeInsets.only(right: isLast ? 0 : 16),
+                child: child,
               );
             }
 
-            // Don't add right padding to the last item
-            final isLast = entry.key == children.length - 1;
+            // For non-Expanded widgets, wrap them in Expanded if in a Row context
             return Padding(
               padding: EdgeInsets.only(right: isLast ? 0 : 16),
-              child: actualChild,
+              child: child,
             );
           }).toList(),
         );
@@ -926,32 +928,33 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
 
   /// Optimized doctor dropdown with search functionality
   Widget _buildDoctorDropdown(AppLocalizations l10n, ManualServiceState state) {
-    final doctorOptions = <String>[
-      // Empty list - will be populated when doctor API is implemented
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(l10n.doctor, true),
         const SizedBox(height: 8),
-        doctorOptions.isEmpty
+        state.isLoadingDoctors
             ? Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey.shade50,
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline,
-                        color: Colors.grey.shade600, size: 16),
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Doctor data not available',
+                        'Loading doctors...',
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 14,
@@ -961,102 +964,170 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                   ],
                 ),
               )
-            : DropdownSearch<String>(
-                items: (filter, loadProps) {
-                  // Only provide search functionality when data is available
-                  if (doctorOptions.isEmpty) {
-                    return <String>[];
-                  }
-
-                  // Filter doctors based on search input
-                  if (filter.isEmpty) {
-                    return doctorOptions;
-                  }
-                  return doctorOptions
-                      .where((doctor) =>
-                          doctor.toLowerCase().contains(filter.toLowerCase()))
-                      .toList();
-                },
-                selectedItem: _selectedDoctor,
-                onChanged: (String? doctor) {
-                  setState(() {
-                    _selectedDoctor = doctor;
-                  });
-                },
-                decoratorProps: DropDownDecoratorProps(
-                  decoration: InputDecoration(
-                    hintText: l10n.chooseOption,
-                    border: OutlineInputBorder(
+            : state.doctors.isEmpty
+                ? Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      color: Colors.grey.shade50,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            color: Colors.grey.shade600, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'No doctors available',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide:
-                          BorderSide(color: Theme.of(context).primaryColor),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                ),
-                popupProps: PopupProps.menu(
-                  showSearchBox: doctorOptions.isNotEmpty,
-                  searchFieldProps: const TextFieldProps(
-                    decoration: InputDecoration(
-                      hintText: 'Tìm kiếm bác sĩ...',
-                      prefixIcon: Icon(Icons.search, color: Colors.grey),
-                    ),
-                  ),
-                  itemBuilder: (context, doctor, isDisabled, isSelected) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Theme.of(context).primaryColor.withOpacity(0.1)
-                            : null,
-                      ),
-                      child: Text(
-                        doctor,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : null,
+                  )
+                : DropdownSearch<Doctor>(
+                    compareFn: (doctor1, doctor2) => doctor1.id == doctor2.id,
+                    items: (filter, loadProps) {
+                      // Filter doctors based on search input
+                      if (filter.isEmpty) {
+                        return state.doctors;
+                      }
+                      return state.doctors
+                          .where((doctor) =>
+                              doctor.name
+                                  .toLowerCase()
+                                  .contains(filter.toLowerCase()) ||
+                              (doctor.title
+                                      ?.toLowerCase()
+                                      .contains(filter.toLowerCase()) ??
+                                  false) ||
+                              (doctor.department
+                                      ?.toLowerCase()
+                                      .contains(filter.toLowerCase()) ??
+                                  false))
+                          .toList();
+                    },
+                    selectedItem: _selectedDoctor,
+                    popupProps: PopupProps.menu(
+                      showSearchBox: state.doctors.isNotEmpty,
+                      searchFieldProps: const TextFieldProps(
+                        decoration: InputDecoration(
+                          hintText: 'Search doctors...',
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
                         ),
                       ),
-                    );
-                  },
-                  fit: FlexFit.loose,
-                  constraints: const BoxConstraints(maxHeight: 300),
-                  emptyBuilder: (context, searchEntry) => Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.search_off,
-                              color: Colors.grey.shade400, size: 48),
-                          const SizedBox(height: 8),
-                          Text(
-                            searchEntry.isEmpty
-                                ? 'No doctors found'
-                                : 'No results for "$searchEntry"',
-                            style: TextStyle(color: Colors.grey.shade600),
-                            textAlign: TextAlign.center,
+                      itemBuilder: (context, doctor, isDisabled, isSelected) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Theme.of(context)
+                                    .primaryColor
+                                    .withValues(alpha: 0.1)
+                                : null,
                           ),
-                        ],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                doctor.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              if (doctor.title != null ||
+                                  doctor.department != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  [doctor.title, doctor.department]
+                                      .where((e) => e != null && e.isNotEmpty)
+                                      .join(' • '),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    dropdownBuilder: (context, selectedItem) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        child: selectedItem == null
+                            ? Text(
+                                'Select doctor',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 14,
+                                ),
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    selectedItem.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  if (selectedItem.title != null ||
+                                      selectedItem.department != null) ...[
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      [
+                                        selectedItem.title,
+                                        selectedItem.department
+                                      ]
+                                          .where(
+                                              (e) => e != null && e.isNotEmpty)
+                                          .join(' • '),
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                      );
+                    },
+                    decoratorProps: DropDownDecoratorProps(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ),
+                    onChanged: (Doctor? doctor) {
+                      setState(() {
+                        _selectedDoctor = doctor;
+                      });
+                    },
                   ),
-                ),
-              ),
       ],
     );
   }
@@ -1103,6 +1174,39 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
     _addressFocusNode.unfocus();
     _notesFocusNode.unfocus();
     _diagnosisFocusNode.unfocus();
+  }
+
+  /// Get form data as map for API request
+  Map<String, dynamic> getFormData() {
+    return {
+      'patientId': _patientIdController.text,
+      'medicalId': _medicalCodeController.text,
+      'fullName': _fullNameController.text,
+      'gender': _selectedGender,
+      'phone': _phoneController.text,
+      'diagnosis': _diagnosisController.text,
+      'address': _addressController.text,
+      'email': _emailController.text,
+      'remark': _notesController.text,
+      'appointmentDate': _appointmentDate,
+      'dateOfBirth': _dateOfBirth,
+      'selectedServiceObject': _selectedServiceObject,
+      'selectedDepartment': _selectedDepartment,
+      'selectedDoctor': _selectedDoctor,
+      'physicianId':
+          _selectedDoctor?.id ?? 53661, // Use selected doctor ID or default
+      'physicianName': _selectedDoctor?.name ?? "",
+      'departmentId': _selectedDepartment ?? "139",
+      'serviceType': _selectedServiceObject ?? "DV",
+      'companyId': 1,
+      'patientGroupType': "S",
+      'profileId': 3,
+    };
+  }
+
+  /// Validate if required fields are filled
+  bool validateForm() {
+    return _fullNameController.text.isNotEmpty && _selectedGender.isNotEmpty;
   }
 
   /// Clear all form data and reset to initial state with bloc events

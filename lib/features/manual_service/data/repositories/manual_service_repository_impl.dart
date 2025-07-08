@@ -95,4 +95,47 @@ class ManualServiceRepositoryImpl implements ManualServiceRepository {
           message: 'Failed to fetch test services: ${e.toString()}'));
     }
   }
+
+  @override
+  Future<Either<Failure, DoctorResponse>> getDoctors(
+      DoctorQueryParams params) async {
+    try {
+      final result = await _remoteDataSource.getDoctors(params);
+      return Right(result);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error in getDoctors: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to fetch doctors: ${e.message}',
+          code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error in getDoctors: ${e.message}');
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      AppLogger.error('Unknown error in getDoctors: $e');
+      return Left(
+          UnknownFailure(message: 'Failed to fetch doctors: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ManualServiceRequestResponse>>
+      saveManualServiceRequest(ManualServiceRequest request) async {
+    try {
+      final result = await _remoteDataSource.saveManualServiceRequest(request);
+      return Right(result);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error in saveManualServiceRequest: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to save manual service request: ${e.message}',
+          code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error(
+          'Network error in saveManualServiceRequest: ${e.message}');
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      AppLogger.error('Unknown error in saveManualServiceRequest: $e');
+      return Left(UnknownFailure(
+          message: 'Failed to save manual service request: ${e.toString()}'));
+    }
+  }
 }

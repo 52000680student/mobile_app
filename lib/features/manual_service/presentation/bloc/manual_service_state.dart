@@ -27,9 +27,23 @@ class ManualServiceState extends Equatable {
   final List<SampleItem> sampleItems;
   final String? testServicesError;
 
+  // Doctors
+  final bool isLoadingDoctors;
+  final List<Doctor> doctors;
+  final Doctor? selectedDoctor;
+  final String? doctorsError;
+
+  // Sample collection state
+  final bool areSamplesCollected;
+
   // Form state
   final bool isFormValid;
   final String? formError;
+
+  // Save request state
+  final bool isSavingRequest;
+  final ManualServiceRequestResponse? saveResponse;
+  final String? saveError;
 
   const ManualServiceState({
     this.isSearchingPatients = false,
@@ -49,8 +63,16 @@ class ManualServiceState extends Equatable {
     this.selectedTestServices = const [],
     this.sampleItems = const [],
     this.testServicesError,
+    this.isLoadingDoctors = false,
+    this.doctors = const [],
+    this.selectedDoctor,
+    this.doctorsError,
+    this.areSamplesCollected = false,
     this.isFormValid = false,
     this.formError,
+    this.isSavingRequest = false,
+    this.saveResponse,
+    this.saveError,
   });
 
   ManualServiceState copyWith({
@@ -71,8 +93,16 @@ class ManualServiceState extends Equatable {
     List<TestService>? selectedTestServices,
     List<SampleItem>? sampleItems,
     String? testServicesError,
+    bool? isLoadingDoctors,
+    List<Doctor>? doctors,
+    Doctor? selectedDoctor,
+    String? doctorsError,
+    bool? areSamplesCollected,
     bool? isFormValid,
     String? formError,
+    bool? isSavingRequest,
+    ManualServiceRequestResponse? saveResponse,
+    String? saveError,
   }) {
     return ManualServiceState(
       isSearchingPatients: isSearchingPatients ?? this.isSearchingPatients,
@@ -97,8 +127,16 @@ class ManualServiceState extends Equatable {
       selectedTestServices: selectedTestServices ?? this.selectedTestServices,
       sampleItems: sampleItems ?? this.sampleItems,
       testServicesError: testServicesError ?? this.testServicesError,
+      isLoadingDoctors: isLoadingDoctors ?? this.isLoadingDoctors,
+      doctors: doctors ?? this.doctors,
+      selectedDoctor: selectedDoctor ?? this.selectedDoctor,
+      doctorsError: doctorsError ?? this.doctorsError,
+      areSamplesCollected: areSamplesCollected ?? this.areSamplesCollected,
       isFormValid: isFormValid ?? this.isFormValid,
       formError: formError ?? this.formError,
+      isSavingRequest: isSavingRequest ?? this.isSavingRequest,
+      saveResponse: saveResponse ?? this.saveResponse,
+      saveError: saveError ?? this.saveError,
     );
   }
 
@@ -123,6 +161,8 @@ class ManualServiceState extends Equatable {
       selectedTestServices: [],
       sampleItems: [],
       patientSearchResults: [],
+      selectedDoctor: null,
+      areSamplesCollected: false,
       isFormValid: false,
       formError: null,
     );
@@ -134,6 +174,7 @@ class ManualServiceState extends Equatable {
       departmentsError: null,
       serviceParametersError: null,
       testServicesError: null,
+      doctorsError: null,
       formError: null,
     );
   }
@@ -147,13 +188,15 @@ class ManualServiceState extends Equatable {
       isSearchingPatients ||
       isLoadingDepartments ||
       isLoadingServiceParameters ||
-      isLoadingTestServices;
+      isLoadingTestServices ||
+      isLoadingDoctors;
 
   bool get hasError =>
       patientSearchError != null ||
       departmentsError != null ||
       serviceParametersError != null ||
       testServicesError != null ||
+      doctorsError != null ||
       formError != null;
 
   @override
@@ -175,7 +218,15 @@ class ManualServiceState extends Equatable {
         selectedTestServices,
         sampleItems,
         testServicesError,
+        isLoadingDoctors,
+        doctors,
+        selectedDoctor,
+        doctorsError,
+        areSamplesCollected,
         isFormValid,
         formError,
+        isSavingRequest,
+        saveResponse,
+        saveError,
       ];
 }
