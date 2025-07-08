@@ -30,6 +30,10 @@ class AuthTextField extends StatelessWidget {
       keyboardType: keyboardType,
       validator: validator,
       enabled: enabled,
+      enableInteractiveSelection: true,
+      autocorrect: false,
+      enableSuggestions: keyboardType != TextInputType.emailAddress &&
+          keyboardType != TextInputType.visiblePassword,
       style: const TextStyle(
         fontSize: 16,
         color: Color(0xFF374151),
@@ -89,6 +93,9 @@ class AuthTextField extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
+      onTapOutside: (event) {
+        FocusScope.of(context).unfocus();
+      },
     );
   }
 }

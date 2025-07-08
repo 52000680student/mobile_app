@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:mobile_app/core/constants/app_constants.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../data/models/manual_service_models.dart';
 
 class SampleTab extends StatefulWidget {
   final List<SampleItem> samples;
@@ -190,7 +191,13 @@ class _SampleTabState extends State<SampleTab> {
         // Samples list
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: const ClampingScrollPhysics(),
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom:
+                  60, // Add bottom padding to ensure last item is fully visible
+            ),
             itemCount: widget.samples.length,
             itemBuilder: (context, index) {
               final sample = widget.samples[index];
@@ -349,22 +356,4 @@ class _SampleTabState extends State<SampleTab> {
       ],
     );
   }
-}
-
-class SampleItem {
-  final String name;
-  final String type;
-  final String serialNumber;
-  final String sid;
-  final DateTime? collectionTime;
-  final int? collectionUserId;
-
-  SampleItem({
-    required this.name,
-    required this.type,
-    required this.serialNumber,
-    required this.sid,
-    this.collectionTime,
-    this.collectionUserId,
-  });
 }

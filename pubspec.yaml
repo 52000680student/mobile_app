@@ -49,6 +49,8 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.6
   flutter_advanced_switch: ^3.1.0
+  flutter_launcher_icons: ^0.14.4
+  dropdown_search: ^6.0.2
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +68,11 @@ dev_dependencies:
 
   # Linting
   flutter_lints: ^3.0.1
+
+flutter_icons:
+  android: true
+  image_path: "assets/images/logo_with_background.png"
+  min_sdk_android: 21
 
 flutter:
   uses-material-design: true

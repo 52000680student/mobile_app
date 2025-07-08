@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
       create: (context) => _authBloc,
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {

@@ -1,3 +1,6 @@
 Task:
-1. Can you beautify the select all sample part, as the picture provided it is very rough and ugly
-2. In the manual_service_page section, there are still 2 buttons missing: refresh and save. The refresh button, when clicked, will clear all data entered or selected in all forms. And save will make an API call to send data (but the API call has not been implemented yet).
+1. Cannot get the display data of dropdown_search BN Code:
+- The first time entering the app, the data can still be retrieved, but when selecting a value, the data below the list cannot be retrieved. No matter how you type the search, it will not appear
+2. Auto focus on input fields such as CCCD, SID, ...:
+- When selecting those fields and clicking outside the space, the focus will disappear, but when going down to the services_tab section, selecting a service, the focus will automatically return to the input field
+3. The 'Refresh' button is not performing its function, which is to reset the value of the Controllers or _selected in the administrative_form

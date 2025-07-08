@@ -1,7 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/di/injection_container.dart';
+import '../bloc/manual_service_bloc.dart';
+import '../bloc/manual_service_event.dart';
 import 'collapsible_section.dart';
 import 'administrative_form.dart';
 import 'service_selection.dart';
@@ -14,6 +16,22 @@ class ResponsiveLayout extends StatefulWidget {
 }
 
 class _ResponsiveLayoutState extends State<ResponsiveLayout> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<ManualServiceBloc>(),
+      child: _ResponsiveLayoutContent(),
+    );
+  }
+}
+
+class _ResponsiveLayoutContent extends StatefulWidget {
+  @override
+  State<_ResponsiveLayoutContent> createState() =>
+      _ResponsiveLayoutContentState();
+}
+
+class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
   final GlobalKey _administrativeFormKey = GlobalKey();
   final GlobalKey _serviceSelectionKey = GlobalKey();
   bool _isLoading = false;
@@ -56,9 +74,9 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
     );
 
     if (shouldClear == true) {
-      // TODO: Clear all forms - implement form clearing logic
-      // _administrativeFormKey.currentState?.clearForm();
-      // _serviceSelectionKey.currentState?.clearSelection();
+      // Clear all forms by triggering bloc events to reset state
+      context.read<ManualServiceBloc>().add(const ClearFormEvent());
+      context.read<ManualServiceBloc>().add(const ResetPatientSearchEvent());
 
       // Show success message
       if (mounted) {
@@ -230,11 +248,11 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
       BuildContext context, AppLocalizations l10n, ThemeData theme) {
     return Column(
       children: [
+        // Single scrollable content containing both administrative form and service selection
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Administrative Information (Collapsible)
                 CollapsibleSection(
@@ -244,13 +262,17 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
                   child: AdministrativeForm(key: _administrativeFormKey),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-                // Service Selection
+                // Service Selection with fixed height
                 SizedBox(
-                  height: 600, // Fixed height for mobile
+                  height:
+                      600, // Fixed height for service selection within scroll
                   child: ServiceSelection(key: _serviceSelectionKey),
                 ),
+
+                // Add some bottom padding to ensure content is accessible above action buttons
+                const SizedBox(height: 80),
               ],
             ),
           ),
@@ -267,40 +289,35 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
     return Column(
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Main content in side-by-side layout
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left side: Administrative Information
-                    Expanded(
-                      flex: 3,
-                      child: CollapsibleSection(
-                        title: l10n.administrativeInformation,
-                        leadingIcon: Icons.description_outlined,
-                        initiallyExpanded: true,
-                        child: AdministrativeForm(key: _administrativeFormKey),
-                      ),
-                    ),
-
-                    const SizedBox(width: 24),
-
-                    // Right side: Service Selection
-                    Expanded(
-                      flex: 2,
-                      child: SizedBox(
-                        height: 800, // Fixed height for tablet
-                        child: ServiceSelection(key: _serviceSelectionKey),
-                      ),
-                    ),
-                  ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left side: Administrative Information - Scrollable
+              Expanded(
+                flex: 3,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: CollapsibleSection(
+                    title: l10n.administrativeInformation,
+                    leadingIcon: Icons.description_outlined,
+                    initiallyExpanded: true,
+                    child: AdministrativeForm(key: _administrativeFormKey),
+                  ),
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(width: 24),
+
+              // Right side: Service Selection - Scrollable content
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(top: 24, right: 24, bottom: 24),
+                  child: ServiceSelection(key: _serviceSelectionKey),
+                ),
+              ),
+            ],
           ),
         ),
 

@@ -851,5 +851,77 @@
   "confirm": "Confirm",
   "@confirm": {
     "description": "Confirm button text"
+  },
+  "searchPatients": "Search patients...",
+  "@searchPatients": {
+    "description": "Patient search field placeholder"
+  },
+  "selectPatient": "Select a patient",
+  "@selectPatient": {
+    "description": "Patient selection prompt"
+  },
+  "noPatientFound": "No patients found",
+  "@noPatientFound": {
+    "description": "Message when no patients are found"
+  },
+  "patientSelected": "Patient selected",
+  "@patientSelected": {
+    "description": "Success message when patient is selected"
+  },
+  "searchDepartments": "Search departments...",
+  "@searchDepartments": {
+    "description": "Department search field placeholder"
+  },
+  "selectDepartment": "Select a department",
+  "@selectDepartment": {
+    "description": "Department selection prompt"
+  },
+  "noDepartmentFound": "No departments found",
+  "@noDepartmentFound": {
+    "description": "Message when no departments are found"
+  },
+  "searchServices": "Search services...",
+  "@searchServices": {
+    "description": "Service search field placeholder"
+  },
+  "addService": "Add Service",
+  "@addService": {
+    "description": "Add service button text"
+  },
+  "removeService": "Remove",
+  "@removeService": {
+    "description": "Remove service button text"
+  },
+  "serviceAdded": "Service added successfully",
+  "@serviceAdded": {
+    "description": "Success message when service is added"
+  },
+  "serviceRemoved": "Service removed successfully",
+  "@serviceRemoved": {
+    "description": "Success message when service is removed"
+  },
+  "loadingPatients": "Searching patients...",
+  "@loadingPatients": {
+    "description": "Loading message while searching patients"
+  },
+  "loadingDepartments": "Loading departments...",
+  "@loadingDepartments": {
+    "description": "Loading message while fetching departments"
+  },
+  "loadingServices": "Loading services...",
+  "@loadingServices": {
+    "description": "Loading message while fetching services"
+  },
+  "errorLoadingPatients": "Failed to load patients",
+  "@errorLoadingPatients": {
+    "description": "Error message when patient loading fails"
+  },
+  "errorLoadingDepartments": "Failed to load departments",
+  "@errorLoadingDepartments": {
+    "description": "Error message when department loading fails"
+  },
+  "errorLoadingServices": "Failed to load services",
+  "@errorLoadingServices": {
+    "description": "Error message when service loading fails"
   }
 }
