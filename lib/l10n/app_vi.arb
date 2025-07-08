@@ -322,5 +322,9 @@
     "pleaseCompleteAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
     "dataSavedSuccessfully": "Dữ liệu đã được lưu thành công",
     "cancel": "Hủy",
-    "confirm": "Xác nhận"
+    "confirm": "Xác nhận",
+    "pleaseSelectPatient": "Vui lòng chọn bệnh nhân",
+    "administrativeFormNotAvailable": "Biểu mẫu hành chính không có sẵn",
+    "errorPreparingRequest": "Lỗi chuẩn bị yêu cầu: {error}",
+    "requestSavedSuccessfully": "Yêu cầu đã được lưu thành công! ID: {id}"
 }

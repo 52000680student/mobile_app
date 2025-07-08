@@ -90,5 +90,11 @@
   "takeSampleError": "No se pudieron tomar las muestras",
   "sampleUpdateTimeout": "La actualización de muestra está tomando más tiempo del esperado. La actualización puede haber sido exitosa en el servidor. Por favor, actualice para verificar el estado.",
   "sampleCollectionTimeout": "La recolección de muestra está tomando más tiempo del esperado. La operación puede haber sido exitosa en el servidor. Por favor, actualice para verificar el estado.",
-  "processing": "Procesando..."
+  "processing": "Procesando...",
+  "pleaseSelectPatient": "Por favor seleccione un paciente",
+  "administrativeFormNotAvailable": "Formulario administrativo no disponible",
+  "errorPreparingRequest": "Error preparando solicitud: {error}",
+  "requestSavedSuccessfully": "¡Solicitud guardada exitosamente! ID: {id}",
+  "pleaseCompleteAllFields": "Por favor complete todos los campos requeridos",
+  "dataSavedSuccessfully": "Datos guardados exitosamente"
 }

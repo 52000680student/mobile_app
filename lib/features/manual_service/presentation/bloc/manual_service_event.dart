@@ -97,3 +97,35 @@ class ResetPatientSearchEvent extends ManualServiceEvent {
 class LoadInitialPatientsEvent extends ManualServiceEvent {
   const LoadInitialPatientsEvent();
 }
+
+/// Event to save manual service request
+class SaveManualServiceRequestEvent extends ManualServiceEvent {
+  final ManualServiceRequest request;
+
+  const SaveManualServiceRequestEvent(this.request);
+
+  @override
+  List<Object?> get props => [request];
+}
+
+/// Event to load doctors list
+class LoadDoctorsEvent extends ManualServiceEvent {
+  final DoctorQueryParams params;
+
+  const LoadDoctorsEvent({
+    this.params = const DoctorQueryParams(),
+  });
+
+  @override
+  List<Object?> get props => [params];
+}
+
+/// Event to toggle sample collection state
+class ToggleSampleCollectionEvent extends ManualServiceEvent {
+  final bool isCollected;
+
+  const ToggleSampleCollectionEvent(this.isCollected);
+
+  @override
+  List<Object?> get props => [isCollected];
+}

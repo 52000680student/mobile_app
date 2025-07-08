@@ -5,6 +5,8 @@ import '../../domain/usecases/search_patients_usecase.dart';
 import '../../domain/usecases/get_departments_usecase.dart';
 import '../../domain/usecases/get_service_parameters_usecase.dart';
 import '../../domain/usecases/get_test_services_usecase.dart';
+import '../../domain/usecases/get_doctors_usecase.dart';
+import '../../domain/usecases/save_manual_service_usecase.dart';
 import '../../data/models/manual_service_models.dart';
 import 'manual_service_event.dart';
 import 'manual_service_state.dart';
@@ -16,6 +18,8 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
   final GetDepartmentsUseCase _getDepartmentsUseCase;
   final GetServiceParametersUseCase _getServiceParametersUseCase;
   final GetTestServicesUseCase _getTestServicesUseCase;
+  final GetDoctorsUseCase _getDoctorsUseCase;
+  final SaveManualServiceUseCase _saveManualServiceUseCase;
 
   late final TextDebouncer _patientSearchDebouncer;
 
@@ -24,6 +28,8 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     this._getDepartmentsUseCase,
     this._getServiceParametersUseCase,
     this._getTestServicesUseCase,
+    this._getDoctorsUseCase,
+    this._saveManualServiceUseCase,
   ) : super(const ManualServiceState()) {
     _patientSearchDebouncer = TextDebouncer(
       onChanged: (query) => add(SearchPatientsEvent(query)),
@@ -35,6 +41,8 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     on<LoadDepartmentsEvent>(_onLoadDepartments);
     on<LoadServiceParametersEvent>(_onLoadServiceParameters);
     on<LoadTestServicesEvent>(_onLoadTestServices);
+    on<LoadDoctorsEvent>(_onLoadDoctors);
+    on<ToggleSampleCollectionEvent>(_onToggleSampleCollection);
     on<SelectDepartmentEvent>(_onSelectDepartment);
     on<SelectServiceParameterEvent>(_onSelectServiceParameter);
     on<AddTestServiceEvent>(_onAddTestService);
@@ -42,10 +50,12 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     on<ClearFormEvent>(_onClearForm);
     on<ResetPatientSearchEvent>(_onResetPatientSearch);
     on<LoadInitialPatientsEvent>(_onLoadInitialPatients);
+    on<SaveManualServiceRequestEvent>(_onSaveManualServiceRequest);
 
     // Load initial data
     add(const LoadDepartmentsEvent());
     add(const LoadServiceParametersEvent());
+    add(const LoadDoctorsEvent()); // Load doctors
     add(const LoadInitialPatientsEvent()); // Load initial patients
   }
 
@@ -213,6 +223,33 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     );
   }
 
+  Future<void> _onLoadDoctors(
+    LoadDoctorsEvent event,
+    Emitter<ManualServiceState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingDoctors: true, doctorsError: null));
+
+    final result = await _getDoctorsUseCase(event.params);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoadingDoctors: false,
+        doctorsError: failure.message,
+      )),
+      (response) => emit(state.copyWith(
+        isLoadingDoctors: false,
+        doctors: response.data,
+      )),
+    );
+  }
+
+  void _onToggleSampleCollection(
+    ToggleSampleCollectionEvent event,
+    Emitter<ManualServiceState> emit,
+  ) {
+    emit(state.copyWith(areSamplesCollected: event.isCollected));
+  }
+
   void _onSelectDepartment(
     SelectDepartmentEvent event,
     Emitter<ManualServiceState> emit,
@@ -303,6 +340,35 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
             test.testName.toLowerCase().contains(query.toLowerCase()) ||
             test.testCode.toLowerCase().contains(query.toLowerCase()))
         .toList();
+  }
+
+  Future<void> _onSaveManualServiceRequest(
+    SaveManualServiceRequestEvent event,
+    Emitter<ManualServiceState> emit,
+  ) async {
+    AppLogger.info('Starting manual service request save');
+    emit(state.copyWith(isSavingRequest: true, saveError: null));
+
+    final result = await _saveManualServiceUseCase(event.request);
+
+    result.fold(
+      (failure) {
+        AppLogger.error(
+            'Manual service request save failed: ${failure.message}');
+        emit(state.copyWith(
+          isSavingRequest: false,
+          saveError: failure.message,
+        ));
+      },
+      (response) {
+        AppLogger.info(
+            'Manual service request save successful: ID=${response.id}');
+        emit(state.copyWith(
+          isSavingRequest: false,
+          saveResponse: response,
+        ));
+      },
+    );
   }
 
   @override

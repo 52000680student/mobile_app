@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/user_service.dart';
 import '../bloc/manual_service_bloc.dart';
 import '../bloc/manual_service_event.dart';
+import '../bloc/manual_service_state.dart';
+import '../../data/models/manual_service_models.dart';
 import 'collapsible_section.dart';
 import 'administrative_form.dart';
 import 'service_selection.dart';
@@ -101,36 +104,121 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
 
   void _onSave() async {
     setState(() => _isLoading = true);
+    final l10n = AppLocalizations.of(context)!;
 
-    // TODO: Validate forms first - implement form validation logic
-    // final bool isAdministrativeFormValid =
-    //     _administrativeFormKey.currentState?.validateForm() ?? false;
+    try {
+      // Get the current state to access selected patient and test services
+      final currentState = context.read<ManualServiceBloc>().state;
 
-    // For now, assume form is valid - implement validation logic later
-    // if (!isAdministrativeFormValid) {
-    //   setState(() => _isLoading = false);
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Row(
-    //         children: [
-    //           const Icon(Icons.error, color: Colors.white),
-    //           const SizedBox(width: 8),
-    //           Text(AppLocalizations.of(context)!.pleaseCompleteAllFields),
-    //         ],
-    //       ),
-    //       backgroundColor: Colors.red,
-    //       duration: const Duration(seconds: 3),
-    //     ),
-    //   );
-    //   return;
-    // }
+      // Validate that we have required data
+      if (currentState.selectedPatient == null) {
+        _showErrorMessage(l10n.pleaseSelectPatient);
+        return;
+      }
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 2));
+      // Note: Services and samples validation removed - allow empty arrays to be sent to API
 
-    // TODO: Implement actual API call here
-    // final result = await apiService.saveManualService(data);
+      // Get form data from the administrative form
+      Map<String, dynamic> formData = {};
+      try {
+        // Try to access the administrative form data
+        final administrativeFormWidget = _administrativeFormKey.currentWidget;
+        if (administrativeFormWidget != null) {
+          final administrativeFormState = _administrativeFormKey.currentState;
+          if (administrativeFormState != null &&
+              administrativeFormState.mounted) {
+            formData = (administrativeFormState as dynamic).getFormData();
+          }
+        }
+      } catch (e) {
+        // If we can't access the form, fall back to basic data
+        l10n.administrativeFormNotAvailable;
+      }
 
+      // Merge with selected patient data and defaults
+      formData = {
+        'medicalId': formData['medicalId'] ?? "",
+        'fullName': formData['fullName'] ?? currentState.selectedPatient!.name,
+        'gender': formData['gender'] ?? currentState.selectedPatient!.gender,
+        'phone': formData['phone'] ??
+            currentState.selectedPatient!.phoneNumber ??
+            "",
+        'diagnosis': formData['diagnosis'] ?? "",
+        'address': formData['address'] ?? currentState.selectedPatient!.address,
+        'email': formData['email'] ?? "",
+        'remark': formData['remark'] ?? "",
+        'physicianId':
+            formData['physicianId'] ?? 53661, // Now uses selected doctor ID
+        'physicianName':
+            formData['physicianName'] ?? "", // Now uses selected doctor name
+        'departmentId': currentState.selectedDepartment?.id.toString() ?? "139",
+        'serviceType': currentState.selectedServiceParameter?.code ?? "DV",
+        'companyId': 1,
+        'patientGroupType': "S",
+        'profileId': 3,
+      };
+      final selectedPatient = currentState.selectedPatient!;
+
+      // Get current user ID for collector if samples are collected
+      final userService = getIt<UserService>();
+      final currentUserId = await userService.getCurrentUserIdWithFallback();
+      final currentUserIdInt = int.tryParse(currentUserId) ?? 1000004;
+
+      // Get sample collection state from the switch controller in sample tab
+      final isCollected = currentState.areSamplesCollected;
+
+      // Build the request according to Todo.txt specification
+      final now = DateTime.now();
+      final request = ManualServiceRequest(
+        requestDate: now.toIso8601String(),
+        requestid: "",
+        alternateId: "",
+        patientId: selectedPatient.patientId,
+        medicalId: formData['medicalId'] ?? "",
+        fullName: formData['fullName'] ?? selectedPatient.name,
+        serviceType: formData['serviceType'] ?? "DV",
+        dob: selectedPatient.dob,
+        physicianId: formData['physicianId'] ?? 53661,
+        physicianName: formData['physicianName'] ?? "",
+        gender: formData['gender'] ?? selectedPatient.gender,
+        departmentId: formData['departmentId'] ?? "139",
+        phone: formData['phone'] ?? selectedPatient.phoneNumber ?? "",
+        diagnosis: formData['diagnosis'] ?? "",
+        address: formData['address'] ?? selectedPatient.address,
+        resultTime: null,
+        email: formData['email'] ?? "",
+        remark: formData['remark'] ?? "",
+        patient: selectedPatient.id,
+        companyId: formData['companyId'] ?? 1,
+        patientGroupType: formData['patientGroupType'] ?? "S",
+        profileId: formData['profileId'] ?? 3,
+        tests: currentState.selectedTestServices
+            .map((testService) =>
+                ManualServiceRequestTest.fromTestService(testService))
+            .toList(),
+        profiles: [], // Empty array as specified
+        sidParam: SidParam.current(),
+        individualValues:
+            IndividualValues.fromPatientSearchResult(selectedPatient),
+        samples: currentState.sampleItems
+            .map((sampleItem) => ManualServiceRequestSample.fromSampleItem(
+                sampleItem, isCollected, isCollected ? currentUserIdInt : null))
+            .toList(),
+        isCollected: isCollected,
+        isReceived: false,
+      );
+
+      // Call the bloc to save the request
+      context
+          .read<ManualServiceBloc>()
+          .add(SaveManualServiceRequestEvent(request));
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showErrorMessage(l10n.errorPreparingRequest(e.toString()));
+    }
+  }
+
+  void _showErrorMessage(String message) {
     setState(() => _isLoading = false);
 
     if (mounted) {
@@ -138,12 +226,12 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white),
+              const Icon(Icons.error, color: Colors.white),
               const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.dataSavedSuccessfully),
+              Expanded(child: Text(message)),
             ],
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
       );
@@ -230,17 +318,51 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Mobile layout (< 900px)
-        if (constraints.maxWidth < 900) {
-          return _buildMobileLayout(context, l10n, theme);
-        }
-        // Tablet/Desktop layout (>= 900px)
-        else {
-          return _buildTabletLayout(context, l10n, theme);
+    return BlocListener<ManualServiceBloc, ManualServiceState>(
+      listenWhen: (previous, current) {
+        // Listen for save operation completion
+        return previous.isSavingRequest != current.isSavingRequest ||
+            previous.saveResponse != current.saveResponse ||
+            previous.saveError != current.saveError;
+      },
+      listener: (context, state) {
+        if (!state.isSavingRequest) {
+          // Save operation completed
+          setState(() => _isLoading = false);
+
+          if (state.saveError != null) {
+            // Show error message
+            _showErrorMessage(state.saveError!);
+          } else if (state.saveResponse != null) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(l10n.requestSavedSuccessfully(state.saveResponse!.id)),
+                  ],
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
         }
       },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Mobile layout (< 900px)
+          if (constraints.maxWidth < 900) {
+            return _buildMobileLayout(context, l10n, theme);
+          }
+          // Tablet/Desktop layout (>= 900px)
+          else {
+            return _buildTabletLayout(context, l10n, theme);
+          }
+        },
+      ),
     );
   }
 

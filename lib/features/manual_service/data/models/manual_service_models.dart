@@ -1,4 +1,5 @@
 import 'package:mobile_app/core/utils/json_parsing_utils.dart';
+import 'dart:convert'; // Added for jsonDecode
 
 /// Model for Patient search API response
 class PatientSearchResponse {
@@ -464,6 +465,338 @@ class SampleItem {
   }
 }
 
+/// Model for Manual Service Request API
+class ManualServiceRequest {
+  final String requestDate;
+  final String requestid;
+  final String alternateId;
+  final String patientId;
+  final String medicalId;
+  final String fullName;
+  final String serviceType;
+  final String dob;
+  final int physicianId;
+  final String physicianName;
+  final String gender;
+  final String departmentId;
+  final String phone;
+  final String diagnosis;
+  final String address;
+  final String? resultTime;
+  final String email;
+  final String remark;
+  final int patient;
+  final int companyId;
+  final String patientGroupType;
+  final int profileId;
+  final List<ManualServiceRequestTest> tests;
+  final List<dynamic> profiles; // Empty array for now
+  final SidParam sidParam;
+  final IndividualValues individualValues;
+  final List<ManualServiceRequestSample> samples;
+  final bool isCollected;
+  final bool isReceived;
+
+  ManualServiceRequest({
+    required this.requestDate,
+    required this.requestid,
+    required this.alternateId,
+    required this.patientId,
+    required this.medicalId,
+    required this.fullName,
+    required this.serviceType,
+    required this.dob,
+    required this.physicianId,
+    required this.physicianName,
+    required this.gender,
+    required this.departmentId,
+    required this.phone,
+    required this.diagnosis,
+    required this.address,
+    this.resultTime,
+    required this.email,
+    required this.remark,
+    required this.patient,
+    required this.companyId,
+    required this.patientGroupType,
+    required this.profileId,
+    required this.tests,
+    required this.profiles,
+    required this.sidParam,
+    required this.individualValues,
+    required this.samples,
+    required this.isCollected,
+    required this.isReceived,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'requestDate': requestDate,
+      'requestid': requestid,
+      'alternateId': alternateId,
+      'patientId': patientId,
+      'medicalId': medicalId,
+      'fullName': fullName,
+      'serviceType': serviceType,
+      'dob': dob,
+      'physicianId': physicianId,
+      'physicianName': physicianName,
+      'gender': gender,
+      'departmentId': departmentId,
+      'phone': phone,
+      'diagnosis': diagnosis,
+      'address': address,
+      'resultTime': resultTime,
+      'email': email,
+      'remark': remark,
+      'patient': patient,
+      'companyId': companyId,
+      'patientGroupType': patientGroupType,
+      'ProfileId': profileId,
+      'tests': tests.map((test) => test.toJson()).toList(),
+      'profiles': profiles,
+      'sidParam': sidParam.toJson(),
+      'individualValues': individualValues.toJson(),
+      'samples': samples.map((sample) => sample.toJson()).toList(),
+      'isCollected': isCollected,
+      'isReceived': isReceived,
+    };
+  }
+}
+
+/// Model for test in manual service request
+class ManualServiceRequestTest {
+  final String testCode;
+  final String testCategory;
+  final String sampleType;
+  final int sID;
+  final String subSID;
+
+  ManualServiceRequestTest({
+    required this.testCode,
+    required this.testCategory,
+    required this.sampleType,
+    required this.sID,
+    required this.subSID,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'testCode': testCode,
+      'testCategory': testCategory,
+      'sampleType': sampleType,
+      'sID': sID,
+      'subSID': subSID,
+    };
+  }
+
+  factory ManualServiceRequestTest.fromTestService(TestService testService) {
+    return ManualServiceRequestTest(
+      testCode: testService.testCode,
+      testCategory: testService.category,
+      sampleType: testService.sampleType,
+      sID: 0,
+      subSID: "",
+    );
+  }
+}
+
+/// Model for SID parameters
+class SidParam {
+  final String fullDate;
+  final String year;
+
+  SidParam({
+    required this.fullDate,
+    required this.year,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'FullDate': fullDate,
+      'Year': year,
+    };
+  }
+
+  factory SidParam.current() {
+    final now = DateTime.now();
+    // Format: ddmmyy
+    final fullDate =
+        '${now.day.toString().padLeft(2, '0')}${now.month.toString().padLeft(2, '0')}${now.year.toString().substring(2)}';
+    final year = now.year.toString();
+
+    return SidParam(
+      fullDate: fullDate,
+      year: year,
+    );
+  }
+}
+
+/// Model for individual values in manual service request
+class IndividualValues {
+  final String patientId;
+  final int companyId;
+  final String fullName;
+  final String familyName;
+  final String dob;
+  final String gender;
+  final String pin;
+  final ContactInfo contact;
+  final AddressInfo address;
+  final int profileId;
+
+  IndividualValues({
+    required this.patientId,
+    required this.companyId,
+    required this.fullName,
+    required this.familyName,
+    required this.dob,
+    required this.gender,
+    required this.pin,
+    required this.contact,
+    required this.address,
+    required this.profileId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'PatientId': patientId,
+      'companyId': companyId,
+      'FullName': fullName,
+      'FamilyName': familyName,
+      'DOB': dob,
+      'Gender': gender,
+      'PIN': pin,
+      'Contact': contact.toJson(),
+      'Address': address.toJson(),
+      'ProfileId': profileId,
+    };
+  }
+
+  factory IndividualValues.fromPatientSearchResult(
+      PatientSearchResult patient) {
+    return IndividualValues(
+      patientId: patient.patientId,
+      companyId: 1,
+      fullName: patient.name,
+      familyName: patient.name,
+      dob: patient.dob,
+      gender: patient.gender,
+      pin: "",
+      contact: ContactInfo(
+        phoneNumber: patient.phoneNumber ?? "",
+        emailAddress: "",
+      ),
+      address: AddressInfo(
+        address: patient.address,
+      ),
+      profileId: 3,
+    );
+  }
+}
+
+/// Model for contact information
+class ContactInfo {
+  final String phoneNumber;
+  final String emailAddress;
+
+  ContactInfo({
+    required this.phoneNumber,
+    required this.emailAddress,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'PhoneNumber': phoneNumber,
+      'EmailAddress': emailAddress,
+    };
+  }
+}
+
+/// Model for address information
+class AddressInfo {
+  final String address;
+
+  AddressInfo({
+    required this.address,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Address': address,
+    };
+  }
+}
+
+/// Model for sample in manual service request
+class ManualServiceRequestSample {
+  final String sampleType;
+  final String sampleColor;
+  final String numberOfLabels;
+  final String quality;
+  final int? collectorUserId;
+  final int sID;
+  final String subID;
+  final int? receiverUserId;
+  final String? subSID;
+
+  ManualServiceRequestSample({
+    required this.sampleType,
+    required this.sampleColor,
+    required this.numberOfLabels,
+    required this.quality,
+    this.collectorUserId,
+    required this.sID,
+    required this.subID,
+    this.receiverUserId,
+    this.subSID,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'sampleType': sampleType,
+      'sampleColor': sampleColor,
+      'numberOfLabels': numberOfLabels,
+      'quality': quality,
+      'collectorUserId': collectorUserId,
+      'sID': sID,
+      'subID': subID,
+      'ReceiverUserId': receiverUserId,
+      'subSID': subSID,
+    };
+  }
+
+  factory ManualServiceRequestSample.fromSampleItem(
+      SampleItem sampleItem, bool isCollected, int? loggedInUserId) {
+    return ManualServiceRequestSample(
+      sampleType: sampleItem.type,
+      sampleColor: "",
+      numberOfLabels: sampleItem.serialNumber,
+      quality: "",
+      collectorUserId: isCollected ? loggedInUserId : null,
+      sID: 0,
+      subID: "",
+      receiverUserId: null,
+      subSID: null,
+    );
+  }
+}
+
+/// Response model for manual service request API
+class ManualServiceRequestResponse {
+  final int id;
+
+  ManualServiceRequestResponse({
+    required this.id,
+  });
+
+  factory ManualServiceRequestResponse.fromJson(Map<String, dynamic> json) {
+    return ManualServiceRequestResponse(
+      id: JsonParsingUtils.parseIntSafely(json['id']) ?? 0,
+    );
+  }
+}
+
 /// Query parameters for patient search API
 class PatientSearchQueryParams {
   final String? query;
@@ -525,6 +858,168 @@ class TestServiceQueryParams {
       'size': size,
       'page': page,
       'inUse': inUse,
+    };
+  }
+}
+
+/// Doctor model for manual service
+class Doctor {
+  final int id;
+  final String name;
+  final String? title;
+  final String? department;
+  final String? quickCode;
+  final bool isActive;
+  final String? profileName;
+  final DateTime? createdDate;
+
+  const Doctor({
+    required this.id,
+    required this.name,
+    this.title,
+    this.department,
+    this.quickCode,
+    this.isActive = true,
+    this.profileName,
+    this.createdDate,
+  });
+
+  factory Doctor.fromJson(Map<String, dynamic> json) {
+    // Parse furtherValue JSON to extract additional fields
+    String? title;
+    String? department;
+    String? quickCode;
+    bool isActive = true;
+
+    try {
+      final furtherValueString = json['furtherValue'] as String?;
+      if (furtherValueString != null && furtherValueString.isNotEmpty) {
+        final furtherValueList = jsonDecode(furtherValueString) as List;
+        for (final item in furtherValueList) {
+          final fieldCode = item['FieldCode'] as String?;
+          final value = item['FurtherValue'] as String?;
+
+          switch (fieldCode) {
+            case 'Title':
+              title = value;
+              break;
+            case 'Department':
+              department = value;
+              break;
+            case 'DoctorQuickCode':
+              quickCode = value;
+              break;
+            case 'Active':
+              isActive = value?.toLowerCase() == 'true';
+              break;
+          }
+        }
+      }
+    } catch (e) {
+      // If parsing fails, use default values
+    }
+
+    return Doctor(
+      id: json['id'] as int,
+      name: (json['name'] as String? ?? '').trim(),
+      title: title,
+      department: department,
+      quickCode: quickCode,
+      isActive: isActive,
+      profileName: json['profileName'] as String?,
+      createdDate: json['createdDate'] != null
+          ? DateTime.tryParse(json['createdDate'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'title': title,
+      'department': department,
+      'quickCode': quickCode,
+      'isActive': isActive,
+      'profileName': profileName,
+      'createdDate': createdDate?.toIso8601String(),
+    };
+  }
+
+  @override
+  String toString() => name;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Doctor && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+/// Doctor API response wrapper
+class DoctorResponse {
+  final List<Doctor> data;
+  final int page;
+  final int size;
+  final int totalElements;
+  final int totalPages;
+  final bool last;
+
+  const DoctorResponse({
+    required this.data,
+    required this.page,
+    required this.size,
+    required this.totalElements,
+    required this.totalPages,
+    required this.last,
+  });
+
+  factory DoctorResponse.fromJson(Map<String, dynamic> json) {
+    return DoctorResponse(
+      data: (json['data'] as List<dynamic>?)
+              ?.map((item) => Doctor.fromJson(item as Map<String, dynamic>))
+              .where((doctor) => doctor.isActive) // Only include active doctors
+              .toList() ??
+          [],
+      page: json['page'] as int? ?? 1,
+      size: json['size'] as int? ?? 0,
+      totalElements: json['totalElements'] as int? ?? 0,
+      totalPages: json['totalPages'] as int? ?? 0,
+      last: json['last'] as bool? ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data.map((doctor) => doctor.toJson()).toList(),
+      'page': page,
+      'size': size,
+      'totalElements': totalElements,
+      'totalPages': totalPages,
+      'last': last,
+    };
+  }
+}
+
+/// Doctor query parameters
+class DoctorQueryParams {
+  final String query;
+  final int size;
+  final int profileId;
+
+  const DoctorQueryParams({
+    this.query = '',
+    this.size = 0,
+    this.profileId = 7, // Profile ID for doctors
+  });
+
+  Map<String, dynamic> toQueryParameters() {
+    return {
+      'q': query,
+      'size': size,
+      'profileId': profileId,
     };
   }
 }

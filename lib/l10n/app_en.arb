@@ -923,5 +923,33 @@
   "errorLoadingServices": "Failed to load services",
   "@errorLoadingServices": {
     "description": "Error message when service loading fails"
+  },
+  "pleaseSelectPatient": "Please select a patient",
+  "@pleaseSelectPatient": {
+    "description": "Validation message when no patient is selected"
+  },
+  "administrativeFormNotAvailable": "Administrative form not available",
+  "@administrativeFormNotAvailable": {
+    "description": "Error message when administrative form is not accessible"
+  },
+  "errorPreparingRequest": "Error preparing request: {error}",
+  "@errorPreparingRequest": {
+    "description": "Error message when request preparation fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Invalid data"
+      }
+    }
+  },
+  "requestSavedSuccessfully": "Request saved successfully! ID: {id}",
+  "@requestSavedSuccessfully": {
+    "description": "Success message when manual service request is saved",
+    "placeholders": {
+      "id": {
+        "type": "int",
+        "example": "12345"
+      }
+    }
   }
 }
