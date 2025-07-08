@@ -78,9 +78,48 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
     );
 
     if (shouldClear == true) {
-      // Clear all forms by triggering bloc events to reset state
+      // Check if context is still mounted before calling BLoC events
+      if (!mounted) return;
+
+      // Clear BLoC state first
       context.read<ManualServiceBloc>().add(const ClearFormEvent());
       context.read<ManualServiceBloc>().add(const ResetPatientSearchEvent());
+
+      // Reload fresh data from APIs
+      context.read<ManualServiceBloc>().add(const LoadDepartmentsEvent());
+      context.read<ManualServiceBloc>().add(const LoadServiceParametersEvent());
+      context.read<ManualServiceBloc>().add(const LoadTestServicesEvent());
+      context.read<ManualServiceBloc>().add(const LoadDoctorsEvent());
+      context.read<ManualServiceBloc>().add(const LoadInitialPatientsEvent());
+
+      // Clear administrative form local state
+      try {
+        final administrativeFormWidget = _administrativeFormKey.currentWidget;
+        if (administrativeFormWidget != null) {
+          final administrativeFormState = _administrativeFormKey.currentState;
+          if (administrativeFormState != null &&
+              administrativeFormState.mounted) {
+            // Call the clearLocalStateOnly method on the AdministrativeForm
+            (administrativeFormState as dynamic).clearLocalStateOnly();
+          }
+        }
+      } catch (e) {
+        AppLogger.info('Could not clear administrative form: $e');
+      }
+
+      // Clear service selection local state
+      try {
+        final serviceSelectionWidget = _serviceSelectionKey.currentWidget;
+        if (serviceSelectionWidget != null) {
+          final serviceSelectionState = _serviceSelectionKey.currentState;
+          if (serviceSelectionState != null && serviceSelectionState.mounted) {
+            // Call the clearLocalStateOnly method on the ServiceSelection
+            (serviceSelectionState as dynamic).clearLocalStateOnly();
+          }
+        }
+      } catch (e) {
+        AppLogger.info('Could not clear service selection: $e');
+      }
 
       // Show success message
       if (mounted) {

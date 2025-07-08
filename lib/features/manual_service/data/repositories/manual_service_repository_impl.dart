@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
-import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -186,29 +186,29 @@ class ManualServiceRepositoryImpl implements ManualServiceRepository {
   }
 
   @override
-  Future<Either<Failure, List<int>>> downloadBarcodeImage(
+  Future<Either<Failure, List<int>>> downloadBarcodePdf(
       String reportUrl) async {
     try {
-      final result = await _remoteDataSource.downloadBarcodeImage(reportUrl);
+      final result = await _remoteDataSource.downloadBarcodePdf(reportUrl);
       return Right(result);
     } on ServerException catch (e) {
-      AppLogger.error('Server error in downloadBarcodeImage: ${e.message}');
+      AppLogger.error('Server error in downloadBarcodePdf: ${e.message}');
       return Left(ServerFailure(
-          message: 'Failed to download barcode image: ${e.message}',
+          message: 'Failed to download barcode PDF: ${e.message}',
           code: e.statusCode));
     } on NetworkException catch (e) {
-      AppLogger.error('Network error in downloadBarcodeImage: ${e.message}');
+      AppLogger.error('Network error in downloadBarcodePdf: ${e.message}');
       return Left(NetworkFailure(message: e.message));
     } catch (e) {
-      AppLogger.error('Unknown error in downloadBarcodeImage: $e');
+      AppLogger.error('Unknown error in downloadBarcodePdf: $e');
       return Left(UnknownFailure(
-          message: 'Failed to download barcode image: ${e.toString()}'));
+          message: 'Failed to download barcode PDF: ${e.toString()}'));
     }
   }
 
   @override
-  Future<Either<Failure, String>> saveBarcodeToGallery(
-      List<int> imageBytes, String fileName) async {
+  Future<Either<Failure, String>> saveBarcodePdf(
+      List<int> pdfBytes, String fileName) async {
     try {
       // Request storage permission
       final permission = await Permission.storage.request();
@@ -216,31 +216,20 @@ class ManualServiceRepositoryImpl implements ManualServiceRepository {
         return const Left(UnknownFailure(message: 'Storage permission denied'));
       }
 
-      // Convert bytes to Uint8List
-      final uint8List = Uint8List.fromList(imageBytes);
+      // Get documents directory
+      final directory = Directory('/storage/emulated/0/Download');
+      final file = File('${directory.path}/$fileName');
 
-      // Save to gallery
-      final result = await ImageGallerySaverPlus.saveImage(
-        uint8List,
-        name: fileName,
-        quality: 100,
-      );
+      // Write PDF bytes to file
+      await file.writeAsBytes(pdfBytes);
 
-      if (result['isSuccess'] == true) {
-        final savedPath = result['filePath'] ?? 'Photo gallery';
-        AppLogger.info('Successfully saved barcode image to: $savedPath');
-        return Right(savedPath);
-      } else {
-        AppLogger.error(
-            'Failed to save barcode image: ${result['errorMessage']}');
-        return Left(UnknownFailure(
-            message:
-                'Failed to save barcode image: ${result['errorMessage']}'));
-      }
+      final savedPath = file.path;
+      AppLogger.info('Successfully saved barcode PDF to: $savedPath');
+      return Right(savedPath);
     } catch (e) {
-      AppLogger.error('Unknown error in saveBarcodeToGallery: $e');
+      AppLogger.error('Unknown error in saveBarcodePdf: $e');
       return Left(UnknownFailure(
-          message: 'Failed to save barcode to gallery: ${e.toString()}'));
+          message: 'Failed to save barcode PDF: ${e.toString()}'));
     }
   }
 }

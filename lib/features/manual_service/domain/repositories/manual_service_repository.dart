@@ -33,10 +33,10 @@ abstract class ManualServiceRepository {
   Future<Either<Failure, BarcodePrintResponse>> generateBarcode(
       BarcodePrintRequest request);
 
-  /// Download barcode image as bytes from report URL
-  Future<Either<Failure, List<int>>> downloadBarcodeImage(String reportUrl);
+  /// Download barcode PDF as bytes from report URL
+  Future<Either<Failure, List<int>>> downloadBarcodePdf(String reportUrl);
 
-  /// Save barcode image to gallery
-  Future<Either<Failure, String>> saveBarcodeToGallery(
-      List<int> imageBytes, String fileName);
+  /// Save barcode PDF to device storage
+  Future<Either<Failure, String>> saveBarcodePdf(
+      List<int> pdfBytes, String fileName);
 }

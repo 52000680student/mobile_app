@@ -33,8 +33,8 @@ abstract class ManualServiceRemoteDataSource {
   /// Generate barcode from print API
   Future<BarcodePrintResponse> generateBarcode(BarcodePrintRequest request);
 
-  /// Download barcode image as bytes from report URL
-  Future<List<int>> downloadBarcodeImage(String reportUrl);
+  /// Download barcode PDF as bytes from report URL
+  Future<List<int>> downloadBarcodePdf(String reportUrl);
 }
 
 @LazySingleton(as: ManualServiceRemoteDataSource)
@@ -411,9 +411,9 @@ class ManualServiceRemoteDataSourceImpl
   }
 
   @override
-  Future<List<int>> downloadBarcodeImage(String reportUrl) async {
+  Future<List<int>> downloadBarcodePdf(String reportUrl) async {
     try {
-      AppLogger.info('Downloading barcode image from: $reportUrl');
+      AppLogger.info('Downloading barcode PDF from: $reportUrl');
 
       final response = await _apiClient.get<List<int>>(
         reportUrl,
@@ -424,30 +424,30 @@ class ManualServiceRemoteDataSourceImpl
 
       if (response.data != null) {
         AppLogger.info(
-            'Successfully downloaded barcode image, size: ${response.data!.length} bytes');
+            'Successfully downloaded barcode PDF, size: ${response.data!.length} bytes');
         return response.data!;
       }
 
-      throw const ServerException(message: 'No barcode image data received');
+      throw const ServerException(message: 'No barcode PDF data received');
     } on DioException catch (e) {
-      AppLogger.error('DioException in downloadBarcodeImage: ${e.message}');
+      AppLogger.error('DioException in downloadBarcodePdf: ${e.message}');
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.sendTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
         throw const NetworkException(
-          message: 'Connection timeout while downloading barcode image',
+          message: 'Connection timeout while downloading barcode PDF',
         );
       } else if (e.type == DioExceptionType.connectionError) {
         throw const NetworkException(
-          message: 'Connection error while downloading barcode image',
+          message: 'Connection error while downloading barcode PDF',
         );
       } else {
         throw NetworkException(
-          message: e.message ?? 'Failed to download barcode image',
+          message: e.message ?? 'Failed to download barcode PDF',
         );
       }
     } catch (e) {
-      AppLogger.error('Error in downloadBarcodeImage: $e');
+      AppLogger.error('Error in downloadBarcodePdf: $e');
       rethrow;
     }
   }

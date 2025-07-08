@@ -62,6 +62,12 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   // Add debouncer for text input
   late final Debouncer _inputDebouncer;
 
+  // Key for patient dropdown to force rebuild when clearing
+  GlobalKey _patientDropdownKey = GlobalKey();
+
+  // Additional state to force dropdown clearing
+  bool _forceDropdownClear = false;
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +124,11 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           _autoFillPatientData(state.selectedPatient!);
         } else {
           // Clear local form when patient is deselected/cleared
+          // Set force clear flag for dropdown
+          setState(() {
+            _forceDropdownClear = true;
+          });
+
           // Use a small delay to ensure the clearing happens after any ongoing state updates
           Future.delayed(const Duration(milliseconds: 50), () {
             if (mounted) {
@@ -375,28 +386,18 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   /// Optimized patient dropdown with search functionality
   Widget _buildPatientDropdown(
       AppLocalizations l10n, ManualServiceState state) {
-    // Add debugging for dropdown state
-    print(
-        'PatientDropdown: Building with ${state.patientSearchResults.length} results');
-    print(
-        'PatientDropdown: isSearching=${state.isSearchingPatients}, error=${state.patientSearchError}');
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel(l10n.patientId, true),
         const SizedBox(height: 8),
         DropdownSearch<PatientSearchResult>(
+          key: _patientDropdownKey,
           compareFn: (patient1, patient2) =>
               patient1.patientId == patient2.patientId,
           items: (filter, loadProps) {
-            print(
-                'DropdownSearch items callback: filter="$filter", results=${state.patientSearchResults.length}');
-
             // Always trigger search for any filter change (including empty, space, or any text)
-            final searchQuery =
-                filter.trim(); // Trim spaces but allow empty search
-            print('DropdownSearch: Triggering search for "$searchQuery"');
+            final searchQuery = filter.trim();
 
             // Use debouncer to avoid excessive API calls while typing
             _inputDebouncer.call(() {
@@ -407,12 +408,13 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
 
             return state.patientSearchResults;
           },
-          selectedItem: state.selectedPatient,
+          selectedItem: _forceDropdownClear ? null : state.selectedPatient,
           onChanged: (PatientSearchResult? patient) {
             print('DropdownSearch: Patient selected: ${patient?.name}');
             if (patient != null) {
               setState(() {
                 _patientIdController.text = patient.patientId;
+                _forceDropdownClear = false; // Reset force clear flag
               });
               context
                   .read<ManualServiceBloc>()
@@ -441,6 +443,29 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
             ),
             baseStyle: const TextStyle(fontSize: 14),
           ),
+          dropdownBuilder: (context, selectedItem) {
+            // Custom builder to ensure proper clearing behavior
+            if (selectedItem == null || _forceDropdownClear) {
+              return Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Text(
+                  '',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(
+                '${selectedItem.patientId} - ${selectedItem.name}',
+                style: const TextStyle(fontSize: 14),
+              ),
+            );
+          },
           popupProps: PopupProps.menu(
             showSearchBox: true,
             searchFieldProps: TextFieldProps(
@@ -1160,6 +1185,19 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
       // Reset switches
       _inpatientSwitch.value = false;
       _emergencySwitch.value = false;
+
+      // Force patient dropdown to rebuild by regenerating its key
+      _patientDropdownKey = GlobalKey();
+      _forceDropdownClear = true; // Force clear the dropdown value
+    });
+
+    // Reset force clear flag after a short delay to allow widget rebuild
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        setState(() {
+          _forceDropdownClear = false;
+        });
+      }
     });
 
     // Clear focus from all input fields
@@ -1217,5 +1255,10 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
     // Then trigger bloc events
     context.read<ManualServiceBloc>().add(const ClearFormEvent());
     context.read<ManualServiceBloc>().add(const ResetPatientSearchEvent());
+  }
+
+  /// Clear only local form state without triggering BLoC events (for refresh functionality)
+  void clearLocalStateOnly() {
+    _clearLocalFormState();
   }
 }

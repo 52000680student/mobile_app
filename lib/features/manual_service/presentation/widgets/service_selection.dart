@@ -50,6 +50,14 @@ class _ServiceSelectionState extends State<ServiceSelection>
     context.read<ManualServiceBloc>().add(const ClearFormEvent());
   }
 
+  /// Clear only local selection state without triggering BLoC events (for refresh functionality)
+  void clearLocalStateOnly() {
+    setState(() {
+      _selectedServiceName = null;
+      _tabController.index = 0; // Reset to first tab
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -116,7 +124,7 @@ class _ServiceSelectionState extends State<ServiceSelection>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.medical_services_outlined,
                             size: 16,
                           ),
@@ -155,7 +163,7 @@ class _ServiceSelectionState extends State<ServiceSelection>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.biotech_outlined,
                             size: 16,
                           ),

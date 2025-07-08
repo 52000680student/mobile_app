@@ -49,25 +49,25 @@ class SaveBarcodeUseCase {
           return await barcodeResult.fold(
             (failure) async => Left(failure),
             (barcodeResponse) async {
-              // Step 5: Download barcode image
+              // Step 5: Download barcode PDF
               final fullReportUrl = baseUrl + barcodeResponse.reportUrl;
               final downloadResult =
-                  await _repository.downloadBarcodeImage(fullReportUrl);
+                  await _repository.downloadBarcodePdf(fullReportUrl);
 
               return await downloadResult.fold(
                 (failure) async => Left(failure),
-                (imageBytes) async {
-                  // Step 6: Save to gallery
+                (pdfBytes) async {
+                  // Step 6: Save to device storage
                   final fileName =
-                      'barcode_${matchingSample.sid}_${DateTime.now().millisecondsSinceEpoch}.png';
-                  final saveResult = await _repository.saveBarcodeToGallery(
-                      imageBytes, fileName);
+                      'barcode_${matchingSample.sid}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+                  final saveResult =
+                      await _repository.saveBarcodePdf(pdfBytes, fileName);
 
                   return saveResult.fold(
                     (failure) => Left(failure),
                     (savedPath) {
                       AppLogger.info(
-                          'Successfully saved barcode for sample ${matchingSample.sid} to: $savedPath');
+                          'Successfully saved barcode PDF for sample ${matchingSample.sid} to: $savedPath');
                       return Right(savedPath);
                     },
                   );
