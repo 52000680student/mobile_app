@@ -1031,14 +1031,14 @@ class BarcodePrintRequest {
   final int? subSID;
   final String requestDate;
   final String sampleType;
-  final int page;
+  final String page;
 
   const BarcodePrintRequest({
     required this.sid,
     this.subSID,
     required this.requestDate,
     required this.sampleType,
-    this.page = 1,
+    this.page = 'B1',
   });
 
   Map<String, dynamic> toQueryParameters() {
@@ -1088,21 +1088,21 @@ class BarcodeData {
   final int? subSID;
   final String requestDate;
   final String sampleType;
-  final int page;
+  final String page;
 
   const BarcodeData({
     required this.sid,
     this.subSID,
     required this.requestDate,
     required this.sampleType,
-    this.page = 1,
+    this.page = 'B1',
   });
 
   /// Create BarcodeData from Sample and manual service data
   factory BarcodeData.fromSample({
     required Sample sample,
     required String requestDate,
-    int page = 1,
+    String page = 'B1',
   }) {
     return BarcodeData(
       sid: sample.sid,

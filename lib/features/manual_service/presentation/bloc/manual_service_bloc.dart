@@ -401,8 +401,9 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
 
     final result = await _saveBarcodeUseCase(
       requestId: state.currentRequestId!,
-      sampleType: event.sample.type,
+      sample: event.sample,
       baseUrl: event.baseUrl,
+      appointmentDate: event.appointmentDate,
     );
 
     result.fold(

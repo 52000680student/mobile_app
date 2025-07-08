@@ -10,6 +10,7 @@ import '../../data/models/manual_service_models.dart';
 import 'collapsible_section.dart';
 import 'administrative_form.dart';
 import 'service_selection.dart';
+import '../../../../core/utils/app_logger.dart';
 
 class ResponsiveLayout extends StatefulWidget {
   const ResponsiveLayout({super.key});
@@ -238,6 +239,26 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
     }
   }
 
+  /// Get appointment date from the administrative form
+  DateTime? _getAppointmentDate() {
+    try {
+      final administrativeFormWidget = _administrativeFormKey.currentWidget;
+      if (administrativeFormWidget != null) {
+        final administrativeFormState = _administrativeFormKey.currentState;
+        if (administrativeFormState != null &&
+            administrativeFormState.mounted) {
+          final formData = (administrativeFormState as dynamic).getFormData();
+          return formData['appointmentDate'] as DateTime?;
+        }
+      }
+    } catch (e) {
+      // If we can't access the form, return null
+      AppLogger.info(
+          'Could not access appointment date from administrative form: $e');
+    }
+    return null;
+  }
+
   Widget _buildActionButtons(AppLocalizations l10n, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -390,7 +411,10 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
                 SizedBox(
                   height:
                       600, // Fixed height for service selection within scroll
-                  child: ServiceSelection(key: _serviceSelectionKey),
+                  child: ServiceSelection(
+                    key: _serviceSelectionKey,
+                    getAppointmentDate: _getAppointmentDate,
+                  ),
                 ),
 
                 // Add some bottom padding to ensure content is accessible above action buttons
@@ -436,7 +460,10 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
                 child: Padding(
                   padding:
                       const EdgeInsets.only(top: 24, right: 24, bottom: 24),
-                  child: ServiceSelection(key: _serviceSelectionKey),
+                  child: ServiceSelection(
+                    key: _serviceSelectionKey,
+                    getAppointmentDate: _getAppointmentDate,
+                  ),
                 ),
               ),
             ],

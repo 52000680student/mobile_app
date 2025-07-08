@@ -15,8 +15,9 @@ class SaveBarcodeUseCase {
   /// Complete barcode saving process for a specific sample
   Future<Either<Failure, String>> call({
     required int requestId,
-    required String sampleType,
+    required SampleItem sample,
     required String baseUrl,
+    DateTime? appointmentDate,
   }) async {
     try {
       // Step 1: Get request samples
@@ -27,15 +28,16 @@ class SaveBarcodeUseCase {
         (sampleResponse) async {
           // Step 2: Find the matching sample by type
           final matchingSample = sampleResponse.samples.firstWhere(
-            (sample) => sample.sampleType == sampleType,
+            (apiSample) => apiSample.sampleType == sample.type,
             orElse: () => throw Exception(
-                'Sample type $sampleType not found in request $requestId'),
+                'Sample type ${sample.type} not found in request $requestId'),
           );
 
-          // Step 3: Create barcode request from sample data
+          // Step 3: Create barcode data using appointmentDate if provided, otherwise use sample's requestDate
           final barcodeData = BarcodeData.fromSample(
             sample: matchingSample,
-            requestDate: matchingSample.requestDate,
+            requestDate: appointmentDate?.toIso8601String() ??
+                matchingSample.requestDate,
           );
 
           final barcodeRequest = barcodeData.toBarcodePrintRequest();

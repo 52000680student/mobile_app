@@ -11,7 +11,12 @@ import 'services_tab.dart';
 import 'sample_tab.dart';
 
 class ServiceSelection extends StatefulWidget {
-  const ServiceSelection({super.key});
+  final DateTime? Function()? getAppointmentDate;
+
+  const ServiceSelection({
+    super.key,
+    this.getAppointmentDate,
+  });
 
   @override
   State<ServiceSelection> createState() => _ServiceSelectionState();
@@ -228,21 +233,31 @@ class _ServiceSelectionState extends State<ServiceSelection>
                     SampleTab(
                       samples: state.sampleItems,
                       onSaveBarcode: (sample) {
+                        // Get appointment date from callback
+                        final appointmentDate =
+                            widget.getAppointmentDate?.call();
+
                         // Trigger barcode save event
                         context.read<ManualServiceBloc>().add(
                               SaveBarcodeEvent(
                                 sample: sample,
                                 baseUrl: EnvConfig.apiBaseUrl,
+                                appointmentDate: appointmentDate,
                               ),
                             );
                       },
                       onSaveAllBarcodes: () {
+                        // Get appointment date from callback
+                        final appointmentDate =
+                            widget.getAppointmentDate?.call();
+
                         // Save barcode for all samples
                         for (final sample in state.sampleItems) {
                           context.read<ManualServiceBloc>().add(
                                 SaveBarcodeEvent(
                                   sample: sample,
                                   baseUrl: EnvConfig.apiBaseUrl,
+                                  appointmentDate: appointmentDate,
                                 ),
                               );
                         }

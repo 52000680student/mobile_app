@@ -134,12 +134,14 @@ class ToggleSampleCollectionEvent extends ManualServiceEvent {
 class SaveBarcodeEvent extends ManualServiceEvent {
   final SampleItem sample;
   final String baseUrl;
+  final DateTime? appointmentDate;
 
   const SaveBarcodeEvent({
     required this.sample,
     required this.baseUrl,
+    this.appointmentDate,
   });
 
   @override
-  List<Object?> get props => [sample, baseUrl];
+  List<Object?> get props => [sample, baseUrl, appointmentDate];
 }
