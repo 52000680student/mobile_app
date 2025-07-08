@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/env/env_config.dart';
 import '../../data/models/manual_service_models.dart';
 import '../bloc/manual_service_bloc.dart';
 import '../bloc/manual_service_event.dart';
@@ -49,161 +50,211 @@ class _ServiceSelectionState extends State<ServiceSelection>
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return BlocBuilder<ManualServiceBloc, ManualServiceState>(
-      builder: (context, state) {
-        return Column(
-          children: [
-            // Tab bar
-            Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  color: theme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.grey.shade600,
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                tabs: [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.medical_services_outlined,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.services,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (state.selectedTestServices.isNotEmpty) ...[
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              '${state.selectedTestServices.length}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.biotech_outlined,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.sampleTab,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (state.sampleItems.isNotEmpty) ...[
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              '${state.sampleItems.length}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Service selection dropdown - only show for Services tab
-            AnimatedBuilder(
-              animation: _tabController,
-              builder: (context, child) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: _tabController.index == 0 ? null : 0,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: _tabController.index == 0 ? 1.0 : 0.0,
-                    child: _tabController.index == 0
-                        ? _buildServiceDropdown(l10n, theme, state)
-                        : const SizedBox(height: 24),
-                  ),
-                );
-              },
-            ),
-
-            // Tab content
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                physics: const NeverScrollableScrollPhysics(),
+    return BlocListener<ManualServiceBloc, ManualServiceState>(
+      listenWhen: (previous, current) =>
+          previous.barcodeSuccessMessage != current.barcodeSuccessMessage ||
+          previous.barcodeError != current.barcodeError,
+      listener: (context, state) {
+        if (state.barcodeSuccessMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
                 children: [
-                  // Services tab
-                  ServicesTab(
-                    testServices: state.selectedTestServices,
-                    onDeleteService: (testService) {
-                      context
-                          .read<ManualServiceBloc>()
-                          .add(RemoveTestServiceEvent(testService));
-                    },
-                  ),
-                  // Sample tab
-                  SampleTab(
-                    samples: state.sampleItems,
-                    onSaveBarcode: (sample) {
-                      // Handle save barcode - implement as needed
-                    },
-                    onSaveAllBarcodes: () {
-                      // Handle save all barcodes - implement as needed
-                    },
-                  ),
+                  const Icon(Icons.check_circle, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(state.barcodeSuccessMessage!)),
                 ],
               ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
             ),
-          ],
-        );
+          );
+        } else if (state.barcodeError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(state.barcodeError!)),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
       },
+      child: BlocBuilder<ManualServiceBloc, ManualServiceState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              // Tab bar
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: theme.primaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.grey.shade600,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.medical_services_outlined,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.services,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (state.selectedTestServices.isNotEmpty) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${state.selectedTestServices.length}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.biotech_outlined,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.sampleTab,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (state.sampleItems.isNotEmpty) ...[
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${state.sampleItems.length}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Service selection dropdown - only show for Services tab
+              AnimatedBuilder(
+                animation: _tabController,
+                builder: (context, child) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: _tabController.index == 0 ? null : 0,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 300),
+                      opacity: _tabController.index == 0 ? 1.0 : 0.0,
+                      child: _tabController.index == 0
+                          ? _buildServiceDropdown(l10n, theme, state)
+                          : const SizedBox(height: 24),
+                    ),
+                  );
+                },
+              ),
+
+              // Tab content
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    // Services tab
+                    ServicesTab(
+                      testServices: state.selectedTestServices,
+                      onDeleteService: (testService) {
+                        context
+                            .read<ManualServiceBloc>()
+                            .add(RemoveTestServiceEvent(testService));
+                      },
+                    ),
+                    // Sample tab
+                    SampleTab(
+                      samples: state.sampleItems,
+                      onSaveBarcode: (sample) {
+                        // Trigger barcode save event
+                        context.read<ManualServiceBloc>().add(
+                              SaveBarcodeEvent(
+                                sample: sample,
+                                baseUrl: EnvConfig.apiBaseUrl,
+                              ),
+                            );
+                      },
+                      onSaveAllBarcodes: () {
+                        // Save barcode for all samples
+                        for (final sample in state.sampleItems) {
+                          context.read<ManualServiceBloc>().add(
+                                SaveBarcodeEvent(
+                                  sample: sample,
+                                  baseUrl: EnvConfig.apiBaseUrl,
+                                ),
+                              );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

@@ -7,6 +7,8 @@ import '../../domain/usecases/get_service_parameters_usecase.dart';
 import '../../domain/usecases/get_test_services_usecase.dart';
 import '../../domain/usecases/get_doctors_usecase.dart';
 import '../../domain/usecases/save_manual_service_usecase.dart';
+import '../../domain/usecases/get_request_samples_usecase.dart';
+import '../../domain/usecases/save_barcode_usecase.dart';
 import '../../data/models/manual_service_models.dart';
 import 'manual_service_event.dart';
 import 'manual_service_state.dart';
@@ -20,6 +22,8 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
   final GetTestServicesUseCase _getTestServicesUseCase;
   final GetDoctorsUseCase _getDoctorsUseCase;
   final SaveManualServiceUseCase _saveManualServiceUseCase;
+  final GetRequestSamplesUseCase _getRequestSamplesUseCase;
+  final SaveBarcodeUseCase _saveBarcodeUseCase;
 
   late final TextDebouncer _patientSearchDebouncer;
 
@@ -30,6 +34,8 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     this._getTestServicesUseCase,
     this._getDoctorsUseCase,
     this._saveManualServiceUseCase,
+    this._getRequestSamplesUseCase,
+    this._saveBarcodeUseCase,
   ) : super(const ManualServiceState()) {
     _patientSearchDebouncer = TextDebouncer(
       onChanged: (query) => add(SearchPatientsEvent(query)),
@@ -51,6 +57,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     on<ResetPatientSearchEvent>(_onResetPatientSearch);
     on<LoadInitialPatientsEvent>(_onLoadInitialPatients);
     on<SaveManualServiceRequestEvent>(_onSaveManualServiceRequest);
+    on<SaveBarcodeEvent>(_onSaveBarcode);
 
     // Load initial data
     add(const LoadDepartmentsEvent());
@@ -366,6 +373,51 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
         emit(state.copyWith(
           isSavingRequest: false,
           saveResponse: response,
+          currentRequestId:
+              response.id, // Store request ID for barcode functionality
+        ));
+      },
+    );
+  }
+
+  Future<void> _onSaveBarcode(
+    SaveBarcodeEvent event,
+    Emitter<ManualServiceState> emit,
+  ) async {
+    // Check if we have a request ID
+    if (state.currentRequestId == null) {
+      emit(state.copyWith(
+        barcodeError: 'No request ID available. Please save the request first.',
+      ));
+      return;
+    }
+
+    AppLogger.info('Starting barcode save for sample: ${event.sample.type}');
+    emit(state.copyWith(
+      isSavingBarcode: true,
+      barcodeError: null,
+      barcodeSuccessMessage: null,
+    ));
+
+    final result = await _saveBarcodeUseCase(
+      requestId: state.currentRequestId!,
+      sampleType: event.sample.type,
+      baseUrl: event.baseUrl,
+    );
+
+    result.fold(
+      (failure) {
+        AppLogger.error('Barcode save failed: ${failure.message}');
+        emit(state.copyWith(
+          isSavingBarcode: false,
+          barcodeError: failure.message,
+        ));
+      },
+      (savedPath) {
+        AppLogger.info('Barcode save successful: $savedPath');
+        emit(state.copyWith(
+          isSavingBarcode: false,
+          barcodeSuccessMessage: 'Barcode saved successfully to: $savedPath',
         ));
       },
     );

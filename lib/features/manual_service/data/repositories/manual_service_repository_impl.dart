@@ -1,11 +1,15 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'dart:typed_data';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../domain/repositories/manual_service_repository.dart';
 import '../datasources/manual_service_remote_datasource.dart';
 import '../models/manual_service_models.dart';
+import '../../../patient_admissions/data/models/patient_models.dart'; // Added for SampleResponse
 
 @LazySingleton(as: ManualServiceRepository)
 class ManualServiceRepositoryImpl implements ManualServiceRepository {
@@ -136,6 +140,107 @@ class ManualServiceRepositoryImpl implements ManualServiceRepository {
       AppLogger.error('Unknown error in saveManualServiceRequest: $e');
       return Left(UnknownFailure(
           message: 'Failed to save manual service request: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, SampleResponse>> getRequestSamples(
+      int requestId) async {
+    try {
+      final result = await _remoteDataSource.getRequestSamples(requestId);
+      return Right(result);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error in getRequestSamples: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to get request samples: ${e.message}',
+          code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error in getRequestSamples: ${e.message}');
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      AppLogger.error('Unknown error in getRequestSamples: $e');
+      return Left(UnknownFailure(
+          message: 'Failed to get request samples: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, BarcodePrintResponse>> generateBarcode(
+      BarcodePrintRequest request) async {
+    try {
+      final result = await _remoteDataSource.generateBarcode(request);
+      return Right(result);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error in generateBarcode: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to generate barcode: ${e.message}',
+          code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error in generateBarcode: ${e.message}');
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      AppLogger.error('Unknown error in generateBarcode: $e');
+      return Left(UnknownFailure(
+          message: 'Failed to generate barcode: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<int>>> downloadBarcodeImage(
+      String reportUrl) async {
+    try {
+      final result = await _remoteDataSource.downloadBarcodeImage(reportUrl);
+      return Right(result);
+    } on ServerException catch (e) {
+      AppLogger.error('Server error in downloadBarcodeImage: ${e.message}');
+      return Left(ServerFailure(
+          message: 'Failed to download barcode image: ${e.message}',
+          code: e.statusCode));
+    } on NetworkException catch (e) {
+      AppLogger.error('Network error in downloadBarcodeImage: ${e.message}');
+      return Left(NetworkFailure(message: e.message));
+    } catch (e) {
+      AppLogger.error('Unknown error in downloadBarcodeImage: $e');
+      return Left(UnknownFailure(
+          message: 'Failed to download barcode image: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> saveBarcodeToGallery(
+      List<int> imageBytes, String fileName) async {
+    try {
+      // Request storage permission
+      final permission = await Permission.storage.request();
+      if (permission != PermissionStatus.granted) {
+        return const Left(UnknownFailure(message: 'Storage permission denied'));
+      }
+
+      // Convert bytes to Uint8List
+      final uint8List = Uint8List.fromList(imageBytes);
+
+      // Save to gallery
+      final result = await ImageGallerySaverPlus.saveImage(
+        uint8List,
+        name: fileName,
+        quality: 100,
+      );
+
+      if (result['isSuccess'] == true) {
+        final savedPath = result['filePath'] ?? 'Photo gallery';
+        AppLogger.info('Successfully saved barcode image to: $savedPath');
+        return Right(savedPath);
+      } else {
+        AppLogger.error(
+            'Failed to save barcode image: ${result['errorMessage']}');
+        return Left(UnknownFailure(
+            message:
+                'Failed to save barcode image: ${result['errorMessage']}'));
+      }
+    } catch (e) {
+      AppLogger.error('Unknown error in saveBarcodeToGallery: $e');
+      return Left(UnknownFailure(
+          message: 'Failed to save barcode to gallery: ${e.toString()}'));
     }
   }
 }

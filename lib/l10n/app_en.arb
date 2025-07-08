@@ -796,6 +796,30 @@
   "@saveAllBarcodes": {
     "description": "Save all barcodes button text"
   },
+  "barcodeGenerating": "Generating barcode...",
+  "@barcodeGenerating": {
+    "description": "Loading message while generating barcode"
+  },
+  "barcodeSavedSuccessfully": "Barcode saved successfully to gallery",
+  "@barcodeSavedSuccessfully": {
+    "description": "Success message when barcode is saved to gallery"
+  },
+  "barcodeGenerationFailed": "Failed to generate barcode",
+  "@barcodeGenerationFailed": {
+    "description": "Error message when barcode generation fails"
+  },
+  "barcodeSaveFailed": "Failed to save barcode to gallery",
+  "@barcodeSaveFailed": {
+    "description": "Error message when barcode save to gallery fails"
+  },
+  "barcodePermissionDenied": "Storage permission required to save barcode",
+  "@barcodePermissionDenied": {
+    "description": "Error message when storage permission is denied for barcode saving"
+  },
+  "barcodeNoRequestId": "Please save the request first before generating barcodes",
+  "@barcodeNoRequestId": {
+    "description": "Error message when trying to generate barcode without a saved request"
+  },
   "notAvailable": "N/A",
   "@notAvailable": {
     "description": "Not available text"

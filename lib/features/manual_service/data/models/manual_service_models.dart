@@ -1,5 +1,6 @@
 import 'package:mobile_app/core/utils/json_parsing_utils.dart';
 import 'dart:convert'; // Added for jsonDecode
+import '../../../patient_admissions/data/models/patient_models.dart'; // Added for Sample model
 
 /// Model for Patient search API response
 class PatientSearchResponse {
@@ -1021,5 +1022,105 @@ class DoctorQueryParams {
       'size': size,
       'profileId': profileId,
     };
+  }
+}
+
+/// Barcode print request parameters for /api/la/v1/global/reports/101/print
+class BarcodePrintRequest {
+  final int sid;
+  final int? subSID;
+  final String requestDate;
+  final String sampleType;
+  final int page;
+
+  const BarcodePrintRequest({
+    required this.sid,
+    this.subSID,
+    required this.requestDate,
+    required this.sampleType,
+    this.page = 1,
+  });
+
+  Map<String, dynamic> toQueryParameters() {
+    final params = <String, dynamic>{
+      'SID': sid,
+      'RequestDate': requestDate,
+      'SampleType': sampleType,
+      'Page': page,
+    };
+
+    if (subSID != null) {
+      params['SubSID'] = subSID;
+    }
+
+    return params;
+  }
+}
+
+/// Barcode print response from /api/la/v1/global/reports/101/print
+class BarcodePrintResponse {
+  final String reportUUID;
+  final String reportUrl;
+
+  const BarcodePrintResponse({
+    required this.reportUUID,
+    required this.reportUrl,
+  });
+
+  factory BarcodePrintResponse.fromJson(Map<String, dynamic> json) {
+    return BarcodePrintResponse(
+      reportUUID: json['reportUUID'] as String? ?? '',
+      reportUrl: json['reportUrl'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reportUUID': reportUUID,
+      'reportUrl': reportUrl,
+    };
+  }
+}
+
+/// Barcode data model for sample comparison
+class BarcodeData {
+  final int sid;
+  final int? subSID;
+  final String requestDate;
+  final String sampleType;
+  final int page;
+
+  const BarcodeData({
+    required this.sid,
+    this.subSID,
+    required this.requestDate,
+    required this.sampleType,
+    this.page = 1,
+  });
+
+  /// Create BarcodeData from Sample and manual service data
+  factory BarcodeData.fromSample({
+    required Sample sample,
+    required String requestDate,
+    int page = 1,
+  }) {
+    return BarcodeData(
+      sid: sample.sid,
+      subSID: sample.subSID,
+      requestDate: requestDate,
+      sampleType: sample.sampleType,
+      page: page,
+    );
+  }
+
+  /// Convert to BarcodePrintRequest
+  BarcodePrintRequest toBarcodePrintRequest() {
+    return BarcodePrintRequest(
+      sid: sid,
+      subSID: subSID,
+      requestDate: requestDate,
+      sampleType: sampleType,
+      page: page,
+    );
   }
 }

@@ -96,5 +96,13 @@
   "errorPreparingRequest": "Error preparando solicitud: {error}",
   "requestSavedSuccessfully": "¡Solicitud guardada exitosamente! ID: {id}",
   "pleaseCompleteAllFields": "Por favor complete todos los campos requeridos",
-  "dataSavedSuccessfully": "Datos guardados exitosamente"
+  "dataSavedSuccessfully": "Datos guardados exitosamente",
+  "saveBarcode": "Guardar Código de Barras",
+  "saveAllBarcodes": "Guardar Todos los Códigos de Barras",
+  "barcodeGenerating": "Generando código de barras...",
+  "barcodeSavedSuccessfully": "Código de barras guardado exitosamente en galería",
+  "barcodeGenerationFailed": "Error al generar código de barras",
+  "barcodeSaveFailed": "Error al guardar código de barras en galería",
+  "barcodePermissionDenied": "Permiso de almacenamiento requerido para guardar código de barras",
+  "barcodeNoRequestId": "Por favor guarde la solicitud antes de generar códigos de barras"
 }

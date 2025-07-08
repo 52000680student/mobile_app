@@ -129,3 +129,17 @@ class ToggleSampleCollectionEvent extends ManualServiceEvent {
   @override
   List<Object?> get props => [isCollected];
 }
+
+/// Event to save barcode for a specific sample
+class SaveBarcodeEvent extends ManualServiceEvent {
+  final SampleItem sample;
+  final String baseUrl;
+
+  const SaveBarcodeEvent({
+    required this.sample,
+    required this.baseUrl,
+  });
+
+  @override
+  List<Object?> get props => [sample, baseUrl];
+}
