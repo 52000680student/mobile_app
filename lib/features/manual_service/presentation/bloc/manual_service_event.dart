@@ -145,3 +145,19 @@ class SaveBarcodeEvent extends ManualServiceEvent {
   @override
   List<Object?> get props => [sample, baseUrl, appointmentDate];
 }
+
+/// Event to set collection time and user ID for all samples
+class SetCollectionTimeForAllSamplesEvent extends ManualServiceEvent {
+  const SetCollectionTimeForAllSamplesEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+/// Event to set receive time and user ID for all samples
+class SetReceiveTimeForAllSamplesEvent extends ManualServiceEvent {
+  const SetReceiveTimeForAllSamplesEvent();
+
+  @override
+  List<Object?> get props => [];
+}

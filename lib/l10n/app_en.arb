@@ -975,5 +975,13 @@
         "example": "12345"
       }
     }
+  },
+  "receiveAllSamples": "Receive All Samples",
+  "@receiveAllSamples": {
+    "description": "Receive all samples action"
+  },
+  "receiveUserId": "Receive User",
+  "@receiveUserId": {
+    "description": "Receive user"
   }
 }

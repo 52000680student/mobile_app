@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/utils/debouncer.dart';
+import '../../../../core/utils/user_service.dart';
 import '../../domain/usecases/search_patients_usecase.dart';
 import '../../domain/usecases/get_departments_usecase.dart';
 import '../../domain/usecases/get_service_parameters_usecase.dart';
@@ -24,6 +25,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
   final SaveManualServiceUseCase _saveManualServiceUseCase;
   final GetRequestSamplesUseCase _getRequestSamplesUseCase;
   final SaveBarcodeUseCase _saveBarcodeUseCase;
+  final UserService _userService;
 
   late final TextDebouncer _patientSearchDebouncer;
 
@@ -36,6 +38,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     this._saveManualServiceUseCase,
     this._getRequestSamplesUseCase,
     this._saveBarcodeUseCase,
+    this._userService,
   ) : super(const ManualServiceState()) {
     _patientSearchDebouncer = TextDebouncer(
       onChanged: (query) => add(SearchPatientsEvent(query)),
@@ -58,6 +61,8 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     on<LoadInitialPatientsEvent>(_onLoadInitialPatients);
     on<SaveManualServiceRequestEvent>(_onSaveManualServiceRequest);
     on<SaveBarcodeEvent>(_onSaveBarcode);
+    on<SetCollectionTimeForAllSamplesEvent>(_onSetCollectionTimeForAllSamples);
+    on<SetReceiveTimeForAllSamplesEvent>(_onSetReceiveTimeForAllSamples);
 
     // Load initial data
     add(const LoadDepartmentsEvent());
@@ -422,6 +427,58 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
         ));
       },
     );
+  }
+
+  Future<void> _onSetCollectionTimeForAllSamples(
+    SetCollectionTimeForAllSamplesEvent event,
+    Emitter<ManualServiceState> emit,
+  ) async {
+    try {
+      // Get current time and user ID
+      final currentTime = DateTime.now();
+      final currentUserId = await _userService.getCurrentUserIdWithFallback();
+      final userIdInt = int.tryParse(currentUserId) ?? 1000004;
+
+      AppLogger.info(
+          'Setting collection time for all samples to: $currentTime with user ID: $userIdInt');
+
+      final updatedSamples = state.sampleItems.map((sample) {
+        return sample.copyWith(
+          collectionTime: currentTime,
+          collectionUserId: userIdInt,
+        );
+      }).toList();
+
+      emit(state.copyWith(sampleItems: updatedSamples));
+    } catch (e) {
+      AppLogger.error('Error setting collection time for all samples: $e');
+    }
+  }
+
+  Future<void> _onSetReceiveTimeForAllSamples(
+    SetReceiveTimeForAllSamplesEvent event,
+    Emitter<ManualServiceState> emit,
+  ) async {
+    try {
+      // Get current time and user ID
+      final currentTime = DateTime.now();
+      final currentUserId = await _userService.getCurrentUserIdWithFallback();
+      final userIdInt = int.tryParse(currentUserId) ?? 1000004;
+
+      AppLogger.info(
+          'Setting receive time for all samples to: $currentTime with user ID: $userIdInt');
+
+      final updatedSamples = state.sampleItems.map((sample) {
+        return sample.copyWith(
+          receiveTime: currentTime,
+          receiveUserId: userIdInt,
+        );
+      }).toList();
+
+      emit(state.copyWith(sampleItems: updatedSamples));
+    } catch (e) {
+      AppLogger.error('Error setting receive time for all samples: $e');
+    }
   }
 
   @override

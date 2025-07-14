@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:mobile_app/core/constants/app_constants.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../data/models/manual_service_models.dart';
@@ -76,6 +75,18 @@ class _SampleTabState extends State<SampleTab> {
           ),
         ),
         PopupMenuItem<String>(
+          value: AppConstants.receiveAllSamples,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_box_outlined,
+                  size: 20, color: theme.primaryColor),
+              const SizedBox(width: 12),
+              Text(l10n.receiveAllSamples),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
           value: AppConstants.saveAllBarcodes,
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -95,7 +106,17 @@ class _SampleTabState extends State<SampleTab> {
       if (value != null) {
         switch (value) {
           case AppConstants.getAllSamples:
+            // Dispatch event to set collection time and user ID for all samples
+            context.read<ManualServiceBloc>().add(
+                  const SetCollectionTimeForAllSamplesEvent(),
+                );
             _switchController.value = !_switchController.value;
+            break;
+          case AppConstants.receiveAllSamples:
+            // Dispatch event to set receive time and user ID for all samples
+            context.read<ManualServiceBloc>().add(
+                  const SetReceiveTimeForAllSamplesEvent(),
+                );
             break;
           case AppConstants.saveAllBarcodes:
             widget.onSaveAllBarcodes();
@@ -171,30 +192,6 @@ class _SampleTabState extends State<SampleTab> {
                 ),
 
                 const SizedBox(width: 12),
-
-                // Advanced Switch
-                AdvancedSwitch(
-                  controller: _switchController,
-                  activeColor: theme.primaryColor,
-                  inactiveColor: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(15),
-                  width: 50,
-                  height: 30,
-                  thumb: Container(
-                    margin: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(13),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -282,7 +279,7 @@ class _SampleTabState extends State<SampleTab> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${l10n.timeCollected}: ${sample.collectionTime?.toString().split(' ')[0] ?? ''}',
+                                  '${l10n.timeCollected} ${sample.collectionTime?.toString().split(' ')[0] ?? ''}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,
@@ -290,7 +287,23 @@ class _SampleTabState extends State<SampleTab> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${l10n.collectedBy}: ${sample.collectionUserId?.toString() ?? ''}',
+                                  '${l10n.collectedBy} ${sample.collectionUserId?.toString() ?? ''}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.receivedTime} ${sample.receiveTime?.toString().split(' ')[0] ?? ''}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${l10n.receiveUserId} ${sample.receiveUserId?.toString() ?? ''}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,

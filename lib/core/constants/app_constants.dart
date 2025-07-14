@@ -69,6 +69,7 @@ class AppConstants {
   //menu value
   static const String getAllSamples = 'getAllSamples';
   static const String saveAllBarcodes = 'saveAllBarcodes';
+  static const String receiveAllSamples = 'receiveAllSamples';
 }
 
 class AppRoutes {
