@@ -1,6 +1,91 @@
 Task:
-1. Cannot get the display data of dropdown_search BN Code:
-- The first time entering the app, the data can still be retrieved, but when selecting a value, the data below the list cannot be retrieved. No matter how you type the search, it will not appear
-2. Auto focus on input fields such as CCCD, SID, ...:
-- When selecting those fields and clicking outside the space, the focus will disappear, but when going down to the services_tab section, selecting a service, the focus will automatically return to the input field
-3. The 'Refresh' button is not performing its function, which is to reset the value of the Controllers or _selected in the administrative_form
+1. Currently the 'Refresh Button' button at responsive_layout is not available, when pressed it reports success but the data is not deleted but remains the same.
+2. Use the id returned at responsive_layout (l10n.requestSavedSuccessfully) to call the api: /api/la/v1/requests/{id}/samples (this api has been used in the project)
+- Get the data returned by the above api so that when the user clicks the Save barcode button at sample_tab, it will compare the sample type to get the data: SID, SubSID, RequestDate, SampleType, Page
+- Next, use that data to call this api: api/la/v1/global/reports/101/print. The deployed data will be transmitted via queryparams. The response of this api is in the form:
+{
+"reportUUID": "280b2f26a0b14808a63c5be986c1c8aa",
+"reportUrl": "/api/_fr/preview.printReport?reportId=280b2f26a0b14808a63c5be986c1c8aa&renderBody=yes&printMode=pdf"
+}
+
+- Then we will use reportUrl combined with baseURL and POST method to call API and it will return HEX code, containing the printed items. Please save it as an image to the photo library for me
+I have a suggestion like this, which will handle API calls and the following steps and libraries:
+1. Add Dependencies
+Add to pubspec.yaml:
+yamldependencies:
+  http: ^0.13.5                       # For API calls
+  path_provider: ^2.0.11              # Get device directories
+  permission_handler: ^10.2.0         # Handle permissions
+  image_gallery_saver_plus: ^4.0.1    # Save to photo gallery (updated package)
+2. Add Android Permissions
+In android/app/src/main/AndroidManifest.xml:
+xml<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+3. Implementation Steps
+
+Request storage permissions using permission_handler
+Get device directory using path_provider (Downloads, Documents, etc.)
+Convert HEX string to bytes using int.parse(hex, radix: 16)
+Write file using File.writeAsBytes() or File.writeAsString()
+Save to gallery (if image) using image_gallery_saver_plus
+
+4. Main Functions to Implement
+
+requestPermissions() - Request storage access
+hexToBytes() - Convert HEX string to Uint8List
+saveHexAsFile() - Save as binary file to Downloads/Documents
+saveHexAsTextFile() - Save as text file
+saveToGallery() - Save image to photo gallery
+
+5. Key Libraries Usage
+
+permission_handler: Permission.storage.request()
+path_provider: getExternalStorageDirectory()
+dart:io: File().writeAsBytes()
+image_gallery_saver_plus: ImageGallerySaverPlus.saveImage()
+
+That's the basic flow - fetch HEX from API, convert to bytes, get storage permission, pick directory, and save the file.
+
+
+I want when clicking this button: Expanded( 
+child: OutlinedButton.icon( 
+onPressed: _isLoading ? null : _onRefresh, 
+icon: _isLoading 
+? SizeBox( 
+width: 16, 
+height: 16, 
+child: CircularProgressIndicator( 
+strokeWidth: 2, 
+color: theme.primaryColor, 
+), 
+) 
+: const Icon(Icons.refresh_rounded), 
+label: Text(l10n.refresh), 
+style: OutlinedButton.styleFrom( 
+foregroundColor: theme.primaryColor, 
+side: BorderSide(color: theme.primaryColor), 
+padding: const EdgeInsets.symmetric(vertical: 16), 
+shape: RoundedRectangleBorder( 
+borderRadius: BorderRadius.circular(8), 
+), 
+), 
+), 
+), will delete all data in adminitrative_form: final _patientIdController = TextEditingController(); 
+final _cccdController = TextEditingController(); 
+final _sidController = TextEditingController(); 
+final _fullNameController = TextEditingController(); 
+final _medicalCodeController = TextEditingController(); 
+final _insuranceNumberController = TextEditingController(); 
+final _ageController = TextEditingController(); 
+final _phoneController = TextEditingController(); 
+final _emailController = TextEditingController(); 
+final _addressController = TextEditingController(); 
+final _notesController = TextEditingController(); 
+final _diagnosisController = TextEditingController(); 
+
+String _selectedGender = 'female'; 
+DateTime? _appointmentDate; 
+DateTime? _dateOfBirth; 
+String? _selectedServiceObject; 
+String? _selectedDoctor; 
+String? _selectedDepartment;

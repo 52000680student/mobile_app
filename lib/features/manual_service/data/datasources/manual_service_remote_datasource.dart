@@ -5,6 +5,7 @@ import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../models/manual_service_models.dart';
+import '../../../patient_admissions/data/models/patient_models.dart'; // Added for SampleResponse
 
 abstract class ManualServiceRemoteDataSource {
   /// Search patients by query
@@ -25,6 +26,15 @@ abstract class ManualServiceRemoteDataSource {
   /// Save manual service request
   Future<ManualServiceRequestResponse> saveManualServiceRequest(
       ManualServiceRequest request);
+
+  /// Get request samples for barcode generation
+  Future<SampleResponse> getRequestSamples(int requestId);
+
+  /// Generate barcode from print API
+  Future<BarcodePrintResponse> generateBarcode(BarcodePrintRequest request);
+
+  /// Download barcode PDF as bytes from report URL
+  Future<List<int>> downloadBarcodePdf(String reportUrl);
 }
 
 @LazySingleton(as: ManualServiceRemoteDataSource)
@@ -315,6 +325,129 @@ class ManualServiceRemoteDataSourceImpl
       }
     } catch (e) {
       AppLogger.error('Error in saveManualServiceRequest: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<SampleResponse> getRequestSamples(int requestId) async {
+    try {
+      final response = await _apiClient.get<Map<String, dynamic>>(
+        '/api/la/v1/requests/$requestId/samples',
+      );
+
+      if (response.data != null) {
+        final sampleResponse = SampleResponse.fromJson(response.data!);
+        AppLogger.info(
+            'Successfully fetched ${sampleResponse.samples.length} samples for request $requestId');
+        return sampleResponse;
+      }
+
+      throw const ServerException(message: 'No sample data received');
+    } on DioException catch (e) {
+      AppLogger.error('DioException in getRequestSamples: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: 'Connection timeout while fetching request samples',
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: 'Connection error while fetching request samples',
+        );
+      } else {
+        throw NetworkException(
+          message: e.message ?? 'Failed to fetch request samples',
+        );
+      }
+    } catch (e) {
+      AppLogger.error('Error in getRequestSamples: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<BarcodePrintResponse> generateBarcode(
+      BarcodePrintRequest request) async {
+    try {
+      final queryParams = request.toQueryParameters();
+      AppLogger.info('Generating barcode with params: $queryParams');
+
+      final response = await _apiClient.get<Map<String, dynamic>>(
+        '/api/la/v1/global/reports/101/print',
+        queryParameters: queryParams,
+      );
+
+      if (response.data != null) {
+        final barcodeResponse = BarcodePrintResponse.fromJson(response.data!);
+        AppLogger.info(
+            'Successfully generated barcode with UUID: ${barcodeResponse.reportUUID}');
+        return barcodeResponse;
+      }
+
+      throw const ServerException(message: 'No barcode data received');
+    } on DioException catch (e) {
+      AppLogger.error('DioException in generateBarcode: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: 'Connection timeout while generating barcode',
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: 'Connection error while generating barcode',
+        );
+      } else {
+        throw NetworkException(
+          message: e.message ?? 'Failed to generate barcode',
+        );
+      }
+    } catch (e) {
+      AppLogger.error('Error in generateBarcode: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<int>> downloadBarcodePdf(String reportUrl) async {
+    try {
+      AppLogger.info('Downloading barcode PDF from: $reportUrl');
+
+      final response = await _apiClient.get<List<int>>(
+        reportUrl,
+        options: Options(
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.data != null) {
+        AppLogger.info(
+            'Successfully downloaded barcode PDF, size: ${response.data!.length} bytes');
+        return response.data!;
+      }
+
+      throw const ServerException(message: 'No barcode PDF data received');
+    } on DioException catch (e) {
+      AppLogger.error('DioException in downloadBarcodePdf: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw const NetworkException(
+          message: 'Connection timeout while downloading barcode PDF',
+        );
+      } else if (e.type == DioExceptionType.connectionError) {
+        throw const NetworkException(
+          message: 'Connection error while downloading barcode PDF',
+        );
+      } else {
+        throw NetworkException(
+          message: e.message ?? 'Failed to download barcode PDF',
+        );
+      }
+    } catch (e) {
+      AppLogger.error('Error in downloadBarcodePdf: $e');
       rethrow;
     }
   }

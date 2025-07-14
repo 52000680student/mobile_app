@@ -45,6 +45,12 @@ class ManualServiceState extends Equatable {
   final ManualServiceRequestResponse? saveResponse;
   final String? saveError;
 
+  // Barcode state
+  final bool isSavingBarcode;
+  final String? barcodeSuccessMessage;
+  final String? barcodeError;
+  final int? currentRequestId; // Store request ID after successful save
+
   const ManualServiceState({
     this.isSearchingPatients = false,
     this.patientSearchResults = const [],
@@ -73,6 +79,10 @@ class ManualServiceState extends Equatable {
     this.isSavingRequest = false,
     this.saveResponse,
     this.saveError,
+    this.isSavingBarcode = false,
+    this.barcodeSuccessMessage,
+    this.barcodeError,
+    this.currentRequestId,
   });
 
   ManualServiceState copyWith({
@@ -103,6 +113,10 @@ class ManualServiceState extends Equatable {
     bool? isSavingRequest,
     ManualServiceRequestResponse? saveResponse,
     String? saveError,
+    bool? isSavingBarcode,
+    String? barcodeSuccessMessage,
+    String? barcodeError,
+    int? currentRequestId,
   }) {
     return ManualServiceState(
       isSearchingPatients: isSearchingPatients ?? this.isSearchingPatients,
@@ -137,6 +151,11 @@ class ManualServiceState extends Equatable {
       isSavingRequest: isSavingRequest ?? this.isSavingRequest,
       saveResponse: saveResponse ?? this.saveResponse,
       saveError: saveError ?? this.saveError,
+      isSavingBarcode: isSavingBarcode ?? this.isSavingBarcode,
+      barcodeSuccessMessage:
+          barcodeSuccessMessage ?? this.barcodeSuccessMessage,
+      barcodeError: barcodeError ?? this.barcodeError,
+      currentRequestId: currentRequestId ?? this.currentRequestId,
     );
   }
 
@@ -228,5 +247,9 @@ class ManualServiceState extends Equatable {
         isSavingRequest,
         saveResponse,
         saveError,
+        isSavingBarcode,
+        barcodeSuccessMessage,
+        barcodeError,
+        currentRequestId,
       ];
 }
