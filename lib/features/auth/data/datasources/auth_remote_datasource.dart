@@ -117,12 +117,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: ErrorMessages.networkError,
         );
       } else if (e.response?.statusCode == 400) {
-        // Extract more specific error information
+        // Handle 400 status - incorrect password or account for login
         final responseData = e.response?.data;
         String errorMessage = ErrorMessages.invalidUsernameOrPassword;
 
         if (responseData is Map<String, dynamic>) {
-          if (responseData.containsKey('error_description')) {
+          // Prioritize 'title' field from server response
+          if (responseData.containsKey('title')) {
+            final title = responseData['title'] as String?;
+            if (title != null && title.isNotEmpty) {
+              errorMessage = title;
+            }
+          } else if (responseData.containsKey('error_description')) {
             final description = responseData['error_description'] as String;
             if (description.toLowerCase().contains('invalid') ||
                 description.toLowerCase().contains('credentials') ||
@@ -145,6 +151,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw ServerException(
           message: errorMessage,
           statusCode: 400,
+        );
+      } else if (e.response?.statusCode == 500) {
+        // Handle 500 status - server problem for login
+        final responseData = e.response?.data;
+        String errorMessage = ErrorMessages.internalServerError;
+
+        if (responseData is Map<String, dynamic>) {
+          // Prioritize 'title' field from server response
+          if (responseData.containsKey('title')) {
+            final title = responseData['title'] as String?;
+            if (title != null && title.isNotEmpty) {
+              errorMessage = title;
+            }
+          }
+        }
+
+        throw ServerException(
+          message: errorMessage,
+          statusCode: 500,
         );
       } else if (e.response?.statusCode == 401) {
         throw const ServerException(

@@ -66,44 +66,45 @@ class ErrorInterceptor extends Interceptor {
 
     String message;
 
+    // First try to extract message from server response, prioritizing 'title' field
+    final extractedMessage = _extractErrorMessage(responseData);
+
     switch (statusCode) {
       case 400:
-        message =
-            _extractErrorMessage(responseData) ?? ErrorMessages.badRequestError;
+        message = extractedMessage ?? ErrorMessages.badRequestError;
         break;
       case 401:
         message = ErrorMessages.sessionExpiredError;
         _redirectToLogin();
         break;
       case 403:
-        message = ErrorMessages.accessDeniedError;
+        message = extractedMessage ?? ErrorMessages.accessDeniedError;
         break;
       case 404:
-        message = ErrorMessages.notFoundError;
+        message = extractedMessage ?? ErrorMessages.notFoundError;
         break;
       case 409:
-        message = _extractErrorMessage(responseData) ??
-            'Conflict. The resource already exists.';
+        message = extractedMessage ?? 'Conflict. The resource already exists.';
         break;
       case 422:
         message = _extractValidationErrors(responseData) ??
+            extractedMessage ??
             ErrorMessages.validationFailedError;
         break;
       case 429:
-        message = ErrorMessages.tooManyRequestsError;
+        message = extractedMessage ?? ErrorMessages.tooManyRequestsError;
         break;
       case 500:
-        message = ErrorMessages.internalServerError;
+        message = extractedMessage ?? ErrorMessages.internalServerError;
         break;
       case 502:
-        message = ErrorMessages.serviceUnavailableError;
+        message = extractedMessage ?? ErrorMessages.serviceUnavailableError;
         break;
       case 503:
-        message = ErrorMessages.serviceUnavailableError;
+        message = extractedMessage ?? ErrorMessages.serviceUnavailableError;
         break;
       default:
-        message =
-            _extractErrorMessage(responseData) ?? ErrorMessages.serverError;
+        message = extractedMessage ?? ErrorMessages.serverError;
     }
 
     _logger.e('HTTP Error [$statusCode]: $message');
@@ -151,7 +152,13 @@ class ErrorInterceptor extends Interceptor {
     if (responseData == null) return null;
 
     if (responseData is Map<String, dynamic>) {
-      // Try different common error message keys
+      // Prioritize 'title' field for server error messages as per requirements
+      if (responseData.containsKey('title') &&
+          responseData['title'] is String) {
+        return responseData['title'] as String;
+      }
+
+      // Try other common error message keys as fallback
       for (final key in ['message', 'error', 'detail', 'description']) {
         if (responseData.containsKey(key) && responseData[key] is String) {
           return responseData[key] as String;
@@ -166,6 +173,12 @@ class ErrorInterceptor extends Interceptor {
     if (responseData == null) return null;
 
     if (responseData is Map<String, dynamic>) {
+      // First check if there's a title field (prioritized)
+      if (responseData.containsKey('title') &&
+          responseData['title'] is String) {
+        return responseData['title'] as String;
+      }
+
       // Handle Laravel-style validation errors
       if (responseData.containsKey('errors') && responseData['errors'] is Map) {
         final errors = responseData['errors'] as Map<String, dynamic>;

@@ -156,6 +156,26 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
         return;
       }
 
+      // Validate administrative form required fields
+      bool isFormValid = false;
+      try {
+        final administrativeFormWidget = _administrativeFormKey.currentWidget;
+        if (administrativeFormWidget != null) {
+          final administrativeFormState = _administrativeFormKey.currentState;
+          if (administrativeFormState != null &&
+              administrativeFormState.mounted) {
+            isFormValid = (administrativeFormState as dynamic).validateForm();
+          }
+        }
+      } catch (e) {
+        AppLogger.info('Could not validate administrative form: $e');
+      }
+
+      if (!isFormValid) {
+        _showErrorMessage(l10n.pleaseCompleteAllFields);
+        return;
+      }
+
       // Note: Services and samples validation removed - allow empty arrays to be sent to API
 
       // Get form data from the administrative form

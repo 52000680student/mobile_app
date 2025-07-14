@@ -169,7 +169,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       controller: _cccdController,
                       label: l10n.cccdNumber,
                       hint: l10n.cccdHint,
-                      enabled: state.selectedPatient == null,
+                      enabled: true, // Enable CCCD field as requested
                       focusNode: _cccdFocusNode,
                     ),
                   ),
@@ -1235,7 +1235,18 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
 
   /// Validate if required fields are filled
   bool validateForm() {
-    return _fullNameController.text.isNotEmpty && _selectedGender.isNotEmpty;
+    final l10n = AppLocalizations.of(context)!;
+
+    // Check all required fields based on the UI form requirements
+    return _fullNameController.text.isNotEmpty &&
+        _selectedGender.isNotEmpty &&
+        _appointmentDate != null &&
+        _dateOfBirth != null &&
+        _ageController.text.isNotEmpty &&
+        _selectedServiceObject != null &&
+        _selectedServiceObject != l10n.chooseOption &&
+        _selectedDepartment != null &&
+        _selectedDepartment != l10n.chooseOption;
   }
 
   /// Clear all form data and reset to initial state with bloc events
