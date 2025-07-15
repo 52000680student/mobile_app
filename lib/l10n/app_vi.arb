@@ -40,10 +40,6 @@
     "@loading": {
         "description": "Văn bản chỉ báo tải"
     },
-    "processing": "Đang xử lý...",
-    "@processing": {
-        "description": "Văn bản chỉ báo xử lý"
-    },
     "login": "Đăng nhập",
     "@login": {
         "description": "Văn bản đăng nhập"
@@ -327,12 +323,29 @@
     "formsCleared": "Tất cả biểu mẫu đã được xóa thành công",
     "pleaseCompleteAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
     "dataSavedSuccessfully": "Dữ liệu đã được lưu thành công",
-    "cancel": "Hủy",
-    "confirm": "Xác nhận",
     "pleaseSelectPatient": "Vui lòng chọn bệnh nhân",
     "administrativeFormNotAvailable": "Biểu mẫu hành chính không có sẵn",
     "errorPreparingRequest": "Lỗi chuẩn bị yêu cầu: {error}",
     "requestSavedSuccessfully": "Yêu cầu đã được lưu thành công!",
     "receiveAllSamples": "Nhận tất cả mẫu",
-    "receiveUserId": "Người nhận"
+    "receiveUserId": "Người nhận",
+    "print": "In",
+    "previewBarcode": "Xem mã vạch",
+    "bluetooth": "Bluetooth",
+    "tcp": "TCP/IP",
+    "connectionType": "Loại kết nối",
+    "bluetoothDevices": "Thiết bị Bluetooth",
+    "pairedDevices": "Thiết bị đã kết nối",
+    "discoverDevices": "Tìm thiết bị",
+    "discovering": "Đang tìm thiết bị...",
+    "noDevicesFound": "Không tìm thấy thiết bị",
+    "bluetoothDisabled": "Bluetooth đã bị tắt. Vui lòng bật Bluetooth để tiếp tục.",
+    "bluetoothNotSupported": "Bluetooth không được hỗ trợ trên thiết bị này",
+    "bluetoothPermissionRequired": "Quyền truy cập Bluetooth là bắt buộc để quét thiết bị",
+    "enablePermissions": "Cho phép truy cập Bluetooth",
+    "paired": "Đã kết nối",
+    "unpaired": "Chưa kết nối",
+    "selectBluetoothDevice": "Chọn thiết bị Bluetooth",
+    "bluetoothConnectionFailed": "Không thể kết nối với thiết bị Bluetooth",
+    "bluetoothConnectionError": "Lỗi kết nối với thiết bị Bluetooth"
 }

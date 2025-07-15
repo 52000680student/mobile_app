@@ -364,9 +364,9 @@ class _SampleTabState extends State<SampleTab> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.save, size: 18),
+                              const Icon(Icons.preview, size: 18),
                               const SizedBox(width: 8),
-                              Text(l10n.saveBarcode),
+                              Text(l10n.previewBarcode),
                             ],
                           ),
                         ),

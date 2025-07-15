@@ -983,5 +983,149 @@
   "receiveUserId": "Receive User",
   "@receiveUserId": {
     "description": "Receive user"
+  },
+  "connectPrinter": "Connect Printer",
+  "@connectPrinter": {
+    "description": "Connect printer dialog title"
+  },
+  "printerAddress": "Printer Address",
+  "@printerAddress": {
+    "description": "Printer IP address field label"
+  },
+  "printerPort": "Printer Port",
+  "@printerPort": {
+    "description": "Printer port field label"
+  },
+  "connect": "Connect",
+  "@connect": {
+    "description": "Connect button text"
+  },
+  "printerConnected": "Printer Connected",
+  "@printerConnected": {
+    "description": "Printer connected status message"
+  },
+  "printerDisconnected": "Printer Disconnected",
+  "@printerDisconnected": {
+    "description": "Printer disconnected status message"
+  },
+  "printerConnectionFailed": "Printer Connection Failed",
+  "@printerConnectionFailed": {
+    "description": "Printer connection failed message"
+  },
+  "printerConnectionError": "Printer Connection Error",
+  "@printerConnectionError": {
+    "description": "Printer connection error message"
+  },
+  "printerNotReady": "Printer Not Ready",
+  "@printerNotReady": {
+    "description": "Printer not ready message"
+  },
+  "printerCoverOpen": "Printer Cover Open",
+  "@printerCoverOpen": {
+    "description": "Printer cover open message"
+  },
+  "printerPaperEmpty": "Printer Paper Empty",
+  "@printerPaperEmpty": {
+    "description": "Printer paper empty message"
+  },
+  "printerError": "Printer Error",
+  "@printerError": {
+    "description": "Printer error message"
+  },
+  "printSuccess": "Print Successful",
+  "@printSuccess": {
+    "description": "Print success message"
+  },
+  "printFailed": "Print Failed",
+  "@printFailed": {
+    "description": "Print failed message"
+  },
+  "printError": "Print Error",
+  "@printError": {
+    "description": "Print error message"
+  },
+  "barcodePreview": "Barcode Preview",
+  "@barcodePreview": {
+    "description": "Barcode preview screen title"
+  },
+  "disconnect": "Disconnect",
+  "@disconnect": {
+    "description": "Disconnect button text"
+  },
+  "print": "Print",
+  "@print": {
+    "description": "Print button text"
+  },
+  "previewBarcode": "Preview Barcode",
+  "@previewBarcode": {
+    "description": "Preview barcode button text"
+  },
+  "bluetooth": "Bluetooth",
+  "@bluetooth": {
+    "description": "Bluetooth connection type"
+  },
+  "tcp": "TCP/IP",
+  "@tcp": {
+    "description": "TCP/IP connection type"
+  },
+  "connectionType": "Connection Type",
+  "@connectionType": {
+    "description": "Connection type label"
+  },
+  "bluetoothDevices": "Bluetooth Devices",
+  "@bluetoothDevices": {
+    "description": "Bluetooth devices title"
+  },
+  "pairedDevices": "Paired Devices",
+  "@pairedDevices": {
+    "description": "Paired devices section title"
+  },
+  "discoverDevices": "Discover Devices",
+  "@discoverDevices": {
+    "description": "Discover devices button text"
+  },
+  "discovering": "Discovering...",
+  "@discovering": {
+    "description": "Discovering devices loading text"
+  },
+  "noDevicesFound": "No devices found",
+  "@noDevicesFound": {
+    "description": "No devices found message"
+  },
+  "bluetoothDisabled": "Bluetooth is disabled. Please enable Bluetooth to continue.",
+  "@bluetoothDisabled": {
+    "description": "Bluetooth disabled message"
+  },
+  "bluetoothNotSupported": "Bluetooth is not supported on this device",
+  "@bluetoothNotSupported": {
+    "description": "Bluetooth not supported message"
+  },
+  "bluetoothPermissionRequired": "Bluetooth permissions are required to scan for devices",
+  "@bluetoothPermissionRequired": {
+    "description": "Bluetooth permission required message"
+  },
+  "enablePermissions": "Enable Permissions",
+  "@enablePermissions": {
+    "description": "Enable permissions button text"
+  },
+  "paired": "Paired",
+  "@paired": {
+    "description": "Paired device status"
+  },
+  "unpaired": "Unpaired",
+  "@unpaired": {
+    "description": "Unpaired device status"
+  },
+  "selectBluetoothDevice": "Select Bluetooth Device",
+  "@selectBluetoothDevice": {
+    "description": "Select Bluetooth device title"
+  },
+  "bluetoothConnectionFailed": "Failed to connect to Bluetooth device",
+  "@bluetoothConnectionFailed": {
+    "description": "Bluetooth connection failed message"
+  },
+  "bluetoothConnectionError": "Error connecting to Bluetooth device",
+  "@bluetoothConnectionError": {
+    "description": "Bluetooth connection error message"
   }
 }

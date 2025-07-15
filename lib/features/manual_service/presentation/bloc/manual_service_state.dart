@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import '../../data/models/manual_service_models.dart';
 
@@ -51,6 +52,12 @@ class ManualServiceState extends Equatable {
   final String? barcodeError;
   final int? currentRequestId; // Store request ID after successful save
 
+  // PDF Preview state
+  final bool isLoadingPdfPreview;
+  final String? pdfPreviewError;
+  final Uint8List? pdfPreviewBytes;
+  final SampleItem? pdfPreviewSample;
+
   const ManualServiceState({
     this.isSearchingPatients = false,
     this.patientSearchResults = const [],
@@ -83,6 +90,10 @@ class ManualServiceState extends Equatable {
     this.barcodeSuccessMessage,
     this.barcodeError,
     this.currentRequestId,
+    this.isLoadingPdfPreview = false,
+    this.pdfPreviewError,
+    this.pdfPreviewBytes,
+    this.pdfPreviewSample,
   });
 
   ManualServiceState copyWith({
@@ -117,6 +128,10 @@ class ManualServiceState extends Equatable {
     String? barcodeSuccessMessage,
     String? barcodeError,
     int? currentRequestId,
+    bool? isLoadingPdfPreview,
+    String? pdfPreviewError,
+    Uint8List? pdfPreviewBytes,
+    SampleItem? pdfPreviewSample,
   }) {
     return ManualServiceState(
       isSearchingPatients: isSearchingPatients ?? this.isSearchingPatients,
@@ -156,6 +171,10 @@ class ManualServiceState extends Equatable {
           barcodeSuccessMessage ?? this.barcodeSuccessMessage,
       barcodeError: barcodeError ?? this.barcodeError,
       currentRequestId: currentRequestId ?? this.currentRequestId,
+      isLoadingPdfPreview: isLoadingPdfPreview ?? this.isLoadingPdfPreview,
+      pdfPreviewError: pdfPreviewError ?? this.pdfPreviewError,
+      pdfPreviewBytes: pdfPreviewBytes ?? this.pdfPreviewBytes,
+      pdfPreviewSample: pdfPreviewSample ?? this.pdfPreviewSample,
     );
   }
 
@@ -251,5 +270,9 @@ class ManualServiceState extends Equatable {
         barcodeSuccessMessage,
         barcodeError,
         currentRequestId,
+        isLoadingPdfPreview,
+        pdfPreviewError,
+        pdfPreviewBytes,
+        pdfPreviewSample,
       ];
 }

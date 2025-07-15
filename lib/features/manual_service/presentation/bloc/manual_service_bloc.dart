@@ -10,6 +10,7 @@ import '../../domain/usecases/get_doctors_usecase.dart';
 import '../../domain/usecases/save_manual_service_usecase.dart';
 import '../../domain/usecases/get_request_samples_usecase.dart';
 import '../../domain/usecases/save_barcode_usecase.dart';
+import '../../domain/usecases/get_barcode_pdf_usecase.dart';
 import '../../data/models/manual_service_models.dart';
 import 'manual_service_event.dart';
 import 'manual_service_state.dart';
@@ -25,6 +26,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
   final SaveManualServiceUseCase _saveManualServiceUseCase;
   final GetRequestSamplesUseCase _getRequestSamplesUseCase;
   final SaveBarcodeUseCase _saveBarcodeUseCase;
+  final GetBarcodePdfUseCase _getBarcodePdfUseCase;
   final UserService _userService;
 
   late final TextDebouncer _patientSearchDebouncer;
@@ -38,6 +40,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     this._saveManualServiceUseCase,
     this._getRequestSamplesUseCase,
     this._saveBarcodeUseCase,
+    this._getBarcodePdfUseCase,
     this._userService,
   ) : super(const ManualServiceState()) {
     _patientSearchDebouncer = TextDebouncer(
@@ -63,6 +66,9 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     on<SaveBarcodeEvent>(_onSaveBarcode);
     on<SetCollectionTimeForAllSamplesEvent>(_onSetCollectionTimeForAllSamples);
     on<SetReceiveTimeForAllSamplesEvent>(_onSetReceiveTimeForAllSamples);
+    on<PrintSuccessEvent>(_onPrintSuccess);
+    on<ShowBarcodePdfPreviewEvent>(_onShowBarcodePdfPreview);
+    on<ClearPdfPreviewEvent>(_onClearPdfPreview);
 
     // Load initial data
     add(const LoadDepartmentsEvent());
@@ -479,6 +485,72 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     } catch (e) {
       AppLogger.error('Error setting receive time for all samples: $e');
     }
+  }
+
+  void _onPrintSuccess(
+    PrintSuccessEvent event,
+    Emitter<ManualServiceState> emit,
+  ) {
+    // Handle successful print operation
+    AppLogger.info('Print operation completed successfully');
+    // You can add additional logic here if needed
+    // For example, updating print statistics, clearing print queue, etc.
+  }
+
+  Future<void> _onShowBarcodePdfPreview(
+    ShowBarcodePdfPreviewEvent event,
+    Emitter<ManualServiceState> emit,
+  ) async {
+    // Check if we have a request ID
+    if (state.currentRequestId == null) {
+      emit(state.copyWith(
+        pdfPreviewError:
+            'No request ID available. Please save the request first.',
+      ));
+      return;
+    }
+
+    AppLogger.info('Starting PDF preview for sample: ${event.sample.type}');
+    emit(state.copyWith(
+      isLoadingPdfPreview: true,
+      pdfPreviewError: null,
+    ));
+
+    final result = await _getBarcodePdfUseCase(
+      requestId: state.currentRequestId!,
+      sample: event.sample,
+      baseUrl: event.baseUrl,
+      appointmentDate: event.appointmentDate,
+    );
+
+    result.fold(
+      (failure) {
+        AppLogger.error('PDF preview failed: ${failure.message}');
+        emit(state.copyWith(
+          isLoadingPdfPreview: false,
+          pdfPreviewError: failure.message,
+        ));
+      },
+      (pdfBytes) {
+        AppLogger.info('PDF preview successful, got ${pdfBytes.length} bytes');
+        emit(state.copyWith(
+          isLoadingPdfPreview: false,
+          pdfPreviewBytes: pdfBytes,
+          pdfPreviewSample: event.sample,
+        ));
+      },
+    );
+  }
+
+  void _onClearPdfPreview(
+    ClearPdfPreviewEvent event,
+    Emitter<ManualServiceState> emit,
+  ) {
+    emit(state.copyWith(
+      pdfPreviewBytes: null,
+      pdfPreviewSample: null,
+      pdfPreviewError: null,
+    ));
   }
 
   @override

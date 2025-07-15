@@ -161,3 +161,35 @@ class SetReceiveTimeForAllSamplesEvent extends ManualServiceEvent {
   @override
   List<Object?> get props => [];
 }
+
+/// Event to indicate successful print operation
+class PrintSuccessEvent extends ManualServiceEvent {
+  const PrintSuccessEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+/// Event to show barcode PDF preview
+class ShowBarcodePdfPreviewEvent extends ManualServiceEvent {
+  final SampleItem sample;
+  final String baseUrl;
+  final DateTime? appointmentDate;
+
+  const ShowBarcodePdfPreviewEvent({
+    required this.sample,
+    required this.baseUrl,
+    this.appointmentDate,
+  });
+
+  @override
+  List<Object?> get props => [sample, baseUrl, appointmentDate];
+}
+
+/// Event to clear PDF preview data
+class ClearPdfPreviewEvent extends ManualServiceEvent {
+  const ClearPdfPreviewEvent();
+
+  @override
+  List<Object?> get props => [];
+}

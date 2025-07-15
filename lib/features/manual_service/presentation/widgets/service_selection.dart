@@ -9,6 +9,7 @@ import '../bloc/manual_service_event.dart';
 import '../bloc/manual_service_state.dart';
 import 'services_tab.dart';
 import 'sample_tab.dart';
+import 'pdf_preview_screen.dart';
 
 class ServiceSelection extends StatefulWidget {
   final DateTime? Function()? getAppointmentDate;
@@ -66,7 +67,9 @@ class _ServiceSelectionState extends State<ServiceSelection>
     return BlocListener<ManualServiceBloc, ManualServiceState>(
       listenWhen: (previous, current) =>
           previous.barcodeSuccessMessage != current.barcodeSuccessMessage ||
-          previous.barcodeError != current.barcodeError,
+          previous.barcodeError != current.barcodeError ||
+          previous.pdfPreviewBytes != current.pdfPreviewBytes ||
+          previous.pdfPreviewError != current.pdfPreviewError,
       listener: (context, state) {
         if (state.barcodeSuccessMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +93,37 @@ class _ServiceSelectionState extends State<ServiceSelection>
                   const Icon(Icons.error, color: Colors.white),
                   const SizedBox(width: 8),
                   Expanded(child: Text(state.barcodeError!)),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+
+        // Handle PDF preview
+        if (state.pdfPreviewBytes != null && state.pdfPreviewSample != null) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => PdfPreviewScreen(
+                pdfBytes: state.pdfPreviewBytes!,
+                fileName:
+                    'barcode_${state.pdfPreviewSample!.sid}_${DateTime.now().millisecondsSinceEpoch}.pdf',
+                sampleName: state.pdfPreviewSample!.name,
+              ),
+            ),
+          );
+
+          // Clear the PDF preview data after navigation
+          context.read<ManualServiceBloc>().add(const ClearPdfPreviewEvent());
+        } else if (state.pdfPreviewError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(state.pdfPreviewError!)),
                 ],
               ),
               backgroundColor: Colors.red,
@@ -241,33 +275,13 @@ class _ServiceSelectionState extends State<ServiceSelection>
                     SampleTab(
                       samples: state.sampleItems,
                       onSaveBarcode: (sample) {
-                        // Get appointment date from callback
-                        final appointmentDate =
-                            widget.getAppointmentDate?.call();
-
-                        // Trigger barcode save event
-                        context.read<ManualServiceBloc>().add(
-                              SaveBarcodeEvent(
-                                sample: sample,
-                                baseUrl: EnvConfig.apiBaseUrl,
-                                appointmentDate: appointmentDate,
-                              ),
-                            );
+                        _showPdfPreview(sample);
                       },
                       onSaveAllBarcodes: () {
-                        // Get appointment date from callback
-                        final appointmentDate =
-                            widget.getAppointmentDate?.call();
-
-                        // Save barcode for all samples
-                        for (final sample in state.sampleItems) {
-                          context.read<ManualServiceBloc>().add(
-                                SaveBarcodeEvent(
-                                  sample: sample,
-                                  baseUrl: EnvConfig.apiBaseUrl,
-                                  appointmentDate: appointmentDate,
-                                ),
-                              );
+                        // For now, just show preview for the first sample
+                        // TODO: Implement batch preview or selection dialog
+                        if (state.sampleItems.isNotEmpty) {
+                          _showPdfPreview(state.sampleItems.first);
                         }
                       },
                     ),
@@ -517,5 +531,19 @@ class _ServiceSelectionState extends State<ServiceSelection>
         ],
       ),
     );
+  }
+
+  void _showPdfPreview(SampleItem sample) async {
+    // Get appointment date from callback
+    final appointmentDate = widget.getAppointmentDate?.call();
+
+    // Trigger PDF preview event
+    context.read<ManualServiceBloc>().add(
+          ShowBarcodePdfPreviewEvent(
+            sample: sample,
+            baseUrl: EnvConfig.apiBaseUrl,
+            appointmentDate: appointmentDate,
+          ),
+        );
   }
 }
