@@ -332,5 +332,7 @@
     "pleaseSelectPatient": "Vui lòng chọn bệnh nhân",
     "administrativeFormNotAvailable": "Biểu mẫu hành chính không có sẵn",
     "errorPreparingRequest": "Lỗi chuẩn bị yêu cầu: {error}",
-    "requestSavedSuccessfully": "Yêu cầu đã được lưu thành công! ID: {id}"
+    "requestSavedSuccessfully": "Yêu cầu đã được lưu thành công!",
+    "receiveAllSamples": "Nhận tất cả mẫu",
+    "receiveUserId": "Người nhận"
 }

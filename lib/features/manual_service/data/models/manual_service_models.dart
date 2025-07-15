@@ -446,6 +446,8 @@ class SampleItem {
   final String sid;
   final DateTime? collectionTime;
   final int? collectionUserId;
+  final DateTime? receiveTime;
+  final int? receiveUserId;
 
   SampleItem({
     required this.name,
@@ -454,6 +456,8 @@ class SampleItem {
     required this.sid,
     this.collectionTime,
     this.collectionUserId,
+    this.receiveTime,
+    this.receiveUserId,
   });
 
   factory SampleItem.fromTestService(TestService testService) {
@@ -463,6 +467,46 @@ class SampleItem {
       serialNumber: '3', // Default as mentioned in Todo.txt
       sid: 'Auto', // Default as mentioned in Todo.txt
     );
+  }
+
+  /// Create a copy of this SampleItem with some fields replaced
+  SampleItem copyWith({
+    String? name,
+    String? type,
+    String? serialNumber,
+    String? sid,
+    DateTime? collectionTime,
+    int? collectionUserId,
+    DateTime? receiveTime,
+    int? receiveUserId,
+  }) {
+    return SampleItem(
+      name: name ?? this.name,
+      type: type ?? this.type,
+      serialNumber: serialNumber ?? this.serialNumber,
+      sid: sid ?? this.sid,
+      collectionTime: collectionTime ?? this.collectionTime,
+      collectionUserId: collectionUserId ?? this.collectionUserId,
+      receiveTime: receiveTime ?? this.receiveTime,
+      receiveUserId: receiveUserId ?? this.receiveUserId,
+    );
+  }
+
+  /// Convert to JSON for API calls
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'type': type,
+      'serialNumber': serialNumber,
+      'sid': sid,
+      'collectionTime': collectionTime?.toIso8601String(),
+      'collectionUserId': collectionUserId,
+      'receiveTime': receiveTime?.toIso8601String(),
+      'receiveUserId': receiveUserId,
+      // API fields for backward compatibility
+      'ReceivedTime': receiveTime?.toIso8601String(),
+      'ReceiverUserId': receiveUserId,
+    };
   }
 }
 
@@ -740,6 +784,7 @@ class ManualServiceRequestSample {
   final String subID;
   final int? receiverUserId;
   final String? subSID;
+  final String? receivedTime;
 
   ManualServiceRequestSample({
     required this.sampleType,
@@ -751,6 +796,7 @@ class ManualServiceRequestSample {
     required this.subID,
     this.receiverUserId,
     this.subSID,
+    this.receivedTime,
   });
 
   Map<String, dynamic> toJson() {
@@ -763,6 +809,7 @@ class ManualServiceRequestSample {
       'sID': sID,
       'subID': subID,
       'ReceiverUserId': receiverUserId,
+      'ReceivedTime': receivedTime,
       'subSID': subSID,
     };
   }
@@ -777,7 +824,8 @@ class ManualServiceRequestSample {
       collectorUserId: isCollected ? loggedInUserId : null,
       sID: 0,
       subID: "",
-      receiverUserId: null,
+      receiverUserId: sampleItem.receiveUserId,
+      receivedTime: sampleItem.receiveTime?.toIso8601String(),
       subSID: null,
     );
   }

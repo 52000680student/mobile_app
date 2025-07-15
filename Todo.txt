@@ -1,91 +1,15 @@
 Task:
-1. Currently the 'Refresh Button' button at responsive_layout is not available, when pressed it reports success but the data is not deleted but remains the same.
-2. Use the id returned at responsive_layout (l10n.requestSavedSuccessfully) to call the api: /api/la/v1/requests/{id}/samples (this api has been used in the project)
-- Get the data returned by the above api so that when the user clicks the Save barcode button at sample_tab, it will compare the sample type to get the data: SID, SubSID, RequestDate, SampleType, Page
-- Next, use that data to call this api: api/la/v1/global/reports/101/print. The deployed data will be transmitted via queryparams. The response of this api is in the form:
-{
-"reportUUID": "280b2f26a0b14808a63c5be986c1c8aa",
-"reportUrl": "/api/_fr/preview.printReport?reportId=280b2f26a0b14808a63c5be986c1c8aa&renderBody=yes&printMode=pdf"
+1, In the exception handling or error notification sections. Please standardize it for me, display the message sentences according to the server's return (field title). The object that the server returns is attached below. For the login processing section, requests with status code 400 will report incorrect password or account. And the error returned 500 will notify of a problem on the server side.
+Response error: {
+    "type": "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+    "title": "Thông tin mã họ VSV [EBC - Enterobacteriaceae] đã được sử dụng.",
+    "status": 500,
+    "detail": "System.Exception: Thông tin mã họ VSV [EBC - Enterobacteriaceae] đã được sử dụng.\n   at Laboratory.VS.Application.Features.VSOrganismsGroup.Commands.DeleteVSOrganismsGroup.DeleteVSOrganismsGroupCommandHandler.Handle(DeleteVSOrganismsGroupCommand request, CancellationToken cancellationToken) in /src/Services/Laboratory/Laboratory.VS.Application/Features/VSOrganismsGroup/Commands/DeleteVSOrganismsGroup/DeleteVSOrganismsGroupCommandHandler.cs:line 158\n   at Laboratory.Application.Behaviours.ValidationBehaviour`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next) in /src/Services/Laboratory/Laboratory.Application/Behaviours/ValidationBehaviour.cs:line 37\n   at Laboratory.Application.Behaviours.UnhandledExceptionBehaviour`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next) in /src/Services/Laboratory/Laboratory.Application/Behaviours/UnhandledExceptionBehaviour.cs:line 31\n   at Laboratory.Application.Behaviours.ValidationBehaviour`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next) in /src/Services/Laboratory/Laboratory.Application/Behaviours/ValidationBehaviour.cs:line 37\n   at Laboratory.Application.Behaviours.UnhandledExceptionBehaviour`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next) in /src/Services/Laboratory/Laboratory.Application/Behaviours/UnhandledExceptionBehaviour.cs:line 31\n   at Laboratory.Application.Behaviours.ValidationBehaviour`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next) in /src/Services/Laboratory/Laboratory.Application/Behaviours/ValidationBehaviour.cs:line 37\n   at Laboratory.Application.Behaviours.UnhandledExceptionBehaviour`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next) in /src/Services/Laboratory/Laboratory.Application/Behaviours/UnhandledExceptionBehaviour.cs:line 31\n   at MediatR.Pipeline.RequestExceptionProcessorBehavior`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next)\n   at MediatR.Pipeline.RequestExceptionProcessorBehavior`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next)\n   at MediatR.Pipeline.RequestExceptionActionProcessorBehavior`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next)\n   at MediatR.Pipeline.RequestExceptionActionProcessorBehavior`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next)\n   at MediatR.Pipeline.RequestPostProcessorBehavior`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next)\n   at MediatR.Pipeline.RequestPreProcessorBehavior`2.Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate`1 next)\n   at Laboratory.API.Controllers.QC.VSOrganismsGroupController.DeleteVSOrganismsGroup(FilterLongBase ids) in /src/Services/Laboratory/Laboratory.API/Controllers/VS/VSOrganismsGroupController.cs:line 76\n   at lambda_method11193(Closure , Object )\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)\n   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)\n   at Laboratory.API.Middleware.ExceptionHandlingMiddleware.InvokeAsync(HttpContext context, RequestDelegate next) in /src/Services/Laboratory/Laboratory.API/Middleware/ExceptionHandlingMiddleware.cs:line 40",
+    "instance": {
+        "Value": "/v1/vs/organisms-group",
+        "HasValue": true
+    }
 }
 
-- Then we will use reportUrl combined with baseURL and POST method to call API and it will return HEX code, containing the printed items. Please save it as an image to the photo library for me
-I have a suggestion like this, which will handle API calls and the following steps and libraries:
-1. Add Dependencies
-Add to pubspec.yaml:
-yamldependencies:
-  http: ^0.13.5                       # For API calls
-  path_provider: ^2.0.11              # Get device directories
-  permission_handler: ^10.2.0         # Handle permissions
-  image_gallery_saver_plus: ^4.0.1    # Save to photo gallery (updated package)
-2. Add Android Permissions
-In android/app/src/main/AndroidManifest.xml:
-xml<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-3. Implementation Steps
-
-Request storage permissions using permission_handler
-Get device directory using path_provider (Downloads, Documents, etc.)
-Convert HEX string to bytes using int.parse(hex, radix: 16)
-Write file using File.writeAsBytes() or File.writeAsString()
-Save to gallery (if image) using image_gallery_saver_plus
-
-4. Main Functions to Implement
-
-requestPermissions() - Request storage access
-hexToBytes() - Convert HEX string to Uint8List
-saveHexAsFile() - Save as binary file to Downloads/Documents
-saveHexAsTextFile() - Save as text file
-saveToGallery() - Save image to photo gallery
-
-5. Key Libraries Usage
-
-permission_handler: Permission.storage.request()
-path_provider: getExternalStorageDirectory()
-dart:io: File().writeAsBytes()
-image_gallery_saver_plus: ImageGallerySaverPlus.saveImage()
-
-That's the basic flow - fetch HEX from API, convert to bytes, get storage permission, pick directory, and save the file.
-
-
-I want when clicking this button: Expanded( 
-child: OutlinedButton.icon( 
-onPressed: _isLoading ? null : _onRefresh, 
-icon: _isLoading 
-? SizeBox( 
-width: 16, 
-height: 16, 
-child: CircularProgressIndicator( 
-strokeWidth: 2, 
-color: theme.primaryColor, 
-), 
-) 
-: const Icon(Icons.refresh_rounded), 
-label: Text(l10n.refresh), 
-style: OutlinedButton.styleFrom( 
-foregroundColor: theme.primaryColor, 
-side: BorderSide(color: theme.primaryColor), 
-padding: const EdgeInsets.symmetric(vertical: 16), 
-shape: RoundedRectangleBorder( 
-borderRadius: BorderRadius.circular(8), 
-), 
-), 
-), 
-), will delete all data in adminitrative_form: final _patientIdController = TextEditingController(); 
-final _cccdController = TextEditingController(); 
-final _sidController = TextEditingController(); 
-final _fullNameController = TextEditingController(); 
-final _medicalCodeController = TextEditingController(); 
-final _insuranceNumberController = TextEditingController(); 
-final _ageController = TextEditingController(); 
-final _phoneController = TextEditingController(); 
-final _emailController = TextEditingController(); 
-final _addressController = TextEditingController(); 
-final _notesController = TextEditingController(); 
-final _diagnosisController = TextEditingController(); 
-
-String _selectedGender = 'female'; 
-DateTime? _appointmentDate; 
-DateTime? _dateOfBirth; 
-String? _selectedServiceObject; 
-String? _selectedDoctor; 
-String? _selectedDepartment;
+2, In the manual service function, right at administrative_form there are many required fields, but currently without entering those fields, it can still be saved. Please edit this place for me, which fields are required so that they must be entered to be saved. And please enable the CCCD field for me, it is currently disabled.
+3, 3. Move the logout section down to the settings function, and change the appbar color to the main color of the project. Add a language selection section to the settings including English and Vietnamese.

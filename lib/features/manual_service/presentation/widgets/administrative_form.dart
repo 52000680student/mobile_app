@@ -65,8 +65,8 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   // Key for patient dropdown to force rebuild when clearing
   GlobalKey _patientDropdownKey = GlobalKey();
 
-  // Additional state to force dropdown clearing
-  bool _forceDropdownClear = false;
+  // Local state for patient dropdown selection (similar to service_selection.dart)
+  PatientSearchResult? _selectedPatient;
 
   @override
   void initState() {
@@ -124,9 +124,8 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           _autoFillPatientData(state.selectedPatient!);
         } else {
           // Clear local form when patient is deselected/cleared
-          // Set force clear flag for dropdown
           setState(() {
-            _forceDropdownClear = true;
+            _selectedPatient = null;
           });
 
           // Use a small delay to ensure the clearing happens after any ongoing state updates
@@ -170,7 +169,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       controller: _cccdController,
                       label: l10n.cccdNumber,
                       hint: l10n.cccdHint,
-                      enabled: state.selectedPatient == null,
+                      enabled: true, // Enable CCCD field as requested
                       focusNode: _cccdFocusNode,
                     ),
                   ),
@@ -360,6 +359,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
   /// Auto-fill form fields when a patient is selected
   void _autoFillPatientData(PatientSearchResult patient) {
     setState(() {
+      _selectedPatient = patient; // Set local selected patient
       _fullNameController.text = patient.name;
       _selectedGender = patient.gender;
       _addressController.text = patient.address;
@@ -408,13 +408,13 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
 
             return state.patientSearchResults;
           },
-          selectedItem: _forceDropdownClear ? null : state.selectedPatient,
+          selectedItem: _selectedPatient,
           onChanged: (PatientSearchResult? patient) {
             print('DropdownSearch: Patient selected: ${patient?.name}');
             if (patient != null) {
               setState(() {
                 _patientIdController.text = patient.patientId;
-                _forceDropdownClear = false; // Reset force clear flag
+                _selectedPatient = patient; // Update local selected patient
               });
               context
                   .read<ManualServiceBloc>()
@@ -445,7 +445,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           ),
           dropdownBuilder: (context, selectedItem) {
             // Custom builder to ensure proper clearing behavior
-            if (selectedItem == null || _forceDropdownClear) {
+            if (selectedItem == null) {
               return Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1188,16 +1188,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
 
       // Force patient dropdown to rebuild by regenerating its key
       _patientDropdownKey = GlobalKey();
-      _forceDropdownClear = true; // Force clear the dropdown value
-    });
-
-    // Reset force clear flag after a short delay to allow widget rebuild
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() {
-          _forceDropdownClear = false;
-        });
-      }
+      _selectedPatient = null; // Clear the local selected patient
     });
 
     // Clear focus from all input fields
@@ -1244,7 +1235,18 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
 
   /// Validate if required fields are filled
   bool validateForm() {
-    return _fullNameController.text.isNotEmpty && _selectedGender.isNotEmpty;
+    final l10n = AppLocalizations.of(context)!;
+
+    // Check all required fields based on the UI form requirements
+    return _fullNameController.text.isNotEmpty &&
+        _selectedGender.isNotEmpty &&
+        _appointmentDate != null &&
+        _dateOfBirth != null &&
+        _ageController.text.isNotEmpty &&
+        _selectedServiceObject != null &&
+        _selectedServiceObject != l10n.chooseOption &&
+        _selectedDepartment != null &&
+        _selectedDepartment != l10n.chooseOption;
   }
 
   /// Clear all form data and reset to initial state with bloc events

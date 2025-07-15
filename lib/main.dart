@@ -5,6 +5,7 @@ import 'core/env/env_config.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/app_logger.dart';
+import 'core/utils/locale_service.dart';
 import 'l10n/generated/app_localizations.dart';
 
 void main() async {
@@ -44,40 +45,44 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Mobile App',
-      debugShowCheckedModeBanner: false,
-
-      // Routing
-      routerConfig: AppRouter.router,
-
-      // Theming
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-
-      // Localization
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('vi'), // Vietnamese (default)
-        Locale('en'), // English
-      ],
-      locale: const Locale('vi'), // Set Vietnamese as default
-
-      // Error handling
+    return ListenableBuilder(
+      listenable: getIt<LocaleService>(),
       builder: (context, child) {
-        // Global error handling for UI errors
-        ErrorWidget.builder = (FlutterErrorDetails details) {
-          AppLogger.error('UI Error', details.exception, details.stack);
-          return _buildErrorWidget(context, details);
-        };
+        final localeService = getIt<LocaleService>();
 
-        return child ?? const SizedBox.shrink();
+        return MaterialApp.router(
+          title: 'Lấy Mẫu TN',
+          debugShowCheckedModeBanner: false,
+
+          // Routing
+          routerConfig: AppRouter.router,
+
+          // Theming
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.system,
+
+          // Localization
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: localeService.supportedLocales,
+          locale: localeService.currentLocale, // Use dynamic locale
+
+          // Error handling
+          builder: (context, child) {
+            // Global error handling for UI errors
+            ErrorWidget.builder = (FlutterErrorDetails details) {
+              AppLogger.error('UI Error', details.exception, details.stack);
+              return _buildErrorWidget(context, details);
+            };
+
+            return child ?? const SizedBox.shrink();
+          },
+        );
       },
     );
   }

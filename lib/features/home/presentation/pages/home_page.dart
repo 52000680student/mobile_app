@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/di/injection_container.dart';
 import '../../../../l10n/generated/app_localizations.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -12,158 +7,141 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final authBloc = getIt<AuthBloc>(); // Store the AuthBloc instance
 
-    return BlocProvider.value(
-      value: authBloc, // Use the same instance
-      child: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthInitial) {
-            context.go(AppRoutes.login);
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(l10n.home),
-            backgroundColor: const Color(0xFF4F46E5),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () =>
-                    _logout(context, authBloc), // Pass the AuthBloc instance
-                tooltip: l10n.logout,
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.home),
+        backgroundColor:
+            Theme.of(context).primaryColor, // Use main project color
+        foregroundColor: Colors.white,
+        elevation: 0,
+        // Removed logout action - now in settings page
+      ),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
           ),
-          body: Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-              ),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 60),
 
-                    // Success Icon
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_circle_outline,
-                        size: 64,
-                        color: Colors.white,
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Welcome Text
-                    Text(
-                      l10n.welcome,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Text(
-                      l10n.loginSuccessful,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 48),
-
-                    // Feature Cards
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            _buildFeatureCard(
-                              context: context,
-                              icon: Icons.dashboard_outlined,
-                              title: l10n.dashboard,
-                              description: l10n.dashboardDescription,
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.featureComingSoon),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _buildFeatureCard(
-                              context: context,
-                              icon: Icons.person_outline,
-                              title: l10n.profile,
-                              description: l10n.profileDescription,
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.featureComingSoon),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _buildFeatureCard(
-                              context: context,
-                              icon: Icons.settings_outlined,
-                              title: l10n.settings,
-                              description: l10n.settingsDescription,
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.featureComingSoon),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Footer
-                    Text(
-                      '© 2025 IOLIS Solutions',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                // Success Icon
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline,
+                    size: 64,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
+
+                const SizedBox(height: 32),
+
+                // Welcome Text
+                Text(
+                  l10n.welcome,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 16),
+
+                Text(
+                  l10n.loginSuccessful,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 48),
+
+                // Feature Cards
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _buildFeatureCard(
+                          context: context,
+                          icon: Icons.dashboard_outlined,
+                          title: l10n.dashboard,
+                          description: l10n.dashboardDescription,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.featureComingSoon),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildFeatureCard(
+                          context: context,
+                          icon: Icons.person_outline,
+                          title: l10n.profile,
+                          description: l10n.profileDescription,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.featureComingSoon),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _buildFeatureCard(
+                          context: context,
+                          icon: Icons.settings_outlined,
+                          title: l10n.settings,
+                          description: l10n.settingsDescription,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.featureComingSoon),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Footer
+                Text(
+                  '© 2025 IOLIS Solutions',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
@@ -237,33 +215,6 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _logout(BuildContext context, AuthBloc authBloc) {
-    final l10n = AppLocalizations.of(context)!;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(l10n.logoutConfirmTitle),
-          content: Text(l10n.logoutConfirmMessage),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(l10n.cancel),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                authBloc.add(const LogoutRequested());
-              },
-              child: Text(l10n.logout),
-            ),
-          ],
-        );
-      },
     );
   }
 }
