@@ -372,15 +372,18 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
                               size: 16,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              _printerService.isConnected
-                                  ? '${l10n.printerConnected} (${_printerService.connectionType == ConnectionType.bluetooth ? l10n.bluetooth : l10n.tcp})'
-                                  : l10n.printerDisconnected,
-                              style: TextStyle(
-                                color: _printerService.isConnected
-                                    ? Colors.green
-                                    : Colors.grey,
-                                fontSize: 12,
+                            Flexible(
+                              child: Text(
+                                _printerService.isConnected
+                                    ? '${l10n.printerConnected} (${_printerService.connectionType == ConnectionType.bluetooth ? l10n.bluetooth : l10n.tcp})'
+                                    : l10n.printerDisconnected,
+                                style: TextStyle(
+                                  color: _printerService.isConnected
+                                      ? Colors.green
+                                      : Colors.grey,
+                                  fontSize: 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -392,6 +395,7 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
                               color: Colors.grey.shade600,
                               fontSize: 11,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
