@@ -18,7 +18,7 @@
     <!-- Bluetooth feature -->
     <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
     <application
-        android:label="mobile_app"
+        android:label="Lấy mẫu TN"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

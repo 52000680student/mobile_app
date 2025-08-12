@@ -1,4 +1,101 @@
-Task:
-1. Based on the folder Android SDK 3.2.0. This contains instruction files and sample code, to connect to the printer with model Xprinter XP-P323B to be able to print.
-2. Use that document to implement the feature, when clicking save barcode in sample_tab.dart . Currently when clicking the save barcode button, the pdf file is being downloaded. Now I want to change it to preview the pdf and there will be a print button, when the user clicks print, the data will be transmitted to the connected printer to print the stamp.
-You can choose one of the following libraries to help preview pdf: syncfusion_flutter_pdfviewer, flutter_pdfview, pdfx. Depending on which library is easy to use or versatile
+IMPLEMENT “ADD SEARCH VALUE WHEN NO API RESULTS” IN `_buildPatientDropdown`
+
+You are an expert Flutter and Dart developer and codebase navigator. Read the repository, understand the existing patterns, and implement the following feature in a clean, minimal, and well-tested way.
+
+GOAL
+When the user types in the search box inside the widget/function `_buildPatientDropdown`, the app calls a search API. If the API response contains **no usable data** for the current query (e.g., empty array, null, 204, 404, or 200 with zero items after client-side filtering), the dropdown must display a **synthetic option** that lets the user select their **typed search string** as the value itself. Selecting this option should set the selected value to the string the user typed and mark it as a **custom entry** (i.e., not coming from existing server data).
+
+CONTEXT TO DISCOVER (DO NOT HARD-CODE UNTIL YOU FIND THEM)
+- File path where `_buildPatientDropdown` is declared (e.g., `.../widgets/...`, `.../screens/...`, or `.../components/...`). 
+- The data source type that feeds the dropdown (e.g., `List<Patient>`, `List<DropdownMenuItem<Patient>>`, etc.).
+- The search API method(s) and abstraction layer(s) (service, repository, bloc/cubit, provider, controller) already used by `_buildPatientDropdown`.
+- The app’s state-management approach (e.g., BLoC/Cubit, Provider, Riverpod, Redux, MVC). Follow the project’s current pattern.
+- The form model or selected value contract that downstream code expects (id/name vs. raw string).
+
+FEATURE REQUIREMENTS
+1) Synthetic “use typed value” option
+   - Offer the option **only** when the API result for the current search query has zero usable items.
+   - The label should be localized:
+     - English: `+ Use “{q}”`
+     - Vietnamese: `+ Dùng “{q}”`
+   - The option must carry enough information downstream to distinguish it from server-backed items.
+     - Use a sentinel format for the id or a dedicated flag, e.g.:
+       - id: `custom:{normalizedQuery}` OR
+       - field: `isCustom: true` with `id: null`
+   - The underlying value must preserve the **full original query** (not truncated), even if the label is shortened for display.
+
+2) Normalization & duplicate prevention
+   - Normalize queries for comparisons: trim whitespace, collapse multiple spaces, case-fold, and (if the app supports accent-insensitive matching) remove diacritics for equality checks.
+   - Do **not** add the synthetic option if an existing item already matches the query (normalized equality). Instead, surface the existing item normally.
+
+3) UI/UX specifics
+   - Place the synthetic option at the **top** of the result list (before any “no results” empty-state).
+   - Use subtle visual differentiation (e.g., a leading “+” or icon) so users recognize it’s a create/use-custom entry.
+   - Changing the query should remove/update the synthetic option live.
+   - Selecting the synthetic option should close the dropdown and set the form state to the custom value.
+
+4) API & async behavior
+   - Debounce user input (300–400ms). 
+   - Cancel stale requests when the query changes to avoid race conditions.
+   - Consider these “no data” cases:
+     - `[]`, `null`, HTTP `204`, HTTP `404`, `200` with zero usable items after filtering.
+     - Optional: network/timeouts (controlled via config `offerCustomOnError`, default `true`).
+   - Only show the synthetic option after the **current** request has completed for the **current** query.
+
+5) Downstream model & validation
+   - If the rest of the form requires an object, provide a mapper that safely transforms a custom selection into a submission-friendly shape (e.g., `{ id: null, name: q, isCustom: true }`).
+   - Make sure form validation passes for a custom value (e.g., “name required”). Do not submit a non-existent server id.
+
+6) Edge cases
+   - Empty or whitespace-only query → **do not** show synthetic option.
+   - Very long queries (> 100 chars) → truncate label with ellipsis for display only; retain full internal value.
+   - Disallowed characters → sanitize for display; keep a raw copy for submission if policy allows.
+   - If the user previously selected a custom value, reopening the dropdown should reflect that selection and label consistently.
+
+7) Internationalization
+   - Use the existing i18n framework. Add keys for the synthetic option text in all supported locales.
+   - Fallback to English if locale text is missing.
+
+8) Accessibility
+   - Ensure the synthetic option is keyboard-focusable and screen-reader friendly (semantics/aria where applicable).
+
+9) Instrumentation
+   - Add **minimal** telemetry if the project uses it (e.g., count of sessions selecting custom entry, to validate usefulness).
+
+DELIVERABLES
+- Code changes implementing the feature with minimal intrusion and consistent with existing patterns.
+- Unit tests for normalization, duplicate prevention, synthetic option creation, and selection.
+- UI/widget tests for empty-result scenarios and selection behavior.
+- Short documentation update (e.g., in README or a local MD next to the widget) describing the behavior and any new flags/configs.
+- A single PR/MR including:
+  1) A summary of the change.
+  2) File-by-file unified diffs.
+  3) Test results summary (commands + passing counts).
+  4) Instructions to run tests locally.
+
+ACCEPTANCE CRITERIA
+- When the query is “John” and the API returns no items, the dropdown shows a first option like `+ Use “John”`.
+- Selecting it results in downstream state reflecting a **custom** patient selection (`isCustom: true`, id `null` or `custom:john`, name “John”). 
+- If the API later returns “JOHN” (case/diacritics variant), the synthetic option does **not** appear; only the real item appears.
+- No race-condition bugs: quick typing does not produce stale synthetic options.
+- No unrelated regressions in `_buildPatientDropdown` or related widgets.
+
+OUTPUT FORMAT (WHAT YOU MUST RETURN)
+1) A concise summary (≤ 10 lines) of how you implemented the feature, with file paths.
+2) A complete, file-by-file **unified diff** of all changes.
+3) New/updated tests (unified diffs).
+4) A brief test run output (copy/paste from your local run).
+5) Any i18n key additions and their translations (en + vi at minimum).
+
+IMPLEMENTATION NOTES — GENERIC
+- Do not change public APIs unless necessary. Prefer adding small private helpers.
+- Keep the current state management style intact (Bloc/Provider/Riverpod/etc.).
+- Ensure disposable resources (streams/controllers) are properly disposed.
+- Add concise code comments only where non-obvious.
+
+QUALITY BAR
+- Code compiles, tests pass, lints clean.
+- The feature is fully discoverable by reading the updated doc section.
+- The behavior is deterministic under debounced input and canceled requests.
+
+Begin by locating `_buildPatientDropdown`, enumerating its current data flow, and proposing the minimal-change insertion points. Then implement, test, and return the required outputs.

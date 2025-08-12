@@ -58,6 +58,7 @@ dependencies:
   flutter_advanced_switch: ^3.1.0
   flutter_launcher_icons: ^0.14.4
   dropdown_search: ^6.0.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

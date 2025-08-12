@@ -1,6 +1,7 @@
+import 'package:intl/intl.dart';
 import 'package:mobile_app/core/utils/json_parsing_utils.dart';
 import 'dart:convert'; // Added for jsonDecode
-import '../../../patient_admissions/data/models/patient_models.dart'; // Added for Sample model
+import '../../../patient_admissions/data/models/patient_models.dart';
 
 /// Model for Patient search API response
 class PatientSearchResponse {
@@ -20,8 +21,9 @@ class PatientSearchResponse {
     required this.last,
   });
 
-  factory PatientSearchResponse.fromJson(Map<String, dynamic> json) {
-    return PatientSearchResponse(
+  factory PatientSearchResponse.fromJson(
+      Map<String, dynamic> json, String search) {
+    final result = PatientSearchResponse(
       data: (json['data'] as List?)
               ?.map((item) =>
                   PatientSearchResult.fromJson(item as Map<String, dynamic>))
@@ -34,6 +36,39 @@ class PatientSearchResponse {
       totalPages: JsonParsingUtils.parseIntSafely(json['totalPages']) ?? 0,
       last: JsonParsingUtils.parseBoolSafely(json['last']) ?? true,
     );
+
+    if (result.data.isEmpty) {
+      result.data.add(PatientSearchResult(
+        id: -1,
+        patientId: search,
+        name: '',
+        dob: DateTime.now().toIso8601String(),
+        dobName: DateFormat('dd-MM-yyyy').format(DateTime.now()),
+        gender: 'F',
+        genderName: '',
+        remark: null,
+        phoneNumber: '',
+        address: '',
+        fullAddress: '',
+        nationalId: '',
+        ward: '',
+        wardName: '',
+        district: '',
+        districtName: '',
+        province: '',
+        provinceName: '',
+        country: '',
+        countryName: '',
+        managementCompanyId: 1,
+        profileName: '',
+        createdDate: DateTime.now().toIso8601String(),
+        fields: null,
+        contactFields: null,
+        addressFields: null,
+        furtherValue: null,
+      ));
+    }
+    return result;
   }
 }
 
@@ -852,12 +887,12 @@ class ManualServiceRequestResponse {
 
 /// Query parameters for patient search API
 class PatientSearchQueryParams {
-  final String? query;
+  final String? search;
   final int size;
   final int page;
 
   PatientSearchQueryParams({
-    this.query,
+    this.search,
     this.size = 5,
     this.page = 1,
   });
@@ -868,8 +903,8 @@ class PatientSearchQueryParams {
       'page': page,
     };
 
-    if (query != null && query!.isNotEmpty) {
-      params['q'] = query;
+    if (search != null && search!.isNotEmpty) {
+      params['search'] = search;
     }
 
     return params;

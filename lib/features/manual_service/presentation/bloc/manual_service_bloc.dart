@@ -81,22 +81,40 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     _patientSearchDebouncer.process(query);
   }
 
+  /// Async search used by dropdown widget to always return fresh API data
+  /// without relying on previously cached state. This keeps the popup list
+  /// in sync with what the server returns for the current filter.
+  Future<List<PatientSearchResult>> searchPatientsForDropdown(
+      String query) async {
+    // Treat empty query as initial load (no search param)
+    final params = PatientSearchQueryParams(
+      search: query.trim().isEmpty ? null : query.trim(),
+      size: 10,
+      page: 1,
+    );
+
+    final result = await _searchPatientsUseCase(params);
+
+    return result.fold(
+      (failure) {
+        AppLogger.error('Dropdown patient search failed: ${failure.message}');
+        return <PatientSearchResult>[];
+      },
+      (response) => response.data,
+    );
+  }
+
   Future<void> _onSearchPatients(
     SearchPatientsEvent event,
     Emitter<ManualServiceState> emit,
   ) async {
     if (event.query.isEmpty) {
-      // When search is cleared, reload initial patients instead of clearing
       add(const LoadInitialPatientsEvent());
       return;
     }
 
-    AppLogger.info('Starting patient search with query: "${event.query}"');
     emit(state.copyWith(isSearchingPatients: true, patientSearchError: null));
-
-    final params = PatientSearchQueryParams(query: event.query, size: 10);
-    AppLogger.info('Created search params: ${params.toQueryParameters()}');
-
+    final params = PatientSearchQueryParams(search: event.query, size: 10);
     final result = await _searchPatientsUseCase(params);
 
     result.fold(
@@ -108,11 +126,6 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
         ));
       },
       (response) {
-        AppLogger.info(
-            'Patient search successful: found ${response.data.length} patients');
-        AppLogger.info(
-            'Patient search response: totalElements=${response.totalElements}, page=${response.page}');
-
         // Log first few patient names for debugging
         if (response.data.isNotEmpty) {
           final firstFewNames =
@@ -124,8 +137,6 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
           isSearchingPatients: false,
           patientSearchResults: response.data,
         ));
-
-        AppLogger.info('State updated with ${response.data.length} patients');
       },
     );
   }
@@ -139,12 +150,10 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
 
     // Load initial patients without search query (query: null means no 'q' parameter)
     final params = PatientSearchQueryParams(
-      query: null, // No search query - loads all patients
+      search: null, // No search query - loads all patients
       size: 15, // Load more initially for better UX
       page: 1,
     );
-    AppLogger.info(
-        'Created initial load params: ${params.toQueryParameters()}');
 
     final result = await _searchPatientsUseCase(params);
 

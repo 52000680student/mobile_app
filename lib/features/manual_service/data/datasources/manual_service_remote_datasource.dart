@@ -56,15 +56,9 @@ class ManualServiceRemoteDataSourceImpl
         queryParameters: queryParams,
       );
 
-      AppLogger.info('Patient search response status: ${response.statusCode}');
-      AppLogger.info(
-          'Patient search response data keys: ${response.data?.keys}');
-
       if (response.data != null) {
-        final patientResponse = PatientSearchResponse.fromJson(response.data!);
-        AppLogger.info(
-            'Parsed ${patientResponse.data.length} patients from API response');
-        AppLogger.info('Total elements: ${patientResponse.totalElements}');
+        final patientResponse =
+            PatientSearchResponse.fromJson(response.data!, params.search ?? "");
         return patientResponse;
       }
 
@@ -79,8 +73,6 @@ class ManualServiceRemoteDataSourceImpl
       );
     } on DioException catch (e) {
       AppLogger.error('DioException in searchPatients: ${e.message}');
-      AppLogger.error('DioException type: ${e.type}');
-      AppLogger.error('DioException response: ${e.response?.data}');
 
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.sendTimeout ||

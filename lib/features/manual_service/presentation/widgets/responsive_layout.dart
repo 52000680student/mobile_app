@@ -176,8 +176,6 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
         return;
       }
 
-      // Note: Services and samples validation removed - allow empty arrays to be sent to API
-
       // Get form data from the administrative form
       Map<String, dynamic> formData = {};
       try {

@@ -395,18 +395,13 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
           key: _patientDropdownKey,
           compareFn: (patient1, patient2) =>
               patient1.patientId == patient2.patientId,
-          items: (filter, loadProps) {
-            // Always trigger search for any filter change (including empty, space, or any text)
+          items: (filter, loadProps) async {
             final searchQuery = filter.trim();
-
-            // Use debouncer to avoid excessive API calls while typing
-            _inputDebouncer.call(() {
-              context
-                  .read<ManualServiceBloc>()
-                  .add(SearchPatientsEvent(searchQuery));
-            });
-
-            return state.patientSearchResults;
+            // Fetch fresh data from API for each filter change
+            final results = await context
+                .read<ManualServiceBloc>()
+                .searchPatientsForDropdown(searchQuery);
+            return results;
           },
           selectedItem: _selectedPatient,
           onChanged: (PatientSearchResult? patient) {
@@ -1091,7 +1086,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                             horizontal: 12, vertical: 12),
                         child: selectedItem == null
                             ? Text(
-                                'Select doctor',
+                                'Chọn bác sĩ',
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 14,
