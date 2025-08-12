@@ -559,17 +559,17 @@ class Test {
   final String effectiveTime;
   final String createdMethod;
   final String? sttgpb;
-  final String? sttvs;
-  final String? sampleLocation;
-  final String reportType;
-  final int sampleTypeInSID;
-  final int? collectorUserId;
-  final String? collectionTime;
-  final int? receiverUserId;
-  final String? receivedTime;
-  final int? deliveryUserId;
-  final String? deliveryTime;
-  final String collectorUserName;
+  // final String? sttvs;
+  // final String? sampleLocation;
+  // final String reportType;
+  // final int sampleTypeInSID;
+  // final int? collectorUserId;
+  // final String? collectionTime;
+  // final int? receiverUserId;
+  // final String? receivedTime;
+  // final int? deliveryUserId;
+  // final String? deliveryTime;
+  // final String collectorUserName;
 
   Test({
     required this.id,
@@ -588,17 +588,17 @@ class Test {
     required this.effectiveTime,
     required this.createdMethod,
     this.sttgpb,
-    this.sttvs,
-    this.sampleLocation,
-    required this.reportType,
-    required this.sampleTypeInSID,
-    this.collectorUserId,
-    this.collectionTime,
-    this.receiverUserId,
-    this.receivedTime,
-    this.deliveryUserId,
-    this.deliveryTime,
-    required this.collectorUserName,
+    // this.sttvs,
+    // this.sampleLocation,
+    // required this.reportType,
+    // required this.sampleTypeInSID,
+    // this.collectorUserId,
+    // this.collectionTime,
+    // this.receiverUserId,
+    // this.receivedTime,
+    // this.deliveryUserId,
+    // this.deliveryTime,
+    // required this.collectorUserName,
   });
 
   factory Test.fromJson(Map<String, dynamic> json) {
@@ -619,17 +619,17 @@ class Test {
       effectiveTime: json['effectiveTime'] as String,
       createdMethod: json['createdMethod'] as String,
       sttgpb: json['sttgpb'] as String?,
-      sttvs: json['sttvs'] as String?,
-      sampleLocation: json['sampleLocation'] as String?,
-      reportType: json['reportType'] as String,
-      sampleTypeInSID: json['sampleTypeInSID'] as int,
-      collectorUserId: json['collectorUserId'] as int?,
-      collectionTime: json['collectionTime'] as String?,
-      receiverUserId: json['receiverUserId'] as int?,
-      receivedTime: json['receivedTime'] as String?,
-      deliveryUserId: json['deliveryUserId'] as int?,
-      deliveryTime: json['deliveryTime'] as String?,
-      collectorUserName: json['collectorUserName'] as String? ?? '',
+      // sttvs: json['sttvs'] as String?,
+      // sampleLocation: json['sampleLocation'] as String?,
+      // reportType: json['reportType'] as String,
+      // sampleTypeInSID: json['sampleTypeInSID'] as int,
+      // collectorUserId: json['collectorUserId'] as int?,
+      // collectionTime: json['collectionTime'] as String?,
+      // receiverUserId: json['receiverUserId'] as int?,
+      // receivedTime: json['receivedTime'] as String?,
+      // deliveryUserId: json['deliveryUserId'] as int?,
+      // deliveryTime: json['deliveryTime'] as String?,
+      // collectorUserName: json['collectorUserName'] as String? ?? '',
     );
   }
 

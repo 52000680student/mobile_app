@@ -779,10 +779,11 @@ class ManualServiceRequestSample {
   final String sampleColor;
   final String numberOfLabels;
   final String quality;
-  final int? collectorUserId;
+  final String? collectorUserId;
+  final String? collectionTime;
   final int sID;
   final String subID;
-  final int? receiverUserId;
+  final String? receiverUserId;
   final String? subSID;
   final String? receivedTime;
 
@@ -792,6 +793,7 @@ class ManualServiceRequestSample {
     required this.numberOfLabels,
     required this.quality,
     this.collectorUserId,
+    this.collectionTime,
     required this.sID,
     required this.subID,
     this.receiverUserId,
@@ -806,6 +808,7 @@ class ManualServiceRequestSample {
       'numberOfLabels': numberOfLabels,
       'quality': quality,
       'collectorUserId': collectorUserId,
+      'collectionTime': collectionTime,
       'sID': sID,
       'subID': subID,
       'ReceiverUserId': receiverUserId,
@@ -821,10 +824,11 @@ class ManualServiceRequestSample {
       sampleColor: "",
       numberOfLabels: sampleItem.serialNumber,
       quality: "",
-      collectorUserId: isCollected ? loggedInUserId : null,
+      collectorUserId: isCollected ? loggedInUserId?.toString() : null,
+      collectionTime: sampleItem.collectionTime?.toIso8601String(),
       sID: 0,
       subID: "",
-      receiverUserId: sampleItem.receiveUserId,
+      receiverUserId: sampleItem.receiveUserId.toString(),
       receivedTime: sampleItem.receiveTime?.toIso8601String(),
       subSID: null,
     );
