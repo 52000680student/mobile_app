@@ -852,8 +852,8 @@ class ManualServiceRequestSample {
     };
   }
 
-  factory ManualServiceRequestSample.fromSampleItem(
-      SampleItem sampleItem, bool isCollected, int? loggedInUserId) {
+  factory ManualServiceRequestSample.fromSampleItem(SampleItem sampleItem,
+      bool isCollected, bool isReceived, int? loggedInUserId) {
     return ManualServiceRequestSample(
       sampleType: sampleItem.type,
       sampleColor: "",
@@ -863,7 +863,7 @@ class ManualServiceRequestSample {
       collectionTime: sampleItem.collectionTime?.toIso8601String(),
       sID: 0,
       subID: "",
-      receiverUserId: sampleItem.receiveUserId.toString(),
+      receiverUserId: isReceived ? sampleItem.receiveUserId.toString() : null,
       receivedTime: sampleItem.receiveTime?.toIso8601String(),
       subSID: null,
     );

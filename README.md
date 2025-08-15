@@ -200,6 +200,7 @@ The app includes a complete API client setup. To make API calls:
    ```
 
 2. **Handle in repository**:
+
    ```dart
    @injectable
    class UserRepository {
@@ -316,6 +317,11 @@ flutter packages pub run build_runner build --delete-conflicting-outputs
 ### Run
 
 - 'flutter run --dart-define=ENV=dev' - Run with environment
+
+# Build for production
+
+flutter build apk --dart-define=ENV=prod
+flutter build ios --dart-define=ENV=prod
 
 ## License
 

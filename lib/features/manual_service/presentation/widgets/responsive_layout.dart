@@ -224,6 +224,8 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
 
       // Get sample collection state from the switch controller in sample tab
       final isCollected = currentState.areSamplesCollected;
+      // Get sample received state
+      final isReReceived = currentState.areSamplesReceived;
 
       // Build the request according to Todo.txt specification
       final now = DateTime.now();
@@ -260,10 +262,13 @@ class _ResponsiveLayoutContentState extends State<_ResponsiveLayoutContent> {
             IndividualValues.fromPatientSearchResult(selectedPatient),
         samples: currentState.sampleItems
             .map((sampleItem) => ManualServiceRequestSample.fromSampleItem(
-                sampleItem, isCollected, isCollected ? currentUserIdInt : null))
+                sampleItem,
+                isCollected,
+                isReReceived,
+                isCollected ? currentUserIdInt : null))
             .toList(),
         isCollected: isCollected,
-        isReceived: false,
+        isReceived: isReReceived,
       );
 
       // Call the bloc to save the request

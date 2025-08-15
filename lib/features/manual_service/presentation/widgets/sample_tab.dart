@@ -117,6 +117,10 @@ class _SampleTabState extends State<SampleTab> {
             context.read<ManualServiceBloc>().add(
                   const SetReceiveTimeForAllSamplesEvent(),
                 );
+            // Mark samples as received in state
+            context.read<ManualServiceBloc>().add(
+                  const ToggleSampleReceiveEvent(true),
+                );
             break;
           case AppConstants.saveAllBarcodes:
             widget.onSaveAllBarcodes();

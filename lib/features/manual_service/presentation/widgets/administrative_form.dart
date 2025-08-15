@@ -249,6 +249,15 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                       onDateSelected: (date) {
                         setState(() {
                           _dateOfBirth = date;
+                          final now = DateTime.now();
+                          int age = now.year - date.year;
+                          final hasHadBirthdayThisYear = (now.month >
+                                  date.month) ||
+                              (now.month == date.month && now.day >= date.day);
+                          if (!hasHadBirthdayThisYear) {
+                            age = age - 1;
+                          }
+                          _ageController.text = age.toString();
                         });
                       },
                       isRequired: true,
@@ -1000,7 +1009,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'No doctors available',
+                            l10n.errorNoData,
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,
@@ -1086,7 +1095,7 @@ class _AdministrativeFormState extends State<AdministrativeForm> {
                             horizontal: 12, vertical: 12),
                         child: selectedItem == null
                             ? Text(
-                                'Chọn bác sĩ',
+                                '',
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 14,

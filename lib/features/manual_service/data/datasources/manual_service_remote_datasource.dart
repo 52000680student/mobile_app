@@ -292,8 +292,6 @@ class ManualServiceRemoteDataSourceImpl
             'Successfully saved manual service request with ID: ${requestResponse.id}');
         return requestResponse;
       }
-
-      AppLogger.error('Manual service request returned null data');
       throw const ServerException(message: 'Invalid response from server');
     } on DioException catch (e) {
       AppLogger.error('DioException in saveManualServiceRequest: ${e.message}');

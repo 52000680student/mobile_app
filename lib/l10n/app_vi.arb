@@ -347,5 +347,6 @@
     "unpaired": "Chưa kết nối",
     "selectBluetoothDevice": "Chọn thiết bị Bluetooth",
     "bluetoothConnectionFailed": "Không thể kết nối với thiết bị Bluetooth",
-    "bluetoothConnectionError": "Lỗi kết nối với thiết bị Bluetooth"
+    "bluetoothConnectionError": "Lỗi kết nối với thiết bị Bluetooth",
+    "searchPatients": "Tìm kiếm BN..."
 }

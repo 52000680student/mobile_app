@@ -55,6 +55,7 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     on<LoadTestServicesEvent>(_onLoadTestServices);
     on<LoadDoctorsEvent>(_onLoadDoctors);
     on<ToggleSampleCollectionEvent>(_onToggleSampleCollection);
+    on<ToggleSampleReceiveEvent>(_onToggleSampleReceive);
     on<SelectDepartmentEvent>(_onSelectDepartment);
     on<SelectServiceParameterEvent>(_onSelectServiceParameter);
     on<AddTestServiceEvent>(_onAddTestService);
@@ -275,6 +276,13 @@ class ManualServiceBloc extends Bloc<ManualServiceEvent, ManualServiceState> {
     Emitter<ManualServiceState> emit,
   ) {
     emit(state.copyWith(areSamplesCollected: event.isCollected));
+  }
+
+  void _onToggleSampleReceive(
+    ToggleSampleReceiveEvent event,
+    Emitter<ManualServiceState> emit,
+  ) {
+    emit(state.copyWith(areSamplesReceived: event.isReceived));
   }
 
   void _onSelectDepartment(

@@ -11,7 +11,7 @@ import 'l10n/generated/app_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const String envString = String.fromEnvironment('ENV', defaultValue: 'sta');
+  const String envString = String.fromEnvironment('ENV', defaultValue: 'dev');
   Environment env;
   switch (envString.toLowerCase()) {
     case 'dev':

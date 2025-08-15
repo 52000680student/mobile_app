@@ -130,6 +130,16 @@ class ToggleSampleCollectionEvent extends ManualServiceEvent {
   List<Object?> get props => [isCollected];
 }
 
+/// Event to toggle sample received state
+class ToggleSampleReceiveEvent extends ManualServiceEvent {
+  final bool isReceived;
+
+  const ToggleSampleReceiveEvent(this.isReceived);
+
+  @override
+  List<Object?> get props => [isReceived];
+}
+
 /// Event to save barcode for a specific sample
 class SaveBarcodeEvent extends ManualServiceEvent {
   final SampleItem sample;

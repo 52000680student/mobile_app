@@ -36,6 +36,7 @@ class ManualServiceState extends Equatable {
 
   // Sample collection state
   final bool areSamplesCollected;
+  final bool areSamplesReceived;
 
   // Form state
   final bool isFormValid;
@@ -81,6 +82,7 @@ class ManualServiceState extends Equatable {
     this.selectedDoctor,
     this.doctorsError,
     this.areSamplesCollected = false,
+    this.areSamplesReceived = false,
     this.isFormValid = false,
     this.formError,
     this.isSavingRequest = false,
@@ -119,6 +121,7 @@ class ManualServiceState extends Equatable {
     Doctor? selectedDoctor,
     String? doctorsError,
     bool? areSamplesCollected,
+    bool? areSamplesReceived,
     bool? isFormValid,
     String? formError,
     bool? isSavingRequest,
@@ -161,6 +164,7 @@ class ManualServiceState extends Equatable {
       selectedDoctor: selectedDoctor ?? this.selectedDoctor,
       doctorsError: doctorsError ?? this.doctorsError,
       areSamplesCollected: areSamplesCollected ?? this.areSamplesCollected,
+      areSamplesReceived: areSamplesReceived ?? this.areSamplesReceived,
       isFormValid: isFormValid ?? this.isFormValid,
       formError: formError ?? this.formError,
       isSavingRequest: isSavingRequest ?? this.isSavingRequest,
@@ -201,6 +205,7 @@ class ManualServiceState extends Equatable {
       patientSearchResults: [],
       selectedDoctor: null,
       areSamplesCollected: false,
+      areSamplesReceived: false,
       isFormValid: false,
       formError: null,
     );
@@ -261,6 +266,7 @@ class ManualServiceState extends Equatable {
         selectedDoctor,
         doctorsError,
         areSamplesCollected,
+        areSamplesReceived,
         isFormValid,
         formError,
         isSavingRequest,
